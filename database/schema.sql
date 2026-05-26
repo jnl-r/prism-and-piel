@@ -14,6 +14,8 @@ CREATE TABLE User (
 CREATE TABLE SkinProfile (
   user_id INT NOT NULL,
   profile_id INT NOT NULL,
+  user_id INT NOT NULL,
+  profile_label VARCHAR(100) NOT NULL,
   skintone ENUM('Fair', 'Light', 'Medium', 'Tan', 'Deep') NOT NULL,
   undertone ENUM('Warm', 'Cool', 'Neutral', 'Olive') NOT NULL,
   skintype ENUM('Oily', 'Dry', 'Combination', 'Normal', 'Sensitive') NOT NULL,
@@ -23,25 +25,18 @@ CREATE TABLE SkinProfile (
   FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE
 );
 
--- 3. Brand
-CREATE TABLE Brand (
-  brand_id INT AUTO_INCREMENT PRIMARY KEY,
-  brand_name VARCHAR(100) NOT NULL
-);
-
--- 4. Product
+-- 3. Product
 CREATE TABLE Product (
   product_id INT AUTO_INCREMENT PRIMARY KEY,
-  brand_id INT NOT NULL,
+  brand_name VARCHAR(150) NOT NULL,
   product_name VARCHAR(150) NOT NULL,
   category ENUM('Base', 'Contour', 'Blush', 'Eye Palette', 'Lipstick', 'Highlighter', 'Concealer') NOT NULL,
   formula_type VARCHAR(50) NULL,
   finish ENUM('Matte', 'Dewy', 'Satin', 'Natural', 'Shimmer') NULL,
-  description TEXT NOT NULL,
-  FOREIGN KEY (brand_id) REFERENCES Brand(brand_id) ON DELETE CASCADE
+  description TEXT NOT NULL
 );
 
--- 5. ProductVariant (weak entity, composite PK with product_id)
+-- 4. ProductVariant (weak entity, composite PK with product_id)
 CREATE TABLE ProductVariant (
   product_id INT NOT NULL,
   variant_id INT NOT NULL,
@@ -52,21 +47,27 @@ CREATE TABLE ProductVariant (
   FOREIGN KEY (product_id) REFERENCES Product(product_id) ON DELETE CASCADE
 );
 
--- 6. AffiliateLink
+-- 5. AffiliateLink
 CREATE TABLE AffiliateLink (
   link_id INT AUTO_INCREMENT PRIMARY KEY,
+  product_id INT NOT NULL,
   variant_id INT NOT NULL,
   product_id INT NOT NULL,
   affiliate_url VARCHAR(500) NOT NULL,
   click_count INT NOT NULL DEFAULT 0,
   last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+<<<<<<< Updated upstream
   FOREIGN KEY (product_id, variant_id) REFERENCES ProductVariant(product_id, variant_id) ON DELETE CASCADE
+=======
+  FOREIGN KEY (variant_id, product_id) REFERENCES ProductVariant(variant_id, product_id) ON DELETE CASCADE
+>>>>>>> Stashed changes
 );
 
 -- 7. Review
 CREATE TABLE Review (
   review_id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
+  product_id INT NOT NULL,
   variant_id INT NOT NULL,
   product_id INT NOT NULL,
   rating DECIMAL(2,1) NOT NULL CHECK (rating BETWEEN 1.0 AND 5.0),
@@ -74,18 +75,27 @@ CREATE TABLE Review (
   skin_profile_match BOOLEAN NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE,
+<<<<<<< Updated upstream
   FOREIGN KEY (product_id, variant_id) REFERENCES ProductVariant(product_id, variant_id) ON DELETE CASCADE
+=======
+  FOREIGN KEY (variant_id, product_id) REFERENCES ProductVariant(variant_id, product_id) ON DELETE CASCADE
+>>>>>>> Stashed changes
 );
 
 -- 8. RecommendationLog
 CREATE TABLE RecommendationLog (
   log_id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
+  product_id INT NOT NULL,
   variant_id INT NOT NULL,
   product_id INT NOT NULL,
   rank_position INT NULL,
   clicked BOOLEAN DEFAULT FALSE,
   generated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE,
+<<<<<<< Updated upstream
   FOREIGN KEY (product_id, variant_id) REFERENCES ProductVariant(product_id, variant_id) ON DELETE CASCADE
+=======
+  FOREIGN KEY (variant_id, product_id) REFERENCES ProductVariant(variant_id, product_id) ON DELETE CASCADE
+>>>>>>> Stashed changes
 );
