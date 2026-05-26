@@ -14,6 +14,7 @@ CREATE TABLE User (
 CREATE TABLE SkinProfile (
   user_id INT NOT NULL,
   profile_id INT NOT NULL,
+  profile_label VARCHAR(50) NULL,  
   skintone ENUM('Fair', 'Light', 'Medium', 'Tan', 'Deep') NOT NULL,
   undertone ENUM('Warm', 'Cool', 'Neutral', 'Olive') NOT NULL,
   skintype ENUM('Oily', 'Dry', 'Combination', 'Normal', 'Sensitive') NOT NULL,
@@ -23,25 +24,20 @@ CREATE TABLE SkinProfile (
   FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE
 );
 
--- 3. Brand
-CREATE TABLE Brand (
-  brand_id INT AUTO_INCREMENT PRIMARY KEY,
-  brand_name VARCHAR(100) NOT NULL
-);
 
--- 4. Product
+-- 3. Product
 CREATE TABLE Product (
-  product_id INT AUTO_INCREMENT PRIMARY KEY,
-  brand_id INT NOT NULL,
+  product_id   INT AUTO_INCREMENT PRIMARY KEY,
+  brand_name   VARCHAR(100) NOT NULL,         
   product_name VARCHAR(150) NOT NULL,
-  category ENUM('Base', 'Contour', 'Blush', 'Eye Palette', 'Lipstick', 'Highlighter', 'Concealer') NOT NULL,
+  category     ENUM(...) NOT NULL,
   formula_type VARCHAR(50) NULL,
-  finish ENUM('Matte', 'Dewy', 'Satin', 'Natural', 'Shimmer') NULL,
-  description TEXT NOT NULL,
-  FOREIGN KEY (brand_id) REFERENCES Brand(brand_id) ON DELETE CASCADE
+  finish       ENUM(...) NULL,
+  description  TEXT NOT NULL,
+  image_url    VARCHAR(500) NULL               -- add this
 );
 
--- 5. ProductVariant (weak entity, composite PK with product_id)
+-- 4. ProductVariant (weak entity, composite PK with product_id)
 CREATE TABLE ProductVariant (
   product_id INT NOT NULL,
   variant_id INT NOT NULL,
@@ -52,7 +48,7 @@ CREATE TABLE ProductVariant (
   FOREIGN KEY (product_id) REFERENCES Product(product_id) ON DELETE CASCADE
 );
 
--- 6. AffiliateLink
+-- 5. AffiliateLink
 CREATE TABLE AffiliateLink (
   link_id INT AUTO_INCREMENT PRIMARY KEY,
   variant_id INT NOT NULL,
@@ -63,7 +59,7 @@ CREATE TABLE AffiliateLink (
   FOREIGN KEY (product_id, variant_id) REFERENCES ProductVariant(product_id, variant_id) ON DELETE CASCADE
 );
 
--- 7. Review
+-- 6. Review
 CREATE TABLE Review (
   review_id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
@@ -77,7 +73,7 @@ CREATE TABLE Review (
   FOREIGN KEY (product_id, variant_id) REFERENCES ProductVariant(product_id, variant_id) ON DELETE CASCADE
 );
 
--- 8. RecommendationLog
+-- 7. RecommendationLog
 CREATE TABLE RecommendationLog (
   log_id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
