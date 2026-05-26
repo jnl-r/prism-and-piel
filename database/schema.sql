@@ -22,8 +22,6 @@ CREATE TABLE User (
 -- 2. SkinProfile (weak entity, composite PK)
 CREATE TABLE SkinProfile (
   profile_id INT NOT NULL,
-  user_id INT NOT NULL,
-  profile_label VARCHAR(100) NOT NULL,
   skintone ENUM('Fair', 'Light', 'Medium', 'Tan', 'Deep') NOT NULL,
   undertone ENUM('Warm', 'Cool', 'Neutral', 'Olive') NOT NULL,
   skintype ENUM('Oily', 'Dry', 'Combination', 'Normal', 'Sensitive') NOT NULL,
@@ -33,18 +31,25 @@ CREATE TABLE SkinProfile (
   FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE
 );
 
--- 3. Product (brand_name as attribute, no Brand table)
+-- 3. Brand
+CREATE TABLE Brand (
+  brand_id INT AUTO_INCREMENT PRIMARY KEY,
+  brand_name VARCHAR(100) NOT NULL
+);
+
+-- 4. Product
 CREATE TABLE Product (
   product_id INT AUTO_INCREMENT PRIMARY KEY,
+  brand_id INT NOT NULL,
   product_name VARCHAR(150) NOT NULL,
-  brand_name VARCHAR(100) NOT NULL,
   category ENUM('Base', 'Contour', 'Blush', 'Eye Palette', 'Lipstick', 'Highlighter', 'Concealer') NOT NULL,
   formula_type VARCHAR(50) NULL,
   finish ENUM('Matte', 'Dewy', 'Satin', 'Natural', 'Shimmer') NULL,
-  description TEXT NOT NULL
+  description TEXT NOT NULL,
+  FOREIGN KEY (brand_id) REFERENCES Brand(brand_id) ON DELETE CASCADE
 );
 
--- 4. ProductVariant (weak entity, composite PK)
+-- 5. ProductVariant (weak entity, composite PK with product_id)
 CREATE TABLE ProductVariant (
   variant_id INT NOT NULL,
   product_id INT NOT NULL,
@@ -55,7 +60,7 @@ CREATE TABLE ProductVariant (
   FOREIGN KEY (product_id) REFERENCES Product(product_id) ON DELETE CASCADE
 );
 
--- 5. AffiliateLink (links to variant_id only)
+-- 6. AffiliateLink
 CREATE TABLE AffiliateLink (
   link_id INT AUTO_INCREMENT PRIMARY KEY,
   variant_id INT NOT NULL,
