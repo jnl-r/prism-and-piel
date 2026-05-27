@@ -223,8 +223,8 @@ const Views = {
   },
 
   /* ============================================================
-     PRODUCTS — category filter + detail panel
-     ============================================================ */
+    PRODUCTS — category + brand filters + detail panel
+    ============================================================ */
   async products() {
     const grid  = document.getElementById('products-grid');
     const panel = document.getElementById('products-detail-panel');
@@ -238,17 +238,19 @@ const Views = {
       return;
     }
 
-    let activeCat = '';
+    let activeCat   = '';
+    let activeBrand = '';
 
-    // render the grid filtered by the active category
+    // render the grid filtered by the active category AND brand
     const renderGrid = () => {
-      const list = activeCat
-        ? Views.cache.products.filter(p => p.category === activeCat)
-        : Views.cache.products;
+      const list = Views.cache.products.filter(p =>
+        (!activeCat   || p.category  === activeCat) &&
+        (!activeBrand || p.brand_name === activeBrand)
+      );
 
       grid.innerHTML = list.length
         ? list.map(p => productCard(p, Views.cache.variants)).join('')
-        : emptyBox('No products', 'Nothing in this category yet.');
+        : emptyBox('No products', 'Try a different filter.');
 
       Views._wireCardClicks(grid, panel);
     };
@@ -256,14 +258,34 @@ const Views = {
     renderGrid();
 
     // category filter chips (already in index.html)
-    document.querySelectorAll('#product-filter-chips .filter-chip').forEach(chip => {
+    document.querySelectorAll('#product-cat-chips .filter-chip').forEach(chip => {
       chip.addEventListener('click', () => {
-        document.querySelectorAll('#product-filter-chips .filter-chip')
+        document.querySelectorAll('#product-cat-chips .filter-chip')
           .forEach(c => c.classList.toggle('active', c === chip));
         activeCat = chip.dataset.cat;
         renderGrid();
       });
     });
+
+    // brand filter chips (populated dynamically from catalogue)
+    const brandChips = document.getElementById('product-brand-chips');
+    if (brandChips) {
+      const brands = [...new Set(Views.cache.products.map(p => p.brand_name))].sort();
+      brandChips.innerHTML =
+        '<button class="filter-chip active" data-brand="">All brands</button>' +
+        brands.map(b =>
+          `<button class="filter-chip" data-brand="${esc(b)}">${esc(b)}</button>`
+        ).join('');
+
+      brandChips.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          brandChips.querySelectorAll('.filter-chip')
+            .forEach(c => c.classList.toggle('active', c === chip));
+          activeBrand = chip.dataset.brand;
+          renderGrid();
+        });
+      });
+    }
   },
 
   /* ============================================================

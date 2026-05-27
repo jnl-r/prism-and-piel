@@ -40,8 +40,11 @@ function starsDisplay(rating) {
 }
 
 /* ---------- placeholder image box ---------- */
-function thumbBox(label = 'Product Photo') {
-  return `<div class="p-thumb">${esc(label)}</div>`;
+function thumbBox(category) {
+  const t = thumbStyle(category);
+  return `<div class="p-thumb" style="background:${t.bg};">
+    <span style="font-size:2rem;">${t.emoji}</span>
+  </div>`;
 }
 
 /* ---------- empty / loading ---------- */
@@ -52,6 +55,20 @@ function emptyBox(title, text) {
 }
 function loadingBox(text = 'Loading…') {
   return `<div class="loading">${esc(text)}</div>`;
+}
+
+/* ---------- category → gradient + emoji map (for now since wa pay pic) can be removed ra after ---------- */
+function thumbStyle(category) {
+  const map = {
+    'Base':        { bg: 'linear-gradient(160deg,#f9e8ef,#f4d3c4)', emoji: '💄' },
+    'Concealer':   { bg: 'linear-gradient(160deg,#ffe9ef,#ffd4e2)', emoji: '✨' },
+    'Blush':       { bg: 'linear-gradient(160deg,#ffeaf1,#fcc9d7)', emoji: '🍑' },
+    'Contour':     { bg: 'linear-gradient(160deg,#f5e0e5,#ecc4cc)', emoji: '🌂' },
+    'Highlighter': { bg: 'linear-gradient(160deg,#fff8e1,#fde9c4)', emoji: '⭐' },
+    'Lipstick':    { bg: 'linear-gradient(160deg,#fce8f0,#f2cdb8)', emoji: '💋' },
+    'Eye Palette': { bg: 'linear-gradient(160deg,#f5e8f5,#e8c4e8)', emoji: '👁️' },
+  };
+  return map[category] || { bg: 'linear-gradient(160deg,var(--pink-100),var(--cream))', emoji: '✦' };
 }
 
 /* ---------- one PROFILE card ---------- */
@@ -136,7 +153,7 @@ function productCard(product, variants) {
     <div class="p-card" data-product="${product.product_id}">
       ${product.image_url
         ? `<img class="p-thumb" style="object-fit:cover" src="${esc(product.image_url)}" alt="">`
-        : thumbBox('Product Photo')}
+        : thumbBox(product.category)}
       <div class="p-body">
         <div class="p-brand">${esc(product.brand_name)}</div>
         <div class="p-name">${esc(product.product_name)}</div>
@@ -152,18 +169,21 @@ function productCard(product, variants) {
 
 /* ---------- one RECOMMENDATION card  ---------- */
 function recommendationCard(rec, rank) {
+  const t = thumbStyle(rec.category);
   return `
     <div class="p-card" data-product="${rec.product_id}">
       <span class="rank-badge">${rank}</span>
-      ${thumbBox('Shade Photo')}
+      <div class="p-thumb" style="background:${t.bg};">
+        <span style="font-size:2rem;">${t.emoji}</span>
+      </div>
       <div class="p-body">
         <div class="p-brand">${esc(rec.brand_name)}</div>
         <div class="p-name">${esc(rec.product_name)}</div>
         <div class="swatch-row" style="margin:6px 0 10px">
           <span class="swatch swatch-lg" style="background:${esc(rec.shade_hex || '#eee')}"></span>
           <div>
-            <div style="color:var(--charcoal)">${esc(rec.shade_name)}</div>
-            <div style="font-size:.85rem;color:var(--charcoal-soft)">
+            <div style="color:var(--charcoal);font-size:.95rem;">${esc(rec.shade_name)}</div>
+            <div style="font-size:.82rem;color:var(--charcoal-soft);">
               Best for ${esc(rec.recommended_undertone || 'any')} undertone</div>
           </div>
         </div>
@@ -171,24 +191,27 @@ function recommendationCard(rec, rank) {
           ${Number(rec.avg_rating) > 0
             ? starsDisplay(Number(rec.avg_rating)) + ' &nbsp;' +
               Number(rec.avg_rating).toFixed(1) + ' (' + rec.review_count + ')'
-            : 'No reviews yet'}
+            : '<span style="color:var(--charcoal-faint);font-size:.85rem;">No reviews yet</span>'}
         </div>
       </div>
     </div>`;
 }
 
-/* ---------- side DETAIL panel for one product ---------- */
+/* ---------- side DETAIL panel with gradient thumb ---------- */
 function detailPanel(product, variants, reviews, userNames) {
-  const vs = variants.filter(v => v.product_id === product.product_id);
-  const rs = reviews.filter(r => r.product_id === product.product_id);
+  const vs  = variants.filter(v => v.product_id === product.product_id);
+  const rs  = reviews.filter(r => r.product_id === product.product_id);
   const avg = rs.length
     ? (rs.reduce((s, r) => s + Number(r.rating), 0) / rs.length).toFixed(1)
     : null;
+  const t = thumbStyle(product.category);
 
   return `
     ${product.image_url
       ? `<img class="detail-thumb" style="object-fit:cover" src="${esc(product.image_url)}" alt="">`
-      : `<div class="detail-thumb">Product Photo</div>`}
+      : `<div class="detail-thumb" style="background:${t.bg};">
+           <span style="font-size:3.2rem;">${t.emoji}</span>
+         </div>`}
     <div class="detail-body">
       <div class="detail-brand">${esc(product.brand_name)}</div>
       <div class="detail-name">${esc(product.product_name)}</div>
@@ -205,7 +228,7 @@ function detailPanel(product, variants, reviews, userNames) {
           <div class="detail-shade-row">
             <span class="swatch" style="background:${esc(v.shade_hex || '#eee')}"></span>
             <span style="color:var(--charcoal)">${esc(v.shade_name)}</span>
-            <span style="margin-left:auto;font-size:.85rem;color:var(--charcoal-soft)">
+            <span style="margin-left:auto;font-size:.82rem;color:var(--charcoal-soft)">
               ${esc(v.recommended_undertone || '')}</span>
           </div>`).join('')
           : `<div class="detail-empty">No shades listed.</div>`}
