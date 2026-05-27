@@ -12,12 +12,12 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET affiliate links for a specific variant
-router.get('/variant/:variant_id', async (req, res) => {
+// GET affiliate links for a specific variant (requires product_id too)
+router.get('/variant/:product_id/:variant_id', async (req, res) => {
   try {
     const [rows] = await db.query(
-      'SELECT * FROM AffiliateLink WHERE variant_id = ?',
-      [req.params.variant_id]
+      'SELECT * FROM AffiliateLink WHERE product_id = ? AND variant_id = ?',
+      [req.params.product_id, req.params.variant_id]
     );
     res.json(rows);
   } catch (err) {
@@ -42,15 +42,15 @@ router.get('/:id', async (req, res) => {
 // POST create affiliate link
 router.post('/', async (req, res) => {
   try {
-    const { variant_id, affiliate_url } = req.body;
-    if (!variant_id || !affiliate_url)
-      return res.status(400).json({ error: 'variant_id and affiliate_url are required' });
+    const { variant_id, product_id, affiliate_url } = req.body;
+    if (!variant_id || !product_id || !affiliate_url)
+      return res.status(400).json({ error: 'variant_id, product_id, and affiliate_url are required' });
 
     const [result] = await db.query(
-      'INSERT INTO AffiliateLink (variant_id, affiliate_url, click_count) VALUES (?, ?, 0)',
-      [variant_id, affiliate_url]
+      'INSERT INTO AffiliateLink (variant_id, product_id, affiliate_url, click_count) VALUES (?, ?, ?, 0)',
+      [variant_id, product_id, affiliate_url]
     );
-    res.status(201).json({ link_id: result.insertId, variant_id });
+    res.status(201).json({ link_id: result.insertId, variant_id, product_id });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

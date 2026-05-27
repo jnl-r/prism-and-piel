@@ -39,10 +39,9 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST generate recommendations for a user based on their latest skin profile
-// Filters ProductVariants by recommended_undertone matching user's undertone,
-// then joins Product to match preferred_finish, sorted by avg review rating.
-// Logs each recommendation and returns the list.
+// POST generate recommendations for a user based on their skin profile
+// Filters ProductVariants by recommended_undertone and preferred_finish,
+// sorted by avg review rating. Logs each recommendation and returns the list.
 router.post('/generate/:user_id', async (req, res) => {
   try {
     const { user_id } = req.params;
@@ -79,7 +78,7 @@ router.post('/generate/:user_id', async (req, res) => {
          COUNT(r.review_id)         AS review_count
        FROM ProductVariant pv
        JOIN Product p ON p.product_id = pv.product_id
-       LEFT JOIN Review r ON r.variant_id = pv.variant_id
+       LEFT JOIN Review r ON r.variant_id = pv.variant_id AND r.product_id = pv.product_id
        WHERE pv.recommended_undertone = ?
          AND (p.finish = ? OR p.finish IS NULL)
        GROUP BY pv.variant_id, pv.product_id
@@ -88,12 +87,12 @@ router.post('/generate/:user_id', async (req, res) => {
       [profile.undertone, profile.preferred_finish]
     );
 
-    // Log each recommendation
+    // Log each recommendation — include product_id to satisfy composite FK
     for (let i = 0; i < variants.length; i++) {
       await db.query(
-        `INSERT INTO RecommendationLog (user_id, variant_id, rank_position, clicked)
-         VALUES (?, ?, ?, FALSE)`,
-        [user_id, variants[i].variant_id, i + 1]
+        `INSERT INTO RecommendationLog (user_id, variant_id, product_id, rank_position, clicked)
+         VALUES (?, ?, ?, ?, FALSE)`,
+        [user_id, variants[i].variant_id, variants[i].product_id, i + 1]
       );
     }
 
@@ -109,13 +108,13 @@ router.post('/generate/:user_id', async (req, res) => {
 // POST manually log a recommendation entry
 router.post('/', async (req, res) => {
   try {
-    const { user_id, variant_id, rank_position } = req.body;
-    if (!user_id || !variant_id)
-      return res.status(400).json({ error: 'user_id and variant_id are required' });
+    const { user_id, variant_id, product_id, rank_position } = req.body;
+    if (!user_id || !variant_id || !product_id)
+      return res.status(400).json({ error: 'user_id, variant_id, and product_id are required' });
 
     const [result] = await db.query(
-      'INSERT INTO RecommendationLog (user_id, variant_id, rank_position, clicked) VALUES (?, ?, ?, FALSE)',
-      [user_id, variant_id, rank_position || null]
+      'INSERT INTO RecommendationLog (user_id, variant_id, product_id, rank_position, clicked) VALUES (?, ?, ?, ?, FALSE)',
+      [user_id, variant_id, product_id, rank_position || null]
     );
     res.status(201).json({ log_id: result.insertId });
   } catch (err) {
