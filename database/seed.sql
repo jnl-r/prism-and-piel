@@ -1,4 +1,4 @@
-USE prism_and_priel;
+USE prism_and_piel;
 
 -- ---------- USERS ----------
 INSERT INTO User (user_id, name, email, password) VALUES
