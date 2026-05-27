@@ -1,85 +1,107 @@
-USE prism_and_piel;
+USE prism_and_priel;
 
-SET FOREIGN_KEY_CHECKS = 0;
-TRUNCATE TABLE RecommendationLog;
-TRUNCATE TABLE Review;
-TRUNCATE TABLE AffiliateLink;
-TRUNCATE TABLE ProductVariant;
-TRUNCATE TABLE Product;
-TRUNCATE TABLE SkinProfile;
-TRUNCATE TABLE User;
-SET FOREIGN_KEY_CHECKS = 1;
+-- ---------- USERS ----------
+INSERT INTO User (user_id, name, email, password) VALUES
+  (1, 'Demo User',           'demo@prism.ph',     'demo'),
+  (2, 'Janelle Ranario',     'janelle@email.com', '123'),
+  (3, 'Trishia Camalonggay', 'trishia@email.com', '123');
 
--- 1. Users
-INSERT INTO User (name, email, password) VALUES
-('Ana Reyes',   'ana@email.com',  'hashed_password_1'),
-('Bea Santos',  'bea@email.com',  'hashed_password_2'),
-('Cara Lim',    'cara@email.com', 'hashed_password_3'),
-('Dana Cruz',   'dana@email.com', 'hashed_password_4'),
-('Elle Garcia', 'elle@email.com', 'hashed_password_5');
+-- ---------- SKIN PROFILES (weak entity: user_id + profile_id) ----------
+INSERT INTO SkinProfile
+  (user_id, profile_id, profile_label, skintone, undertone, skintype, primary_concern, preferred_finish)
+VALUES
+  (1, 1, 'Everyday Look',  'Medium', 'Warm',    'Combination', 'Oiliness,Dark Spots', 'Natural'),
+  (1, 2, 'Glam Night',     'Tan',    'Warm',    'Dry',         'Dryness,Dullness',    'Dewy'),
+  (2, 1, 'Office Routine', 'Light',  'Neutral', 'Normal',      'Dullness',            'Satin');
 
--- 2. SkinProfiles (2 per user)
-INSERT INTO SkinProfile (profile_id, user_id, profile_label, skintone, undertone, skintype, primary_concern, preferred_finish) VALUES
-(1, 1, 'Summer Profile',  'Medium', 'Warm',    'Oily',        'Acne,Oiliness',      'Matte'),
-(2, 1, 'Routine Profile', 'Tan',    'Warm',    'Combination', 'Dark Spots',         'Dewy'),
-(1, 2, 'Daily Look',      'Fair',   'Cool',    'Dry',         'Dryness',            'Dewy'),
-(2, 2, 'Night Out',       'Light',  'Neutral', 'Normal',      'Dullness',           'Satin'),
-(1, 3, 'Everyday',        'Tan',    'Olive',   'Oily',        'Oiliness,Acne',      'Matte'),
-(2, 3, 'Post-Beach',      'Deep',   'Warm',    'Combination', 'Dark Spots,Dullness','Natural'),
-(1, 4, 'Work Look',       'Light',  'Cool',    'Sensitive',   'Aging',              'Satin'),
-(2, 4, 'Weekend Glow',    'Medium', 'Neutral', 'Dry',         'Dryness',            'Dewy'),
-(1, 5, 'Bold Look',       'Deep',   'Warm',    'Oily',        'Oiliness',           'Matte'),
-(2, 5, 'Natural Look',    'Tan',    'Olive',   'Normal',      'Dark Spots',         'Natural');
+-- ---------- PRODUCTS (brand_name is a plain column) ----------
+INSERT INTO Product
+  (product_id, brand_name, product_name, category, formula_type, finish, description, image_url)
+VALUES
+  (1, 'BLK Cosmetics', 'Fresh Radiant Glow Filter Foundation', 'Base', 'Liquid', 'Dewy',
+      'A radiant glow-filter foundation, 30 ml, for a luminous skin-like finish.', ''),
+  (2, 'BLK Cosmetics', 'Creamy All-Over Paint Blush', 'Blush', 'Liquid', 'Dewy',
+      'A creamy liquid blush formulated without parabens, phthalates, SLS/SLES and artificial fragrance.', ''),
+  (3, 'BLK Cosmetics', 'Universal Skin Tint Sun Shield', 'Base', 'Cream', 'Matte',
+      'A skin tint with SPF 30 that evens tone while shielding from the sun.', ''),
+  (4, 'Absidy Beauty', 'Complexion Blur Translucent Perfecting Powder', 'Base', 'Compact Powder', 'Matte',
+      'An oil-controlling, pore-minimizing, long-lasting perfecting powder.', ''),
+  (5, 'Absidy Beauty', 'Weightless Touch Concealer', 'Concealer', 'Cream', 'Satin',
+      'A medium-to-full coverage concealer for spot-concealing, under-eye brightening and colour-correcting.', ''),
+  (6, 'Chu Chu Beauty', 'Heart Blush Duo', 'Blush', 'Powder', 'Matte',
+      'A compact dual blush palette with a built-in mirror.', ''),
+  (7, 'Ever Bilena', 'Pillow Pop Liquid Blush', 'Blush', 'Liquid', 'Natural',
+      'A soft liquid blush that blends into a natural, pillowy flush.', '');
 
--- 3. Products (brand_name as attribute — no separate Brand table)
-INSERT INTO Product (product_name, brand_name, category, formula_type, finish, description) VALUES
-('All-Out Face Foundation', 'BLK Cosmetics', 'Base',      'Liquid', 'Matte',    'Full coverage liquid foundation for Filipino skin tones'),
-('Pro Lip Color',           'BLK Cosmetics', 'Lipstick',  'Cream',  'Satin',    'Long-lasting cream lipstick in Filipino-friendly shades'),
-('Fit Me Foundation',       'Maybelline',    'Base',      'Liquid', 'Matte',    'Lightweight foundation that fits your skin tone'),
-('SuperStay Lipstick',      'Maybelline',    'Lipstick',  'Liquid', 'Matte',    '24hr transfer-proof liquid lipstick'),
-('Stay On Concealer',       'Careline',      'Concealer', 'Liquid', 'Natural',  'Lightweight concealer for dark spots and blemishes'),
-('Velvet Foundation',       'Absidy',        'Base',      'Liquid', 'Dewy',     'Hydrating foundation for dry skin types'),
-('Blush On',                'Happy Skin',    'Blush',     'Powder', 'Natural',  'Buildable powder blush for Filipino skin');
+-- ---------- PRODUCT VARIANTS (weak entity: product_id + variant_id) ----------
+INSERT INTO ProductVariant
+  (product_id, variant_id, shade_name, shade_hex, recommended_undertone)
+VALUES
+  -- BLK Fresh Radiant Glow Filter Foundation
+  (1, 1, 'Oat',          '#E8C9A8', 'Neutral'),
+  (1, 2, 'Creme',        '#F0D9BE', 'Neutral'),
+  (1, 3, 'Vanilla',      '#EAD0B0', 'Warm'),
+  (1, 4, 'Butterscotch', '#C99A6B', 'Warm'),
+  (1, 5, 'Sand',         '#D8B48C', 'Neutral'),
+  (1, 6, 'Toast',        '#A9764C', 'Warm'),
+  -- BLK Creamy All-Over Paint Blush
+  (2, 1, 'Reef',         '#E59A86', 'Warm'),
+  (2, 2, 'Beach',        '#E8A38C', 'Warm'),
+  (2, 3, 'Palm Springs', '#D97E74', 'Cool'),
+  (2, 4, 'Coast',        '#E2876F', 'Warm'),
+  (2, 5, 'Golden Hour',  '#E0925E', 'Warm'),
+  -- BLK Universal Skin Tint Sun Shield
+  (3, 1, 'Chestnut',     '#9A6B45', 'Warm'),
+  (3, 2, 'Creme',        '#F0D9BE', 'Neutral'),
+  (3, 3, 'Linen',        '#EAD7BE', 'Neutral'),
+  (3, 4, 'Oat',          '#E8C9A8', 'Neutral'),
+  (3, 5, 'Toffee',       '#B07F50', 'Warm'),
+  -- Absidy Complexion Blur Powder
+  (4, 1, 'Honey',        '#E2B583', 'Warm'),
+  (4, 2, 'Milk',         '#F2DCC4', 'Neutral'),
+  (4, 3, 'Oat',          '#E8C9A8', 'Neutral'),
+  (4, 4, 'Ube',          '#D8B6AE', 'Cool'),
+  (4, 5, 'Petal',        '#EBC9BE', 'Cool'),
+  -- Absidy Weightless Touch Concealer
+  (5, 1, '0N',           '#F0D6BC', 'Neutral'),
+  (5, 2, '1W',           '#E7C19A', 'Warm'),
+  (5, 3, '2N',           '#D9B488', 'Neutral'),
+  (5, 4, '3W',           '#C99A6B', 'Warm'),
+  -- Chu Chu Heart Blush Duo
+  (6, 1, 'Hey Sugar',    '#E79A88', 'Warm'),
+  (6, 2, 'Miss Dolly',   '#DE8296', 'Cool'),
+  (6, 3, 'Peachy Pop',   '#E8A077', 'Warm'),
+  (6, 4, 'Darling Baby', '#E0A0A0', 'Neutral'),
+  -- Ever Bilena Pillow Pop Liquid Blush
+  (7, 1, 'Rouge',        '#C8506A', 'Cool'),
+  (7, 2, 'Raspberry',    '#B83E5E', 'Cool'),
+  (7, 3, 'Fresno',       '#D9785E', 'Warm');
 
--- 4. ProductVariants (composite PK: variant_id + product_id)
-INSERT INTO ProductVariant (variant_id, product_id, shade_name, shade_hex, recommended_undertone) VALUES
-(1, 1, 'Warm Beige',    '#C68642', 'Warm'),
-(2, 1, 'Golden Tan',    '#A0522D', 'Warm'),
-(3, 1, 'Cool Ivory',    '#F5E6D3', 'Cool'),
-(1, 2, 'Berry Flush',   '#8B2252', 'Cool'),
-(2, 2, 'Terracotta',    '#C05A2C', 'Warm'),
-(1, 3, 'Natural Beige', '#D4A574', 'Neutral'),
-(2, 3, 'Sand',          '#C2956C', 'Warm'),
-(1, 4, 'Dusty Rose',    '#B5687A', 'Cool'),
-(2, 4, 'Brick Red',     '#943126', 'Warm'),
-(1, 5, 'Porcelain',     '#F2E0D0', 'Cool'),
-(1, 6, 'Honey Glow',    '#C8874B', 'Warm'),
-(2, 6, 'Caramel',       '#A0622D', 'Warm'),
-(1, 7, 'Coral Bliss',   '#E8735A', 'Warm'),
-(2, 7, 'Rosy Pink',     '#D4849A', 'Cool');
+-- ---------- AFFILIATE LINKS ----------
+INSERT INTO AffiliateLink
+  (link_id, product_id, variant_id, affiliate_url, click_count)
+VALUES
+  (1, 1, 4, 'https://vt.tiktok.com/blk-foundation-butterscotch', 64),
+  (2, 4, 1, 'https://vt.tiktok.com/ZS9Y3TpQedyUP-c3AzV',          120),
+  (3, 5, 1, 'https://vt.tiktok.com/ZS9Y3whFYWX1P-bVh1r',          88),
+  (4, 6, 1, 'https://vt.tiktok.com/ZS9Y3oxVb3hgV-9B5jg',          73),
+  (5, 2, 5, 'https://vt.tiktok.com/blk-blush-goldenhour',         41);
 
--- 5. AffiliateLinks — FIX: now includes product_id to satisfy composite FK
-INSERT INTO AffiliateLink (variant_id, product_id, affiliate_url, click_count) VALUES
-(1, 1, 'https://tiktokshop.com/blk-warm-beige?aff=prism001',          0),
-(2, 1, 'https://tiktokshop.com/blk-golden-tan?aff=prism001',          0),
-(1, 3, 'https://tiktokshop.com/maybelline-natural-beige?aff=prism001', 0),
-(1, 4, 'https://tiktokshop.com/maybelline-dusty-rose?aff=prism001',    0),
-(1, 6, 'https://tiktokshop.com/absidy-honey-glow?aff=prism001',        0),
-(1, 7, 'https://tiktokshop.com/happyskin-coral-bliss?aff=prism001',    0);
+-- ---------- REVIEWS ----------
+INSERT INTO Review
+  (review_id, user_id, product_id, variant_id, rating, comment, skin_profile_match, created_at)
+VALUES
+  (1, 1, 1, 4, 4.5, 'Butterscotch melts into my warm undertone perfectly. Glowy but not greasy.', TRUE,  '2026-05-10'),
+  (2, 1, 2, 5, 5.0, 'Golden Hour is the prettiest everyday flush. A tiny dab is enough.',          TRUE,  '2026-05-12'),
+  (3, 2, 5, 1, 4.0, 'Shade 0N brightens my under-eyes well. Wish it had more deep shades.',        TRUE,  '2026-05-15'),
+  (4, 2, 4, 2, 3.5, 'Milk keeps me matte but can look a little dry by afternoon.',                 FALSE, '2026-05-16'),
+  (5, 3, 6, 2, 5.0, 'Miss Dolly is such a flattering cool-toned blush for fair skin.',             TRUE,  '2026-05-18'),
+  (6, 3, 3, 3, 4.5, 'Linen skin tint evens me out with light, comfortable coverage.',              TRUE,  '2026-05-20');
 
--- 6. Reviews — FIX: now includes product_id to satisfy composite FK
-INSERT INTO Review (user_id, variant_id, product_id, rating, comment, skin_profile_match) VALUES
-(1, 1, 1, 4.5, 'Great coverage, stays all day on oily skin!',    TRUE),
-(2, 1, 1, 4.0, 'Lightweight and natural finish, love it!',       TRUE),
-(3, 2, 1, 5.0, 'Perfect shade for my tan skin!',                 TRUE),
-(4, 1, 1, 3.5, 'Good hydration but oxidizes a little',           FALSE),
-(5, 2, 2, 4.5, 'The terracotta shade is so flattering!',         TRUE);
-
--- 7. RecommendationLog — FIX: now includes product_id to satisfy composite FK
-INSERT INTO RecommendationLog (user_id, variant_id, product_id, rank_position, clicked) VALUES
-(1, 1, 1, 1, TRUE),
-(1, 2, 1, 2, FALSE),
-(2, 1, 1, 1, TRUE),
-(3, 2, 1, 1, FALSE),
-(4, 1, 1, 1, TRUE),
-(5, 2, 2, 1, FALSE);
+-- ---------- RECOMMENDATION LOGS ----------
+INSERT INTO RecommendationLog
+  (log_id, user_id, product_id, variant_id, rank_position, clicked, generated_at)
+VALUES
+  (1, 1, 1, 4, 1, TRUE,  '2026-05-10'),
+  (2, 1, 2, 5, 2, FALSE, '2026-05-10'),
+  (3, 1, 3, 1, 3, FALSE, '2026-05-12');

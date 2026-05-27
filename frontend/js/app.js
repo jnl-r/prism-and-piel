@@ -2,19 +2,17 @@ const App = {
   user: null,
 
   init() {
-    this.user = Auth.current();
+    // is a user already signed in this session?
+    this.user = JSON.parse(sessionStorage.getItem('pp_user') || 'null');
 
-    if (this.user) {
-      this.showApp();
-    } else {
-      this.showLanding();
-    }
+    if (this.user) this.showApp();
+    else           this.showLanding();
 
-    this.bindLanding();
+    this.bindAuth();
     this.bindNav();
   },
 
-  // ── Landing / Auth ──────────────────────────────────
+  // SCREEN SWITCHING 
   showLanding() {
     document.getElementById('landingPage-screen').classList.remove('hidden');
     document.getElementById('app').classList.add('hidden');
@@ -24,109 +22,120 @@ const App = {
     document.getElementById('landingPage-screen').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
 
-    // Update topbar user chip
-    const initial = this.user.name?.[0]?.toUpperCase() || 'P';
+    // fill the topbar user chip
+    const initial = (this.user.name || 'P').charAt(0).toUpperCase();
     document.getElementById('user-avatar').textContent = initial;
     document.getElementById('user-name').textContent = this.user.name;
 
     this.navigate('home');
   },
 
-  bindLanding() {
-    // Toggle login ↔ signup
-    document.getElementById('go-signup').addEventListener('click', (e) => {
+  // LOGIN
+  bindAuth() {
+    // toggle login and signup forms
+    document.getElementById('go-signup').addEventListener('click', e => {
       e.preventDefault();
       document.getElementById('login-form').classList.add('hidden');
       document.getElementById('signup-form').classList.remove('hidden');
     });
-
-    document.getElementById('go-login').addEventListener('click', (e) => {
+    document.getElementById('go-login').addEventListener('click', e => {
       e.preventDefault();
       document.getElementById('signup-form').classList.add('hidden');
       document.getElementById('login-form').classList.remove('hidden');
     });
 
-    // Login
+    // LOGIN
     document.getElementById('btn-login').addEventListener('click', async () => {
       const email = document.getElementById('login-email').value.trim();
-      const password = document.getElementById('login-password').value;
-      const errorEl = document.getElementById('login-error');
-      errorEl.textContent = '';
-
+      const pass  = document.getElementById('login-password').value;
+      const err   = document.getElementById('login-error');
+      err.textContent = '';
+      if (!email || !pass) { err.textContent = 'Please fill in both fields.'; return; }
       try {
-        const user = await Auth.login(email, password);
-        Auth.save(user);
-        App.user = user;
-        App.showApp();
-      } catch (err) {
-        errorEl.textContent = err.message;
-      }
+        const user = await api.login(email, pass);
+        App._signIn(user);
+      } catch (e) { err.textContent = e.message; }
     });
 
-    // Signup
+    // SIGNUP
     document.getElementById('btn-signup').addEventListener('click', async () => {
-      const name = document.getElementById('signup-name').value.trim();
+      const name  = document.getElementById('signup-name').value.trim();
       const email = document.getElementById('signup-email').value.trim();
-      const password = document.getElementById('signup-password').value;
-      const errorEl = document.getElementById('signup-error');
-      errorEl.textContent = '';
-
+      const pass  = document.getElementById('signup-password').value;
+      const err   = document.getElementById('signup-error');
+      err.textContent = '';
+      if (!name || !email || !pass) { err.textContent = 'Please fill in all fields.'; return; }
       try {
-        const user = await Auth.signup(name, email, password);
-        Auth.save(user);
-        App.user = user;
-        App.showApp();
-      } catch (err) {
-        errorEl.textContent = err.message;
-      }
+        const user = await api.signup(name, email, pass);
+        App._signIn(user);
+      } catch (e) { err.textContent = e.message; }
     });
 
-    // Logout
+    // LOGOUT
     document.getElementById('btn-logout').addEventListener('click', () => {
-      Auth.logout();
+      sessionStorage.removeItem('pp_user');
       App.user = null;
+      // reset the catalogue cache so the next user loads fresh
+      Views.cache = { users: {}, products: [], variants: [], reviews: [] };
       App.showLanding();
+    });
+
+    // Enter key submits the visible form
+    document.getElementById('login-password').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('btn-login').click();
+    });
+    document.getElementById('signup-password').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('btn-signup').click();
     });
   },
 
-  // ── Navigation ──────────────────────────────────────
+  _signIn(user) {
+    App.user = user;
+    sessionStorage.setItem('pp_user', JSON.stringify(user));
+    App.showApp();
+  },
+
+  // NAVIGATION
   bindNav() {
-    document.getElementById('main-nav').addEventListener('click', (e) => {
+    // any element with data-nav routes the app
+    document.body.addEventListener('click', e => {
       const link = e.target.closest('[data-nav]');
       if (!link) return;
       e.preventDefault();
-      this.navigate(link.dataset.nav);
+      App.navigate(link.dataset.nav);
     });
 
-    // Brand mark in topbar also navigates home
-    document.querySelector('.topbar .brand-mark').addEventListener('click', () => {
-      this.navigate('home');
-    });
-
-    // Mobile nav toggle
+    // mobile hamburger
     document.getElementById('nav-toggle').addEventListener('click', () => {
       document.getElementById('main-nav').classList.toggle('open');
     });
   },
 
   navigate(view) {
-    // Update active nav link
-    document.querySelectorAll('.nav-link').forEach((el) => {
+    // highlight the active nav link
+    document.querySelectorAll('.nav-link').forEach(el => {
       el.classList.toggle('active', el.dataset.nav === view);
     });
-
-    // Close mobile nav
     document.getElementById('main-nav').classList.remove('open');
 
-    // Render view
-    const root = document.getElementById('view-root');
-    switch (view) {
-      case 'home':      Views.home(root);     break;
-      case 'profiles':  Views.profiles(root); break;
-      case 'products':  Views.products(root); break;
-      case 'recommend': Views.recommend(root); break;
-      default:          Views.home(root);
-    }
+    // show the chosen .view block, hide the others
+    const ids = {
+      home:      'view-home',
+      profiles:  'view-profiles',
+      products:  'view-products',
+      recommend: 'view-recommend',
+    };
+    const target = ids[view] || 'view-home';
+    document.querySelectorAll('.main > .view').forEach(v => {
+      v.classList.toggle('hidden', v.id !== target);
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // fill that view with data
+    if (view === 'profiles')       Views.profiles();
+    else if (view === 'products')  Views.products();
+    else if (view === 'recommend') Views.recommend();
+    else                           Views.home();
   },
 };
 
