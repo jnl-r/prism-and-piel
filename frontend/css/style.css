@@ -827,6 +827,29 @@ img {
   .landingPage-body { padding: 28px 28px 34px; }
   .landingPage-headline { font-size: 1.85rem; }
 }
+
+/* PASSWORD TOGGLE BUTTON */
+.toggle-pw {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  color: var(--charcoal-faint);
+  flex-shrink: 0;
+  transition: color .2s ease;
+}
+
+.toggle-pw:hover {
+  color: var(--pink-500);
+}
+
+.toggle-pw svg {
+  width: 18px;
+  height: 18px;
+}
+
 /* TOPBAR */
 .topbar {
   position: sticky;
@@ -1643,14 +1666,15 @@ img {
   transform: translateX(-50%) translateY(20px);
   background: var(--charcoal);
   color: #fff;
-  padding: 13px 26px;
+  font-size: 0.9rem;
+
+  padding: 12px 24px;
   border-radius: 100px;
-  font-size: 0.92rem;
-  letter-spacing: 0.3px;
   opacity: 0;
+  letter-spacing: 0.3px;
+  transition: opacity .3s ease, transform .3s ease;
   pointer-events: none;
-  transition: all .3s ease;
-  z-index: 200;
+  z-index: 999;
 }
 
 .toast.show {
@@ -1658,5 +1682,5 @@ img {
   transform: translateX(-50%) translateY(0);
 }
 
-.toast.success { background: #5b8a6f; }
-.toast.error   { background: var(--pink-600); }
+.toast.success { background: var(--pink-600); }
+.toast.error   { background: #b04060; }
