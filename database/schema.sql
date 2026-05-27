@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS prism_and_priel;
-USE prism_and_priel;
+CREATE DATABASE IF NOT EXISTS prism_and_piel;
+USE prism_and_piel;
 
 -- ---------- 1. User ----------
 CREATE TABLE User (
