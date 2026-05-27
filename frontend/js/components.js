@@ -1,11 +1,3 @@
-/* ============================================================
-   components.js — reusable UI helpers
-   ------------------------------------------------------------
-   Builds only DATA-DRIVEN fragments (cards, panels, modal form).
-   The fixed page structure lives in index.html.
-   ============================================================ */
-
-/* escape text so database content can't break the HTML */
 function esc(str) {
   if (str == null) return '';
   return String(str)
@@ -13,7 +5,7 @@ function esc(str) {
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-/* ---------- toast notification ---------- */
+/* ---------- notification ---------- */
 function toast(message, type = '') {
   let el = document.getElementById('toast');
   if (!el) {
@@ -38,7 +30,7 @@ function closeModal() {
   document.getElementById('modal-content').innerHTML = '';
 }
 
-/* ---------- star rating (display only) ---------- */
+/* ---------- star rating  ---------- */
 function starsDisplay(rating) {
   let html = '<span class="stars">';
   for (let i = 1; i <= 5; i++) {
@@ -86,7 +78,7 @@ function profileCard(p) {
     </div>`;
 }
 
-/* ---------- the PROFILE form (rendered inside the modal) ---------- */
+/* ---------- the PROFILE form  ---------- */
 function profileFormHTML(existing) {
   const p = existing || {};
   const concerns = (p.primary_concern || '').split(',');
@@ -158,7 +150,7 @@ function productCard(product, variants) {
     </div>`;
 }
 
-/* ---------- one RECOMMENDATION card (ranked) ---------- */
+/* ---------- one RECOMMENDATION card  ---------- */
 function recommendationCard(rec, rank) {
   return `
     <div class="p-card" data-product="${rec.product_id}">

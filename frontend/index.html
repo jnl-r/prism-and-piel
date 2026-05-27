@@ -209,9 +209,7 @@
         <button class="nav-toggle" id="nav-toggle" aria-label="Menu">&#9776;</button>
       </div>
     </header>
-    <!-- VIEW ROOT — all views render here -->
     <main class="main" id="view-root">
-      <!-- ============ HOME / HERO (old design — fully static) ============ -->
       <div id="view-home" class="view">
 
         <div class="hero">
@@ -227,7 +225,6 @@
             </div>
           </div>
           <div class="hero-pov">
-            <!-- PLACEHOLDER: assets/hero.jpg — if missing, the gradient shows -->
             <img src="assets/hero.jpg" alt="" onerror="this.style.display='none'" />
             <div class="hero-badge">
               <div class="hero-badge-swatches">
@@ -290,10 +287,8 @@
           </div>
         </div>
 
-      </div><!-- /view-home -->
+      </div>
 
-
-      <!-- ============ SKIN PROFILES (old design — card grid) ============ -->
       <div id="view-profiles" class="view hidden">
         <div class="section-head">
           <p class="section-kicker">Your skin, remembered</p>
@@ -305,14 +300,11 @@
           <span></span>
           <button class="btn btn-primary" id="btn-add-profile">+ New Profile</button>
         </div>
-        <!-- JS fills this container with profile cards -->
         <div id="profiles-grid">
           <div class="loading">Loading profiles&hellip;</div>
         </div>
-      </div><!-- /view-profiles -->
+      </div>
 
-
-      <!-- ============ PRODUCTS (old design — filters + detail panel) ============ -->
       <div id="view-products" class="view hidden">
         <div class="section-head">
           <p class="section-kicker">The collection</p>
@@ -321,7 +313,6 @@
              and international brands available on TikTok Shop PH.</p>
         </div>
 
-        <!-- category filter (static chips) -->
         <div class="filter-block">
           <p class="filter-block-label">Shop by category</p>
           <div class="filter-chips" id="product-cat-chips">
@@ -336,7 +327,6 @@
           </div>
         </div>
 
-        <!-- brand filter (JS fills these chips from data) -->
         <div class="filter-block">
           <p class="filter-block-label">Shop by brand</p>
           <div class="filter-chips" id="product-brand-chips">
@@ -356,10 +346,8 @@
             </div>
           </aside>
         </div>
-      </div><!-- /view-products -->
+      </div>
 
-
-      <!-- ============ FIND MY SHADE (old design — pickbar + ranked grid) ============ -->
       <div id="view-recommend" class="view hidden">
         <div class="section-head">
           <p class="section-kicker">The matching engine</p>
@@ -378,11 +366,10 @@
           <button class="btn btn-primary" id="btn-get-recs">Find My Shade</button>
         </div>
 
-        <!-- JS fills this with the ranked results -->
         <div id="rec-results"></div>
-      </div><!-- /view-recommend -->
+      </div>
 
-    </main><!-- /view-root -->
+    </main>
  
     <footer class="footer">
       <div class="footer-inner">
@@ -396,10 +383,7 @@
     </footer>
  
   </div><!-- /app -->
- 
- 
-  
-  <!-- ============ MODAL (forms render inside here) ============ -->
+
   <div id="modal-overlay" class="modal-overlay hidden">
     <div class="modal">
       <button class="modal-close" id="modal-close" aria-label="Close">&times;</button>

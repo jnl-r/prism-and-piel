@@ -1,26 +1,13 @@
-/* ============================================================
-   views.js — fills the page shells in index.html with backend data
-   ------------------------------------------------------------
-   Page STRUCTURE lives in index.html. These functions only:
-     1. fetch data from the backend (api.js)
-     2. drop data rows (cards) into existing containers
-     3. wire up clicks
-   Data-row HTML is built by components.js helpers.
-   ============================================================ */
-
 const Views = {
 
   /* catalogue cache — filled once per session */
   cache: { users: {}, products: [], variants: [], reviews: [] },
 
   /* ============================================================
-     HOME — fully static (the hero lives in index.html). No-op.
+     HOME 
      ============================================================ */
-  home() { /* nothing to fetch — the hero is static HTML */ },
+  home() { },
 
-  /* ============================================================
-     SKIN PROFILES — card grid + modal form
-     ============================================================ */
   async profiles() {
     const grid = document.getElementById('profiles-grid');
     grid.className = '';
@@ -61,7 +48,6 @@ const Views = {
       () => Views._openProfileForm(null, profiles);
   },
 
-  /* open the create/edit profile modal */
   _openProfileForm(existing, profiles) {
     openModal(profileFormHTML(existing));
 
@@ -121,7 +107,6 @@ const Views = {
       return;
     }
 
-    /* brand chips, built from the product data */
     const brands = [...new Set(Views.cache.products.map(p => p.brand_name))].sort();
     brandChips.innerHTML =
       '<button class="filter-chip active" data-brand="">All</button>' +
@@ -159,7 +144,7 @@ const Views = {
   },
 
   /* ============================================================
-     FIND MY SHADE — pickbar + ranked results
+     FIND MY SHADE 
      ============================================================ */
   async recommend() {
     const select = document.getElementById('rec-profile-select');
@@ -208,7 +193,7 @@ const Views = {
   },
 
   /* ============================================================
-     SHARED HELPERS
+     SHARED 
      ============================================================ */
 
   /* fetch products + variants + reviews + users once, then cache */

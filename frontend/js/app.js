@@ -1,11 +1,3 @@
-/* ============================================================
-   app.js — application controller
-   ------------------------------------------------------------
-   Handles login/signup, logout, navigation, and modal closing.
-   Navigation shows one .view block and hides the rest, then
-   calls the matching Views function to fill it with data.
-   ============================================================ */
-
 const App = {
   user: null,
 

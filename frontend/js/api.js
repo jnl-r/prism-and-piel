@@ -1,6 +1,5 @@
 const API_BASE = 'http://localhost:3000/api';
 
-/* used by every function below */
 async function request(path, method = 'GET', body) {
   let res;
   try {
@@ -20,12 +19,9 @@ async function request(path, method = 'GET', body) {
   try { return await res.json(); } catch (e) { return {}; }
 }
 
-/* ============================================================
-   API - each function maps to one real backend route.
-   ============================================================ */
 const api = {
 
-  // AUTH
+  // ------------------ AUTH ---------------- 
   // POST /api/auth/login
   login(email, password) {
     return request('/auth/login', 'POST', { email, password });
@@ -35,11 +31,11 @@ const api = {
     return request('/auth/signup', 'POST', { name, email, password });
   },
 
-  // USERS
+  /* ---------------- USERS ---------------- */
   // GET /api/users
   getUsers() { return request('/users'); },
 
-  // SKIN PROFILES 
+  /* ------------- SKIN PROFILES ------------- */
   // GET /api/skinprofiles/user/:userId
   getProfiles(userId) { return request('/skinprofiles/user/' + userId); },
 
@@ -58,7 +54,7 @@ const api = {
     return request('/skinprofiles/' + userId + '/' + profileId, 'DELETE');
   },
 
-  // ---------------- PRODUCTS ----------------
+  /* ---------------- PRODUCTS ---------------- */
   // GET /api/products
   getProducts() { return request('/products'); },
   // GET /api/products/category/:category
@@ -66,7 +62,7 @@ const api = {
     return request('/products/category/' + encodeURIComponent(cat));
   },
 
-  // ------------- PRODUCT VARIANTS ------------- 
+  /* ------------- PRODUCT VARIANTS ------------- */
   // GET /api/variants
   getVariants() { return request('/variants'); },
   // GET /api/variants/product/:productId
@@ -74,13 +70,13 @@ const api = {
     return request('/variants/product/' + productId);
   },
 
-  // ------------- AFFILIATE LINKS ------------- 
+  /* ------------- AFFILIATE LINKS ------------- */
   // GET /api/affiliatelinks
   getLinks() { return request('/affiliatelinks'); },
   // PUT /api/affiliatelinks/click/:linkId
   clickLink(linkId) { return request('/affiliatelinks/click/' + linkId, 'PUT'); },
 
-  // ------------- RECOMMENDATIONS ------------- 
+  /* ------------- RECOMMENDATIONS ------------- */
   // POST /api/recommendations/generate/:userId   body: { profile_id }
   // Backend matches variants to the profile and logs them.
   generateRecommendations(userId, profileId) {
@@ -91,7 +87,7 @@ const api = {
     return request('/recommendations/click/' + logId, 'PUT');
   },
 
-  // ---------------- REVIEWS ----------------
+  /* ---------------- REVIEWS ---------------- */
   // GET /api/reviews
   getReviews() { return request('/reviews'); },
   // GET /api/reviews/variant/:productId/:variantId

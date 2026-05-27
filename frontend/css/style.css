@@ -1588,16 +1588,6 @@ img {
   }
 }
 
-/* ============================================================
-   ADD THIS TO THE END OF YOUR style.css
-   ------------------------------------------------------------
-   Your style.css already has the hero, feature, steps, filter,
-   product-layout, detail-panel, profile-card and rec-pickbar
-   styles. It is only missing the MODAL and TOAST styles below,
-   which the profile form and notifications need.
-   ============================================================ */
-
-/* ---------- MODAL ---------- */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -1646,7 +1636,6 @@ img {
   margin-bottom: 20px;
 }
 
-/* ---------- TOAST ---------- */
 .toast {
   position: fixed;
   bottom: 28px;
