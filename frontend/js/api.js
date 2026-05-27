@@ -1,5 +1,3 @@
-// api.js
-// Base URL — change this to your backend
 const API_BASE = 'http://localhost:3000/api';
 
 async function apiFetch(path, options = {}) {

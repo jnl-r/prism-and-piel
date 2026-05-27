@@ -1,5 +1,3 @@
-// app.js
-
 const App = {
   user: null,
 
