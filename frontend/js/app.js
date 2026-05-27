@@ -79,6 +79,21 @@ const App = {
     document.getElementById('signup-password').addEventListener('keydown', e => {
       if (e.key === 'Enter') document.getElementById('btn-signup').click();
     });
+
+    // PASSWORD TOGGLE
+    document.querySelectorAll('.toggle-pw').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const input   = document.getElementById(btn.dataset.target);
+        const eyeShow = btn.querySelector('.eye-show');
+        const eyeHide = btn.querySelector('.eye-hide');
+        const isHidden = input.type === 'password';
+
+        input.type          = isHidden ? 'text' : 'password';
+        eyeShow.style.display = isHidden ? 'none'  : '';
+        eyeHide.style.display = isHidden ? ''      : 'none';
+        btn.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+      });
+    });
   },
 
   _signIn(user) {
