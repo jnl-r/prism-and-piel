@@ -17,7 +17,7 @@
 </head>
 
 <body>
-  <div id="landingPage-screen" class="landingPage-screen">
+  <div id="landingPage-screen" class="landingPage-screen hidden">
     <div class="landingPage-card">
 
       <div class="landingPage-hero" style="background-image:url('assets/face_girl_morena.png')">
@@ -179,7 +179,7 @@
   </div>
 
   
-  <div id="app" class="app hidden">
+  <div id="app" class="app">
     <!-- ===================================
     TOP BAR
     ======================================-->
@@ -209,10 +209,272 @@
         <button class="nav-toggle" id="nav-toggle" aria-label="Menu">&#9776;</button>
       </div>
     </header>
-
+    <!-- VIEW ROOT — all views render here -->
     <main class="main" id="view-root">
-    </main>
-
+ 
+      <!-- ===================================
+      HOME VIEW
+      ======================================-->
+      <div id="view-home" class="view">
+ 
+        <!-- Welcome band -->
+        <div class="welcome-band">
+          <div>
+            <p class="welcome-kicker">Good to see you</p>
+            <h1 class="welcome-title">Welcome back, <em id="welcome-name">there</em>.</h1>
+            <p class="welcome-sub">Your shade profile is ready. Here's what we matched for you today.</p>
+          </div>
+          <div class="welcome-swatch-block">
+            <div class="welcome-swatches">
+              <span style="background:#F4D3BE"></span>
+              <span style="background:#E3B58F"></span>
+              <span style="background:#C68F66"></span>
+              <span style="background:#A26C45"></span>
+              <span style="background:#794E2F"></span>
+            </div>
+            <p class="welcome-swatch-label">Your undertone &middot; Warm</p>
+          </div>
+        </div>
+ 
+        <!-- Top picks + detail panel -->
+        <div class="product-layout" id="home-layout">
+          <div>
+            <div class="section-head">
+              <p class="section-kicker">Matched for you</p>
+              <h2 class="section-title">Top Shade Picks</h2>
+              <p class="section-sub">Based on your active skin profile.</p>
+            </div>
+            <div class="card-grid" id="home-recs-grid">
+              <div class="loading">Finding your shades&hellip;</div>
+            </div>
+          </div>
+          <aside class="detail-panel" id="home-detail-panel">
+            <div class="detail-placeholder">
+              <div class="empty-mark">✦</div>
+              <h3>Select a product</h3>
+              <p>Tap any card to see shades and reviews.</p>
+            </div>
+          </aside>
+        </div>
+ 
+        <!-- Feature row -->
+        <div class="feature-row">
+          <div class="feature-card">
+            <div class="feature-num">01</div>
+            <h3>Build Your Profile</h3>
+            <p>Tell us your skintone, undertone, skin type, and concerns.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-num">02</div>
+            <h3>Get Matched</h3>
+            <p>Our engine surfaces shades filtered by finish, undertone, and skin type.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-num">03</div>
+            <h3>Real Reviews</h3>
+            <p>Ratings from people with similar profiles — not just global averages.</p>
+          </div>
+        </div>
+ 
+      </div><!-- /view-home -->
+ 
+ 
+      <!-- ===================================
+      SKIN PROFILES VIEW
+      ======================================-->
+      <div id="view-profiles" class="view hidden">
+ 
+        <div class="section-head">
+          <p class="section-kicker">Your looks</p>
+          <h2 class="section-title">Skin Profiles</h2>
+          <p class="section-sub">Create different profiles for your everyday look, glam nights, or gifting someone a match.</p>
+        </div>
+ 
+        <div class="toolbar">
+          <span></span>
+          <button class="btn btn-primary btn-sm" id="btn-add-profile">+ New Profile</button>
+        </div>
+ 
+        <!-- Profile chips (selector row) -->
+        <div class="profile-selector" id="profile-selector">
+          <div class="loading">Loading profiles&hellip;</div>
+        </div>
+ 
+        <!-- Active profile detail -->
+        <div class="profile-detail-card hidden" id="profile-detail-card">
+          <div class="profile-detail-header">
+            <div>
+              <p class="section-kicker" id="pd-kicker">Active profile</p>
+              <h3 class="profile-detail-title" id="pd-title">Everyday Look</h3>
+            </div>
+            <button class="btn btn-danger btn-sm" id="btn-delete-profile">Remove profile</button>
+          </div>
+          <div class="profile-attrs-grid" id="pd-attrs"></div>
+          <div id="pd-concerns-wrap">
+            <p class="detail-section-label">Primary Concerns</p>
+            <div class="p-tags" id="pd-concerns"></div>
+          </div>
+        </div>
+ 
+        <!-- New profile form (hidden by default) -->
+        <div class="profile-form-card hidden" id="profile-form-card">
+          <h3 class="profile-form-title">New Skin Profile</h3>
+ 
+          <label class="field">
+            <span class="field-label">Profile Label</span>
+            <input type="text" id="pf-label" placeholder="e.g. Everyday Look, Glam Night" />
+          </label>
+ 
+          <div class="field-row">
+            <label class="field">
+              <span class="field-label">Skintone</span>
+              <select id="pf-skintone">
+                <option value="">Select&hellip;</option>
+                <option>Fair</option><option>Light</option><option>Medium</option>
+                <option>Tan</option><option>Deep</option>
+              </select>
+            </label>
+            <label class="field">
+              <span class="field-label">Undertone</span>
+              <select id="pf-undertone">
+                <option value="">Select&hellip;</option>
+                <option>Warm</option><option>Cool</option>
+                <option>Neutral</option><option>Olive</option>
+              </select>
+            </label>
+          </div>
+ 
+          <div class="field-row">
+            <label class="field">
+              <span class="field-label">Skin Type</span>
+              <select id="pf-skintype">
+                <option value="">Select&hellip;</option>
+                <option>Oily</option><option>Dry</option><option>Combination</option>
+                <option>Normal</option><option>Sensitive</option>
+              </select>
+            </label>
+            <label class="field">
+              <span class="field-label">Preferred Finish</span>
+              <select id="pf-finish">
+                <option value="">Select&hellip;</option>
+                <option>Matte</option><option>Dewy</option><option>Satin</option>
+                <option>Natural</option><option>Shimmer</option>
+              </select>
+            </label>
+          </div>
+ 
+          <label class="field">
+            <span class="field-label">Primary Concerns</span>
+            <div class="check-group" id="pf-concerns">
+              <label class="check-pill"><input type="checkbox" value="Acne" /><span>Acne</span></label>
+              <label class="check-pill"><input type="checkbox" value="Dark Spots" /><span>Dark Spots</span></label>
+              <label class="check-pill"><input type="checkbox" value="Dullness" /><span>Dullness</span></label>
+              <label class="check-pill"><input type="checkbox" value="Oiliness" /><span>Oiliness</span></label>
+              <label class="check-pill"><input type="checkbox" value="Dryness" /><span>Dryness</span></label>
+              <label class="check-pill"><input type="checkbox" value="Aging" /><span>Aging</span></label>
+            </div>
+          </label>
+ 
+          <p id="pf-error" class="form-error"></p>
+ 
+          <div style="display:flex;gap:10px;margin-top:8px;">
+            <button class="btn btn-primary" id="btn-save-profile">Save Profile</button>
+            <button class="btn btn-ghost" id="btn-cancel-profile">Cancel</button>
+          </div>
+        </div>
+ 
+      </div><!-- /view-profiles -->
+ 
+ 
+      <!-- ===================================
+      PRODUCTS VIEW
+      ======================================-->
+      <div id="view-products" class="view hidden">
+ 
+        <div class="section-head">
+          <p class="section-kicker">The edit</p>
+          <h2 class="section-title">Products</h2>
+          <p class="section-sub">Explore our catalog and find what works for your skin.</p>
+        </div>
+ 
+        <!-- Category filters -->
+        <div class="filter-block">
+          <p class="filter-block-label">Category</p>
+          <div class="filter-chips" id="product-filter-chips">
+            <button class="filter-chip active" data-cat="">All</button>
+            <button class="filter-chip" data-cat="Base">Base</button>
+            <button class="filter-chip" data-cat="Concealer">Concealer</button>
+            <button class="filter-chip" data-cat="Blush">Blush</button>
+            <button class="filter-chip" data-cat="Contour">Contour</button>
+            <button class="filter-chip" data-cat="Highlighter">Highlighter</button>
+            <button class="filter-chip" data-cat="Lipstick">Lipstick</button>
+            <button class="filter-chip" data-cat="Eye Palette">Eye Palette</button>
+          </div>
+        </div>
+ 
+        <div class="product-layout" id="products-layout">
+          <div class="card-grid" id="products-grid">
+            <div class="loading">Loading products&hellip;</div>
+          </div>
+          <aside class="detail-panel" id="products-detail-panel">
+            <div class="detail-placeholder">
+              <div class="empty-mark">✦</div>
+              <h3>Select a product</h3>
+              <p>Tap any card to see shades and reviews.</p>
+            </div>
+          </aside>
+        </div>
+ 
+      </div><!-- /view-products -->
+ 
+ 
+      <!-- ===================================
+      RECOMMEND VIEW
+      ======================================-->
+      <div id="view-recommend" class="view hidden">
+ 
+        <div class="section-head">
+          <p class="section-kicker">Curated for you</p>
+          <h2 class="section-title">Find My Shade</h2>
+          <p class="section-sub">Pick a skin profile and we'll rank the best shades for your complexion.</p>
+        </div>
+ 
+        <!-- Profile + category picker -->
+        <div class="rec-pickbar">
+          <label class="field">
+            <span class="field-label">Skin Profile</span>
+            <select id="rec-profile-select">
+              <option value="">Loading profiles&hellip;</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field-label">Category</span>
+            <select id="rec-category-select">
+              <option value="">All categories</option>
+              <option value="Base">Base</option>
+              <option value="Concealer">Concealer</option>
+              <option value="Blush">Blush</option>
+              <option value="Contour">Contour</option>
+              <option value="Highlighter">Highlighter</option>
+              <option value="Lipstick">Lipstick</option>
+              <option value="Eye Palette">Eye Palette</option>
+            </select>
+          </label>
+          <button class="btn btn-primary" id="btn-get-recs">Match Me</button>
+        </div>
+ 
+        <div class="card-grid" id="rec-grid">
+          <div class="empty">
+            <div class="empty-mark">✦</div>
+            <h3>Ready when you are</h3>
+            <p>Choose a profile above and tap Match Me.</p>
+          </div>
+        </div>
+ 
+      </div><!-- /view-recommend -->
+ 
+    </main><!-- /view-root -->
+ 
     <footer class="footer">
       <div class="footer-inner">
         <div class="brand-mark brand-mark-sm">
@@ -223,15 +485,17 @@
         <p>A shade-matching experience for Filipina skin. &copy; 2026 by G2B</p>
       </div>
     </footer>
-  </div>
-
+ 
+  </div><!-- /app -->
+ 
+ 
   <!-- ===================================
-    ALL SCRIPTS 
-    ======================================-->
+  ALL SCRIPTS
+  ======================================-->
   <script src="js/api.js"></script>
   <script src="js/components.js"></script>
   <script src="js/views.js"></script>
   <script src="js/app.js"></script>
-
+ 
 </body>
 </html>
