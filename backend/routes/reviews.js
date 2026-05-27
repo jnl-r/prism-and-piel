@@ -25,12 +25,12 @@ router.get('/user/:user_id', async (req, res) => {
   }
 });
 
-// GET reviews by variant
-router.get('/variant/:variant_id', async (req, res) => {
+// GET reviews by variant (requires product_id too, since variant_id is not globally unique)
+router.get('/variant/:product_id/:variant_id', async (req, res) => {
   try {
     const [rows] = await db.query(
-      'SELECT * FROM Review WHERE variant_id = ?',
-      [req.params.variant_id]
+      'SELECT * FROM Review WHERE product_id = ? AND variant_id = ?',
+      [req.params.product_id, req.params.variant_id]
     );
     res.json(rows);
   } catch (err) {
@@ -55,16 +55,16 @@ router.get('/:id', async (req, res) => {
 // POST create review
 router.post('/', async (req, res) => {
   try {
-    const { user_id, variant_id, rating, comment, skin_profile_match } = req.body;
-    if (!user_id || !variant_id || !rating)
-      return res.status(400).json({ error: 'user_id, variant_id, and rating are required' });
+    const { user_id, variant_id, product_id, rating, comment, skin_profile_match } = req.body;
+    if (!user_id || !variant_id || !product_id || !rating)
+      return res.status(400).json({ error: 'user_id, variant_id, product_id, and rating are required' });
     if (rating < 1.0 || rating > 5.0)
       return res.status(400).json({ error: 'rating must be between 1.0 and 5.0' });
 
     const [result] = await db.query(
-      `INSERT INTO Review (user_id, variant_id, rating, comment, skin_profile_match)
-       VALUES (?, ?, ?, ?, ?)`,
-      [user_id, variant_id, rating, comment || null, skin_profile_match ?? null]
+      `INSERT INTO Review (user_id, variant_id, product_id, rating, comment, skin_profile_match)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [user_id, variant_id, product_id, rating, comment || null, skin_profile_match ?? null]
     );
     res.status(201).json({ review_id: result.insertId });
   } catch (err) {
