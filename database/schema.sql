@@ -1,3 +1,4 @@
+DROP DATABASE IF EXISTS prism_and_piel;
 CREATE DATABASE IF NOT EXISTS prism_and_piel;
 USE prism_and_piel;
 
