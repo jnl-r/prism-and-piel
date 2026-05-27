@@ -1,4 +1,11 @@
-/* escape text so user/database content can't break the HTML */
+/* ============================================================
+   components.js — reusable UI helpers
+   ------------------------------------------------------------
+   Builds only DATA-DRIVEN fragments (cards, panels, modal form).
+   The fixed page structure lives in index.html.
+   ============================================================ */
+
+/* escape text so database content can't break the HTML */
 function esc(str) {
   if (str == null) return '';
   return String(str)
@@ -6,7 +13,7 @@ function esc(str) {
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-// ---------- toast notification ---------- 
+/* ---------- toast notification ---------- */
 function toast(message, type = '') {
   let el = document.getElementById('toast');
   if (!el) {
@@ -21,7 +28,17 @@ function toast(message, type = '') {
   el._t = setTimeout(() => { el.className = 'toast ' + type; }, 2600);
 }
 
-// ---------- star rating (display only) ---------- 
+/* ---------- modal open / close ---------- */
+function openModal(html) {
+  document.getElementById('modal-content').innerHTML = html;
+  document.getElementById('modal-overlay').classList.remove('hidden');
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.add('hidden');
+  document.getElementById('modal-content').innerHTML = '';
+}
+
+/* ---------- star rating (display only) ---------- */
 function starsDisplay(rating) {
   let html = '<span class="stars">';
   for (let i = 1; i <= 5; i++) {
@@ -30,12 +47,94 @@ function starsDisplay(rating) {
   return html + '</span>';
 }
 
-// ---------- placeholder image box (gray, until real photos) ---------- 
+/* ---------- placeholder image box ---------- */
 function thumbBox(label = 'Product Photo') {
   return `<div class="p-thumb">${esc(label)}</div>`;
 }
 
-// ---------- one product card (used in Products + Home) ---------- 
+/* ---------- empty / loading ---------- */
+function emptyBox(title, text) {
+  return `<div class="empty">
+    <div class="empty-mark">&#10022;</div>
+    <h3>${esc(title)}</h3><p>${esc(text)}</p></div>`;
+}
+function loadingBox(text = 'Loading…') {
+  return `<div class="loading">${esc(text)}</div>`;
+}
+
+/* ---------- one PROFILE card ---------- */
+function profileCard(p) {
+  const concerns = (p.primary_concern || '').split(',').filter(Boolean);
+  return `
+    <div class="profile-card">
+      <div class="profile-top">
+        <span class="profile-label">${esc(p.profile_label)}</span>
+      </div>
+      <div class="profile-attrs">
+        <span class="attr">Tone <b>${esc(p.skintone)}</b></span>
+        <span class="attr">Undertone <b>${esc(p.undertone)}</b></span>
+        <span class="attr">Type <b>${esc(p.skintype)}</b></span>
+        <span class="attr">Finish <b>${esc(p.preferred_finish || '—')}</b></span>
+      </div>
+      <p style="font-size:.9rem;color:var(--charcoal-soft);margin-bottom:14px">
+        Concerns: ${concerns.length ? esc(concerns.join(', ')) : 'none noted'}
+      </p>
+      <div class="p-actions">
+        <button class="btn btn-soft btn-sm" data-edit="${p.profile_id}">Edit</button>
+        <button class="btn btn-danger btn-sm" data-del="${p.profile_id}">Delete</button>
+      </div>
+    </div>`;
+}
+
+/* ---------- the PROFILE form (rendered inside the modal) ---------- */
+function profileFormHTML(existing) {
+  const p = existing || {};
+  const concerns = (p.primary_concern || '').split(',');
+  const sel = (id, label, opts, val) => `
+    <label class="field">
+      <span class="field-label">${label}</span>
+      <select id="${id}">
+        <option value="">Select&hellip;</option>
+        ${opts.map(o => `<option ${o === val ? 'selected' : ''}>${o}</option>`).join('')}
+      </select>
+    </label>`;
+
+  return `
+    <h3 class="modal-title">${p.profile_id ? 'Edit' : 'New'} Skin Profile</h3>
+
+    <label class="field">
+      <span class="field-label">Profile Label</span>
+      <input type="text" id="pf-label" value="${esc(p.profile_label || '')}"
+             placeholder="e.g. Everyday Look, Glam Night" />
+    </label>
+
+    <div class="field-row">
+      ${sel('pf-skintone',  'Skintone',  ENUMS.skintone,  p.skintone)}
+      ${sel('pf-undertone', 'Undertone', ENUMS.undertone, p.undertone)}
+    </div>
+    <div class="field-row">
+      ${sel('pf-skintype', 'Skin Type',        ENUMS.skintype, p.skintype)}
+      ${sel('pf-finish',   'Preferred Finish', ENUMS.finish,   p.preferred_finish)}
+    </div>
+
+    <label class="field">
+      <span class="field-label">Primary Concerns</span>
+      <div class="check-group" id="pf-concerns">
+        ${ENUMS.primary_concern.map(c => `
+          <label class="check-pill">
+            <input type="checkbox" value="${c}" ${concerns.includes(c) ? 'checked' : ''} />
+            <span>${c}</span>
+          </label>`).join('')}
+      </div>
+    </label>
+
+    <p id="pf-error" class="form-error"></p>
+    <button class="btn btn-primary btn-block" id="btn-save-profile">
+      ${p.profile_id ? 'Save Changes' : 'Create Profile'}
+    </button>`;
+}
+
+/* ---------- one PRODUCT card ---------- */
 function productCard(product, variants) {
   const vs = variants.filter(v => v.product_id === product.product_id);
   const swatches = vs.slice(0, 6).map(v =>
@@ -59,7 +158,7 @@ function productCard(product, variants) {
     </div>`;
 }
 
-// ---------- one recommendation card (Recommend + Home) ---------- 
+/* ---------- one RECOMMENDATION card (ranked) ---------- */
 function recommendationCard(rec, rank) {
   return `
     <div class="p-card" data-product="${rec.product_id}">
@@ -86,7 +185,7 @@ function recommendationCard(rec, rank) {
     </div>`;
 }
 
-// ---------- side detail panel content for one product ---------- 
+/* ---------- side DETAIL panel for one product ---------- */
 function detailPanel(product, variants, reviews, userNames) {
   const vs = variants.filter(v => v.product_id === product.product_id);
   const rs = reviews.filter(r => r.product_id === product.product_id);
@@ -134,14 +233,4 @@ function detailPanel(product, variants, reviews, userNames) {
         </div>`).join('')
         : `<div class="detail-empty">No reviews yet.</div>`}
     </div>`;
-}
-
-// ---------- empty / loading helpers ---------- 
-function emptyBox(title, text) {
-  return `<div class="empty">
-    <div class="empty-mark">&#10022;</div>
-    <h3>${esc(title)}</h3><p>${esc(text)}</p></div>`;
-}
-function loadingBox(text = 'Loading…') {
-  return `<div class="loading">${esc(text)}</div>`;
 }

@@ -1,100 +1,70 @@
+/* ============================================================
+   views.js — fills the page shells in index.html with backend data
+   ------------------------------------------------------------
+   Page STRUCTURE lives in index.html. These functions only:
+     1. fetch data from the backend (api.js)
+     2. drop data rows (cards) into existing containers
+     3. wire up clicks
+   Data-row HTML is built by components.js helpers.
+   ============================================================ */
+
 const Views = {
-  // small shared cache, filled on login 
+
+  /* catalogue cache — filled once per session */
   cache: { users: {}, products: [], variants: [], reviews: [] },
 
   /* ============================================================
-     HOME
+     HOME — fully static (the hero lives in index.html). No-op.
      ============================================================ */
-  async home() {
-    const nameEl = document.getElementById('welcome-name');
-    if (nameEl && App.user) nameEl.textContent = App.user.name.split(' ')[0];
-
-    const grid  = document.getElementById('home-recs-grid');
-    const panel = document.getElementById('home-detail-panel');
-
-    try {
-      await Views._ensureCatalogue();
-
-      // get the user's first profile, then ask backend for matches
-      const profiles = await api.getProfiles(App.user.user_id);
-      if (!profiles.length) {
-        grid.innerHTML = emptyBox('No skin profile yet',
-          'Create a skin profile to see shades matched to you.');
-        return;
-      }
-      const result = await api.generateRecommendations(
-        App.user.user_id, profiles[0].profile_id);
-      const recs = result.recommendations || [];
-
-      if (!recs.length) {
-        grid.innerHTML = emptyBox('No matches found',
-          'We could not find shades for this profile yet.');
-        return;
-      }
-      grid.innerHTML = recs.slice(0, 6)
-        .map((r, i) => recommendationCard(r, i + 1)).join('');
-
-      Views._wireCardClicks(grid, panel);
-
-    } catch (err) {
-      grid.innerHTML = emptyBox('Could not load', err.message);
-    }
-  },
+  home() { /* nothing to fetch — the hero is static HTML */ },
 
   /* ============================================================
-     SKIN PROFILES
+     SKIN PROFILES — card grid + modal form
      ============================================================ */
   async profiles() {
-    const selector = document.getElementById('profile-selector');
-    const detail   = document.getElementById('profile-detail-card');
-    const formCard = document.getElementById('profile-form-card');
-
-    formCard.classList.add('hidden');
-    detail.classList.add('hidden');
-    selector.innerHTML = loadingBox('Loading profiles…');
+    const grid = document.getElementById('profiles-grid');
+    grid.className = '';
+    grid.innerHTML = loadingBox('Loading profiles…');
 
     let profiles = [];
     try {
       profiles = await api.getProfiles(App.user.user_id);
-    } catch (err) {
-      selector.innerHTML = emptyBox('Could not load', err.message);
+    } catch (e) {
+      grid.innerHTML = emptyBox('Could not load', e.message);
       return;
     }
 
     if (!profiles.length) {
-      selector.innerHTML = emptyBox('No profiles yet',
+      grid.innerHTML = emptyBox('No profiles yet',
         'Tap "+ New Profile" to create your first skin profile.');
     } else {
-      // render one chip per profile
-      selector.innerHTML = profiles.map(p =>
-        `<button class="profile-chip" data-profile="${p.profile_id}">
-           ${esc(p.profile_label)}</button>`).join('');
+      grid.className = 'card-grid';
+      grid.innerHTML = profiles.map(profileCard).join('');
 
-      selector.querySelectorAll('[data-profile]').forEach(chip =>
-        chip.addEventListener('click', () => {
-          selector.querySelectorAll('.profile-chip')
-            .forEach(c => c.classList.toggle('active', c === chip));
-          const p = profiles.find(x => x.profile_id === +chip.dataset.profile);
-          Views._showProfileDetail(p);
+      grid.querySelectorAll('[data-edit]').forEach(b =>
+        b.addEventListener('click', () => {
+          const p = profiles.find(x => x.profile_id === +b.dataset.edit);
+          Views._openProfileForm(p, profiles);
         }));
-
-      // open the first profile by default
-      selector.querySelector('.profile-chip').classList.add('active');
-      Views._showProfileDetail(profiles[0]);
+      grid.querySelectorAll('[data-del]').forEach(b =>
+        b.addEventListener('click', async () => {
+          if (!confirm('Delete this skin profile?')) return;
+          try {
+            await api.deleteProfile(App.user.user_id, +b.dataset.del);
+            toast('Profile deleted', 'success');
+            Views.profiles();
+          } catch (e) { toast(e.message, 'error'); }
+        }));
     }
 
-    // "+ New Profile" button 
-    document.getElementById('btn-add-profile').onclick = () => {
-      detail.classList.add('hidden');
-      formCard.classList.remove('hidden');
-      Views._clearProfileForm();
-    };
-    document.getElementById('btn-cancel-profile').onclick = () => {
-      formCard.classList.add('hidden');
-      if (profiles.length) detail.classList.remove('hidden');
-    };
+    document.getElementById('btn-add-profile').onclick =
+      () => Views._openProfileForm(null, profiles);
+  },
 
-    // Save new profile 
+  /* open the create/edit profile modal */
+  _openProfileForm(existing, profiles) {
+    openModal(profileFormHTML(existing));
+
     document.getElementById('btn-save-profile').onclick = async () => {
       const err = document.getElementById('pf-error');
       err.textContent = '';
@@ -103,10 +73,6 @@ const Views = {
         document.querySelectorAll('#pf-concerns input:checked')).map(c => c.value);
 
       const data = {
-        user_id:          App.user.user_id,
-        // weak entity: compute the next profile_id for this user
-        profile_id:       profiles.length
-          ? Math.max(...profiles.map(p => p.profile_id)) + 1 : 1,
         profile_label:    document.getElementById('pf-label').value.trim(),
         skintone:         document.getElementById('pf-skintone').value,
         undertone:        document.getElementById('pf-undertone').value,
@@ -119,139 +85,124 @@ const Views = {
         err.textContent = 'Label, skintone, undertone and skin type are required.';
         return;
       }
+
       try {
-        await api.createProfile(data);
-        toast('Profile created', 'success');
-        Views.profiles();   // reload the view
+        if (existing) {
+          await api.updateProfile(App.user.user_id, existing.profile_id, data);
+          toast('Profile updated', 'success');
+        } else {
+          // weak entity — compute the next profile_id for this user
+          data.user_id    = App.user.user_id;
+          data.profile_id = profiles.length
+            ? Math.max(...profiles.map(p => p.profile_id)) + 1 : 1;
+          await api.createProfile(data);
+          toast('Profile created', 'success');
+        }
+        closeModal();
+        Views.profiles();
       } catch (e) { err.textContent = e.message; }
     };
   },
 
-  // fill the "active profile" detail card 
-  _showProfileDetail(p) {
-    if (!p) return;
-    const card = document.getElementById('profile-detail-card');
-    document.getElementById('profile-form-card').classList.add('hidden');
-    card.classList.remove('hidden');
-
-    document.getElementById('pd-title').textContent = p.profile_label;
-
-    document.getElementById('pd-attrs').innerHTML = `
-      <div class="attr">Skintone <b>${esc(p.skintone)}</b></div>
-      <div class="attr">Undertone <b>${esc(p.undertone)}</b></div>
-      <div class="attr">Skin type <b>${esc(p.skintype)}</b></div>
-      <div class="attr">Finish <b>${esc(p.preferred_finish || '—')}</b></div>`;
-
-    const concerns = (p.primary_concern || '').split(',').filter(Boolean);
-    document.getElementById('pd-concerns').innerHTML = concerns.length
-      ? concerns.map(c => `<span class="tag">${esc(c)}</span>`).join('')
-      : '<span class="detail-empty">None noted</span>';
-
-    // delete button 
-    document.getElementById('btn-delete-profile').onclick = async () => {
-      if (!confirm('Remove this skin profile?')) return;
-      try {
-        await api.deleteProfile(App.user.user_id, p.profile_id);
-        toast('Profile removed', 'success');
-        Views.profiles();
-      } catch (e) { toast(e.message, 'error'); }
-    };
-  },
-
-  _clearProfileForm() {
-    document.getElementById('pf-label').value = '';
-    document.getElementById('pf-skintone').value = '';
-    document.getElementById('pf-undertone').value = '';
-    document.getElementById('pf-skintype').value = '';
-    document.getElementById('pf-finish').value = '';
-    document.querySelectorAll('#pf-concerns input:checked')
-      .forEach(c => { c.checked = false; });
-    document.getElementById('pf-error').textContent = '';
-  },
-
   /* ============================================================
-     PRODUCTS
+     PRODUCTS — category + brand filters + detail panel
      ============================================================ */
   async products() {
-    const grid  = document.getElementById('products-grid');
-    const panel = document.getElementById('products-detail-panel');
+    const grid       = document.getElementById('products-grid');
+    const panel      = document.getElementById('products-detail-panel');
+    const brandChips = document.getElementById('product-brand-chips');
     grid.innerHTML = loadingBox('Loading products…');
 
     try {
       await Views._ensureCatalogue();
-    } catch (err) {
-      grid.innerHTML = emptyBox('Could not load', err.message);
+    } catch (e) {
+      grid.innerHTML = emptyBox('Could not load', e.message);
+      brandChips.innerHTML = '';
       return;
     }
 
-    let activeCat = '';
+    /* brand chips, built from the product data */
+    const brands = [...new Set(Views.cache.products.map(p => p.brand_name))].sort();
+    brandChips.innerHTML =
+      '<button class="filter-chip active" data-brand="">All</button>' +
+      brands.map(b => `<button class="filter-chip" data-brand="${esc(b)}">${esc(b)}</button>`).join('');
 
-    const renderGrid = () => {
-      const list = activeCat
-        ? Views.cache.products.filter(p => p.category === activeCat)
-        : Views.cache.products;
+    let activeCat = '', activeBrand = '';
+
+    const render = () => {
+      let list = Views.cache.products;
+      if (activeCat)   list = list.filter(p => p.category === activeCat);
+      if (activeBrand) list = list.filter(p => p.brand_name === activeBrand);
 
       grid.innerHTML = list.length
         ? list.map(p => productCard(p, Views.cache.variants)).join('')
-        : emptyBox('No products', 'Nothing in this category yet.');
-
+        : emptyBox('No products', 'Try a different category or brand.');
       Views._wireCardClicks(grid, panel);
     };
+    render();
 
-    renderGrid();
-
-    // category filter chips (already in index.html) 
-    document.querySelectorAll('#product-filter-chips .filter-chip').forEach(chip =>
+    document.querySelectorAll('#product-cat-chips .filter-chip').forEach(chip =>
       chip.addEventListener('click', () => {
-        document.querySelectorAll('#product-filter-chips .filter-chip')
+        document.querySelectorAll('#product-cat-chips .filter-chip')
           .forEach(c => c.classList.toggle('active', c === chip));
         activeCat = chip.dataset.cat;
-        renderGrid();
+        render();
+      }));
+
+    brandChips.querySelectorAll('.filter-chip').forEach(chip =>
+      chip.addEventListener('click', () => {
+        brandChips.querySelectorAll('.filter-chip')
+          .forEach(c => c.classList.toggle('active', c === chip));
+        activeBrand = chip.dataset.brand;
+        render();
       }));
   },
 
   /* ============================================================
-     RECOMMEND  ("Find My Shade")
+     FIND MY SHADE — pickbar + ranked results
      ============================================================ */
   async recommend() {
     const select = document.getElementById('rec-profile-select');
-    const grid   = document.getElementById('rec-grid');
+    const out    = document.getElementById('rec-results');
 
-    // fill the profile dropdown 
     let profiles = [];
     try {
       profiles = await api.getProfiles(App.user.user_id);
-    } catch (err) {
+    } catch (e) {
       select.innerHTML = '<option value="">Could not load profiles</option>';
+      out.innerHTML = emptyBox('Could not load', e.message);
       return;
     }
 
     if (!profiles.length) {
-      select.innerHTML = '<option value="">No profiles — create one first</option>';
-    } else {
-      select.innerHTML = profiles.map(p =>
-        `<option value="${p.profile_id}">${esc(p.profile_label)}</option>`).join('');
+      select.innerHTML = '<option value="">No profiles yet</option>';
+      out.innerHTML = emptyBox('Create a profile first',
+        'You need a skin profile before we can match shades.');
+      return;
     }
 
-    // "Match Me" button 
+    select.innerHTML = profiles.map(p =>
+      `<option value="${p.profile_id}">${esc(p.profile_label)}</option>`).join('');
+    out.innerHTML = emptyBox('Ready when you are',
+      'Choose a profile above and tap Find My Shade.');
+
     document.getElementById('btn-get-recs').onclick = async () => {
       const profileId = select.value;
-      if (!profileId) { toast('Create a skin profile first', 'error'); return; }
+      if (!profileId) { toast('Choose a skin profile', 'error'); return; }
 
-      grid.innerHTML = loadingBox('Finding your shades…');
+      out.innerHTML = loadingBox('Finding your shades…');
       try {
         const result = await api.generateRecommendations(App.user.user_id, profileId);
-        let recs = result.recommendations || [];
-
-        // optional category filter (dropdown is in index.html)
-        const cat = document.getElementById('rec-category-select').value;
-        if (cat) recs = recs.filter(r => r.category === cat);
-
-        grid.innerHTML = recs.length
-          ? recs.map((r, i) => recommendationCard(r, i + 1)).join('')
-          : emptyBox('No matches', 'No shades matched this profile and category.');
-      } catch (err) {
-        grid.innerHTML = emptyBox('Could not load', err.message);
+        const recs = result.recommendations || [];
+        if (!recs.length) {
+          out.innerHTML = emptyBox('No matches',
+            'No shades matched this profile yet.');
+          return;
+        }
+        out.innerHTML = `<div class="card-grid">${
+          recs.map((r, i) => recommendationCard(r, i + 1)).join('')}</div>`;
+      } catch (e) {
+        out.innerHTML = emptyBox('Could not load', e.message);
       }
     };
   },
@@ -260,9 +211,9 @@ const Views = {
      SHARED HELPERS
      ============================================================ */
 
-  // fetch products + variants + reviews + users once, then cache 
+  /* fetch products + variants + reviews + users once, then cache */
   async _ensureCatalogue() {
-    if (Views.cache.products.length) return; // already loaded
+    if (Views.cache.products.length) return;
     const [products, variants, reviews, users] = await Promise.all([
       api.getProducts(), api.getVariants(), api.getReviews(), api.getUsers(),
     ]);
@@ -272,8 +223,9 @@ const Views = {
     users.forEach(u => { Views.cache.users[u.user_id] = u.name; });
   },
 
-  // make product cards in `grid` fill the `panel` on click 
+  /* clicking a product card fills the side detail panel */
   _wireCardClicks(grid, panel) {
+    if (!panel) return;
     grid.querySelectorAll('[data-product]').forEach(card =>
       card.addEventListener('click', () => {
         grid.querySelectorAll('.p-card')

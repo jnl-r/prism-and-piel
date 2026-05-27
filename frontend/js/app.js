@@ -1,18 +1,25 @@
+/* ============================================================
+   app.js — application controller
+   ------------------------------------------------------------
+   Handles login/signup, logout, navigation, and modal closing.
+   Navigation shows one .view block and hides the rest, then
+   calls the matching Views function to fill it with data.
+   ============================================================ */
+
 const App = {
   user: null,
 
   init() {
-    // is a user already signed in this session?
     this.user = JSON.parse(sessionStorage.getItem('pp_user') || 'null');
-
     if (this.user) this.showApp();
     else           this.showLanding();
 
     this.bindAuth();
     this.bindNav();
+    this.bindModal();
   },
 
-  // SCREEN SWITCHING 
+  /* ---------------- SCREEN SWITCHING ---------------- */
   showLanding() {
     document.getElementById('landingPage-screen').classList.remove('hidden');
     document.getElementById('app').classList.add('hidden');
@@ -22,7 +29,6 @@ const App = {
     document.getElementById('landingPage-screen').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
 
-    // fill the topbar user chip
     const initial = (this.user.name || 'P').charAt(0).toUpperCase();
     document.getElementById('user-avatar').textContent = initial;
     document.getElementById('user-name').textContent = this.user.name;
@@ -30,9 +36,8 @@ const App = {
     this.navigate('home');
   },
 
-  // LOGIN
+  /* ---------------- AUTH ---------------- */
   bindAuth() {
-    // toggle login and signup forms
     document.getElementById('go-signup').addEventListener('click', e => {
       e.preventDefault();
       document.getElementById('login-form').classList.add('hidden');
@@ -44,7 +49,6 @@ const App = {
       document.getElementById('login-form').classList.remove('hidden');
     });
 
-    // LOGIN
     document.getElementById('btn-login').addEventListener('click', async () => {
       const email = document.getElementById('login-email').value.trim();
       const pass  = document.getElementById('login-password').value;
@@ -57,7 +61,6 @@ const App = {
       } catch (e) { err.textContent = e.message; }
     });
 
-    // SIGNUP
     document.getElementById('btn-signup').addEventListener('click', async () => {
       const name  = document.getElementById('signup-name').value.trim();
       const email = document.getElementById('signup-email').value.trim();
@@ -71,16 +74,13 @@ const App = {
       } catch (e) { err.textContent = e.message; }
     });
 
-    // LOGOUT
     document.getElementById('btn-logout').addEventListener('click', () => {
       sessionStorage.removeItem('pp_user');
       App.user = null;
-      // reset the catalogue cache so the next user loads fresh
       Views.cache = { users: {}, products: [], variants: [], reviews: [] };
       App.showLanding();
     });
 
-    // Enter key submits the visible form
     document.getElementById('login-password').addEventListener('keydown', e => {
       if (e.key === 'Enter') document.getElementById('btn-login').click();
     });
@@ -95,30 +95,25 @@ const App = {
     App.showApp();
   },
 
-  // NAVIGATION
+  /* ---------------- NAVIGATION ---------------- */
   bindNav() {
-    // any element with data-nav routes the app
     document.body.addEventListener('click', e => {
       const link = e.target.closest('[data-nav]');
       if (!link) return;
       e.preventDefault();
       App.navigate(link.dataset.nav);
     });
-
-    // mobile hamburger
     document.getElementById('nav-toggle').addEventListener('click', () => {
       document.getElementById('main-nav').classList.toggle('open');
     });
   },
 
   navigate(view) {
-    // highlight the active nav link
     document.querySelectorAll('.nav-link').forEach(el => {
       el.classList.toggle('active', el.dataset.nav === view);
     });
     document.getElementById('main-nav').classList.remove('open');
 
-    // show the chosen .view block, hide the others
     const ids = {
       home:      'view-home',
       profiles:  'view-profiles',
@@ -131,11 +126,18 @@ const App = {
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // fill that view with data
     if (view === 'profiles')       Views.profiles();
     else if (view === 'products')  Views.products();
     else if (view === 'recommend') Views.recommend();
     else                           Views.home();
+  },
+
+  /* ---------------- MODAL ---------------- */
+  bindModal() {
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    document.getElementById('modal-overlay').addEventListener('click', e => {
+      if (e.target.id === 'modal-overlay') closeModal();
+    });
   },
 };
 
