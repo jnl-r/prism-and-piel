@@ -125,6 +125,11 @@ img {
   border: none;
   border-radius: 100px;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-sizing: border-box;
   transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
 }
 
@@ -164,6 +169,7 @@ img {
 }
 
 .btn-block {
+  display: flex;
   width: 100%;
 }
 
@@ -180,6 +186,15 @@ img {
 
 .btn-danger:hover {
   background: var(--pink-100);
+}
+
+.link-unavailable {
+  display: block;
+  font-family: var(--sans);
+  font-size: 0.84rem;
+  letter-spacing: 0.4px;
+  color: var(--charcoal-faint);
+  font-style: italic;
 }
 
 

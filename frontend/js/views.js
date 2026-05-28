@@ -269,10 +269,11 @@ const Views = {
 
   async _ensureCatalogue() {
     if (Views.cache.products.length) return;
-    const [products, variants, reviews, users] = await Promise.all([
+    const [products, variants, reviews, links, users] = await Promise.all([
       api.getProducts(),
       api.getVariants(),
       api.getReviews(),
+      api.getLinks(),   
       App.user ? api.getUsers() : Promise.resolve([]),
     ]);
     Views.cache.products = products;

@@ -205,7 +205,7 @@ function productCard(product, variants, links) {
                     target="_blank" rel="noopener"
                     onclick="event.stopPropagation()"
                     data-link="${link.link_id}" style="margin-top:10px">Shop</a>`
-                : '';
+                : `<p class="link-unavailable" style="margin-top:10px; margin-bottom:0">Link is not available.</p>`;
         })()}
       </div>
     </div>`;
@@ -272,7 +272,7 @@ function drawerContent(product, variants, reviews, userNames, links) {
                 target="_blank" rel="noopener"
                 data-link="${link.link_id}" style="margin-bottom:18px">
                 Shop on TikTok &nearr;</a>`
-            : '';
+            : `<p class="link-unavailable" style="margin-bottom:18px">Link is not available.</p>`;
         })()}
 
       <p class="detail-desc">${esc(product.description || 'No description provided.')}</p>
