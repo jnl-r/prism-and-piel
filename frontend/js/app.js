@@ -4,9 +4,8 @@ const App = {
 
   init() {
     this.user = JSON.parse(sessionStorage.getItem('pp_user') || 'null');
-    if (this.user) this.showApp();
-    else           this.showLanding();
-
+    this._refreshTopbar();
+    this.navigate('home');
     this.bindLanding();
     this.bindAuth();
     this.bindNav();
@@ -15,23 +14,10 @@ const App = {
   },
 
   /* ---------------- SCREEN SWITCHING ---------------- */
-  showLanding() {
-    this.guest = false;
-    document.getElementById('landing').classList.remove('hidden');
-    document.getElementById('app').classList.add('hidden');
-    document.body.classList.remove('app-open');
-  },
-
-  showApp() {
-    document.getElementById('landing').classList.add('hidden');
-    document.getElementById('app').classList.remove('hidden');
-    document.body.classList.add('app-open');
-
-    /* update the topbar based on signed-in vs guest */
-    const chip       = document.getElementById('user-chip');
-    const logout     = document.getElementById('btn-logout');
-    const guestBtn   = document.getElementById('btn-guest-signin');
-
+  _refreshTopbar() {
+    const chip     = document.getElementById('user-chip');
+    const logout   = document.getElementById('btn-logout');
+    const guestBtn = document.getElementById('btn-guest-signin');
     if (this.user) {
       const initial = (this.user.name || 'P').charAt(0).toUpperCase();
       document.getElementById('user-avatar').textContent = initial;
@@ -40,13 +26,10 @@ const App = {
       logout.classList.remove('hidden');
       guestBtn.classList.add('hidden');
     } else {
-      /* guest mode */
       chip.classList.add('hidden');
       logout.classList.add('hidden');
       guestBtn.classList.remove('hidden');
     }
-
-    this.navigate('home');
   },
 
   /* ---------------- LANDING BUTTONS ---------------- */
@@ -55,7 +38,6 @@ const App = {
     document.getElementById('btn-browse-guest').addEventListener('click', () => {
       App.user = null;
       App.guest = true;
-      App.showApp();
       App.navigate('products');
     });
   },
@@ -118,7 +100,8 @@ const App = {
       sessionStorage.removeItem('pp_user');
       App.user = null;
       Views.cache = { users: {}, products: [], variants: [], reviews: [] };
-      App.showLanding();
+      this._refreshTopbar();
+      this.navigate('home');
     });
 
     /* Enter key */
@@ -168,7 +151,8 @@ const App = {
     App.guest = false;
     sessionStorage.setItem('pp_user', JSON.stringify(user));
     App.closeAuth();
-    App.showApp();
+    App._refreshTopbar();
+    App.navigate('home');
   },
 
   /* ---------------- NAVIGATION ---------------- */
@@ -185,27 +169,33 @@ const App = {
   },
 
   navigate(view) {
+    // routes to landing when not signed in
+    const realView = (view === 'home' && !this.user) ? 'landing' : view;
+
     document.querySelectorAll('.nav-link').forEach(el => {
-      el.classList.toggle('active', el.dataset.nav === view);
+      const linkActive = el.dataset.nav === view ||
+                        (el.dataset.nav === 'home' && realView === 'landing');
+      el.classList.toggle('active', linkActive);
     });
     document.getElementById('main-nav').classList.remove('open');
 
     const ids = {
+      landing:   'view-landing',
       home:      'view-home',
       profiles:  'view-profiles',
       products:  'view-products',
       recommend: 'view-recommend',
     };
-    const target = ids[view] || 'view-home';
+    const target = ids[realView] || 'view-home';
     document.querySelectorAll('.main > .view').forEach(v => {
       v.classList.toggle('hidden', v.id !== target);
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    if (view === 'profiles')       Views.profiles();
-    else if (view === 'products')  Views.products();
-    else if (view === 'recommend') Views.recommend();
-    else                           Views.home();
+    if (realView === 'profiles')       Views.profiles();
+    else if (realView === 'products')  Views.products();
+    else if (realView === 'recommend') Views.recommend();
+    else if (realView === 'home')      Views.home();
   },
 
   /* ---------------- MODAL ---------------- */

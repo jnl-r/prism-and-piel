@@ -17,28 +17,45 @@
 </head>
 
 <body>
-
   <!-- ============================================================
-       LANDING PAGE  
+       MAIN APP  
        ============================================================ -->
-  <div id="landing" class="landing">
+  <div id="app" class="app">
 
-    <header class="landing-topbar">
-      <div class="landing-topbar-inner">
-        <div class="brand-mark brand-mark-sm">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand-mark brand-mark-sm" data-nav="home">
           <span class="brand-prism">PRISM</span>
           <span class="brand-amp">&amp;</span>
           <span class="brand-piel">PIEL</span>
         </div>
-        <div class="landing-topbar-actions">
-          <button class="btn btn-ghost btn-sm" data-open-auth="login">Sign In</button>
-          <button class="btn btn-primary btn-sm" data-open-auth="signup">Sign Up</button>
+
+        <nav class="nav" id="main-nav">
+          <a href="#" class="nav-link" data-nav="home">Home</a>
+          <a href="#" class="nav-link" data-nav="profiles">Skin Profiles</a>
+          <a href="#" class="nav-link" data-nav="products">Products</a>
+          <a href="#" class="nav-link" data-nav="recommend">Find My Shade</a>
+        </nav>
+
+        <div class="topbar-right">
+          <!-- shown when signed in -->
+          <span class="user-chip" id="user-chip">
+            <span class="user-avatar" id="user-avatar">P</span>
+            <span class="user-name" id="user-name">Guest</span>
+          </span>
+          <button class="btn btn-ghost btn-sm" id="btn-logout">Sign out</button>
+          <!-- shown when browsing as guest -->
+          <button class="btn btn-primary btn-sm hidden" id="btn-guest-signin"
+                  data-open-auth="login">Sign In</button>
         </div>
+
+        <button class="nav-toggle" id="nav-toggle" aria-label="Menu">&#9776;</button>
       </div>
     </header>
 
-    <main class="landing-main">
-      <!-- Hero -->
+    <main class="main" id="view-root">
+      <!-- LANDING PAGE -->
+      <div id="view-landing" class="view">
       <section class="hero">
         <div class="hero-copy">
           <p class="hero-kicker">Prism &amp; Piel</p>
@@ -93,63 +110,10 @@
           </div>
         </div>
       </section>
-
-    </main>
-
-    <footer class="footer">
-      <div class="footer-inner">
-        <div class="brand-mark brand-mark-sm">
-          <span class="brand-prism">PRISM</span>
-          <span class="brand-amp">&amp;</span>
-          <span class="brand-piel">PIEL</span>
-        </div>
-        <p>A shade-matching experience for Filipina skin. &copy; 2026 by G2B</p>
       </div>
-    </footer>
-
-  </div><!-- /#landing -->
-
-
-  <!-- ============================================================
-       MAIN APP  
-       ============================================================ -->
-  <div id="app" class="app hidden">
-
-    <header class="topbar">
-      <div class="topbar-inner">
-        <div class="brand-mark brand-mark-sm" data-nav="home">
-          <span class="brand-prism">PRISM</span>
-          <span class="brand-amp">&amp;</span>
-          <span class="brand-piel">PIEL</span>
-        </div>
-
-        <nav class="nav" id="main-nav">
-          <a href="#" class="nav-link" data-nav="home">Home</a>
-          <a href="#" class="nav-link" data-nav="profiles">Skin Profiles</a>
-          <a href="#" class="nav-link" data-nav="products">Products</a>
-          <a href="#" class="nav-link" data-nav="recommend">Find My Shade</a>
-        </nav>
-
-        <div class="topbar-right">
-          <!-- shown when signed in -->
-          <span class="user-chip" id="user-chip">
-            <span class="user-avatar" id="user-avatar">P</span>
-            <span class="user-name" id="user-name">Guest</span>
-          </span>
-          <button class="btn btn-ghost btn-sm" id="btn-logout">Sign out</button>
-          <!-- shown when browsing as guest -->
-          <button class="btn btn-primary btn-sm hidden" id="btn-guest-signin"
-                  data-open-auth="login">Sign In</button>
-        </div>
-
-        <button class="nav-toggle" id="nav-toggle" aria-label="Menu">&#9776;</button>
-      </div>
-    </header>
-
-    <main class="main" id="view-root">
 
       <!-- ============ HOME ============ -->
-      <div id="view-home" class="view">
+      <div id="view-home" class="view hidden">
 
         <div class="welcome-band">
           <div>
