@@ -205,14 +205,14 @@ function productCard(product, variants, links) {
                     target="_blank" rel="noopener"
                     onclick="event.stopPropagation()"
                     data-link="${link.link_id}" style="margin-top:10px">Shop</a>`
-                : `<p class="link-unavailable" style="margin-top:10px; margin-bottom:0">Link is not available.</p>`;
+                : `<p class="link-unavailable" style="margin-top:10px">Link is not available.</p>`;
         })()}
       </div>
     </div>`;
 }
 
 /* ---------- ONE RECOMMENDATION CARD ---------- */
-function recommendationCard(rec, rank) {
+function recommendationCard(rec, rank, links) {
   const t = thumbStyle(rec.category);
   return `
     <div class="p-card" data-product="${rec.product_id}">
@@ -237,6 +237,15 @@ function recommendationCard(rec, rank) {
               Number(rec.avg_rating).toFixed(1) + ' (' + rec.review_count + ')'
             : '<span style="color:var(--charcoal-faint);font-size:.85rem;">No reviews yet</span>'}
         </div>
+        ${(() => {
+            const link = linkForProduct(rec.product_id, links);
+            return link
+                ? `<a class="btn btn-soft btn-sm" href="${esc(link.affiliate_url)}"
+                    target="_blank" rel="noopener"
+                    onclick="event.stopPropagation()"
+                    data-link="${link.link_id}" style="margin-top:10px">Shop</a>`
+                : `<p class="link-unavailable" style="margin-top:10px">Link is not available.</p>`;
+        })()}
       </div>
     </div>`;
 }

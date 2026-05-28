@@ -30,6 +30,7 @@ const Views = {
           'Create a skin profile to see shades matched to your skin.');
         return;
       }
+      await Views._ensureCatalogue();
       const result = await api.generateRecommendations(
         App.user.user_id, profiles[0].profile_id);
       const recs = result.recommendations || [];
@@ -39,7 +40,7 @@ const Views = {
         return;
       }
       grid.innerHTML = recs.slice(0, 6)
-        .map((r, i) => recommendationCard(r, i + 1)).join('');
+        .map((r, i) => recommendationCard(r, i + 1, Views.cache.links)).join('');
       Views._wireProductCardClicks(grid);
     } catch (err) {
       grid.innerHTML = emptyBox('Could not load', err.message);
@@ -254,7 +255,7 @@ const Views = {
         if (category) recs = recs.filter(r => r.category === category);
 
         grid.innerHTML = recs.length
-          ? recs.map((r, i) => recommendationCard(r, i + 1)).join('')
+          ? recs.map((r, i) => recommendationCard(r, i + 1, Views.cache.links)).join('')
           : emptyBox('No matches', 'No shades matched this profile and category.');
         Views._wireProductCardClicks(grid);
       } catch (err) {
@@ -273,7 +274,7 @@ const Views = {
       api.getProducts(),
       api.getVariants(),
       api.getReviews(),
-      api.getLinks(),   
+      api.getLinks(),
       App.user ? api.getUsers() : Promise.resolve([]),
     ]);
     Views.cache.products = products;
