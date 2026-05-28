@@ -6,7 +6,6 @@ function esc(str) {
 }
 
 function linkForProduct(productId, links) {
-  // one product → one affiliate link (first match wins)
   return (links || []).find(l => l.product_id === productId) || null;
 }
 
@@ -67,7 +66,7 @@ function loadingBox(text = 'Loading…') {
   return `<div class="loading">${esc(text)}</div>`;
 }
 
-/* ---------- category → gradient + emoji thumb (until real photos) ---------- */
+/* ---------- category -> gradient + emoji thumb (until real photos) ---------- */
 function thumbStyle(category) {
   const map = {
     'Base':        { bg: 'linear-gradient(160deg,#f9e8ef,#f4d3c4)', emoji: '💄' },
@@ -178,6 +177,43 @@ function profileFormHTML(existing) {
     </button>`;
 }
 
+/* ---------- BROWSE PRODUCTS SECTION SHELL ----------
+   reusable across Landing (guests) and Home (signed-in). 
+   scoped by classes (not IDs) so it can safely exist in two places at once. */
+function productsSectionHTML() {
+  const cats = ['Base', 'Concealer', 'Blush', 'Contour', 'Highlighter', 'Lipstick', 'Eye Palette'];
+  return `
+    <div class="pp-search-row">
+      <div class="pp-search">
+        <svg class="pp-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" class="pp-search-input"
+               placeholder="Search by product or brand&hellip;" aria-label="Search products" />
+      </div>
+      <button class="btn btn-primary pp-browse-btn">Browse Products</button>
+    </div>
+    <div class="filter-block">
+      <p class="filter-block-label">Shop by category</p>
+      <div class="filter-chips pp-cat-chips">
+        <button class="filter-chip active" data-cat="">All</button>
+        ${cats.map(c => `<button class="filter-chip" data-cat="${esc(c)}">${esc(c)}</button>`).join('')}
+      </div>
+    </div>
+    <div class="filter-block">
+      <p class="filter-block-label">Shop by brand</p>
+      <div class="filter-chips pp-brand-chips">
+        <div class="loading">Loading brands&hellip;</div>
+      </div>
+    </div>
+    <div class="card-grid pp-grid">
+      <div class="loading">Loading products&hellip;</div>
+    </div>
+    <div class="products-more pp-more"></div>`;
+}
+
 /* ---------- ONE PRODUCT CARD ---------- */
 function productCard(product, variants, links) {
   const vs = variants.filter(v => v.product_id === product.product_id);
@@ -201,11 +237,11 @@ function productCard(product, variants, links) {
         ${(() => {
             const link = linkForProduct(product.product_id, links);
             return link
-                ? `<a class="btn btn-soft btn-sm" href="${esc(link.affiliate_url)}"
+                ? `<a class="btn btn-soft btn-sm p-shop" href="${esc(link.affiliate_url)}"
                     target="_blank" rel="noopener"
                     onclick="event.stopPropagation()"
-                    data-link="${link.link_id}" style="margin-top:10px">Shop</a>`
-                : `<p class="link-unavailable" style="margin-top:10px">Link is not available.</p>`;
+                    data-link="${link.link_id}">Shop</a>`
+                : `<p class="link-unavailable p-shop">Link is not available.</p>`;
         })()}
       </div>
     </div>`;
@@ -240,11 +276,11 @@ function recommendationCard(rec, rank, links) {
         ${(() => {
             const link = linkForProduct(rec.product_id, links);
             return link
-                ? `<a class="btn btn-soft btn-sm" href="${esc(link.affiliate_url)}"
+                ? `<a class="btn btn-soft btn-sm p-shop" href="${esc(link.affiliate_url)}"
                     target="_blank" rel="noopener"
                     onclick="event.stopPropagation()"
-                    data-link="${link.link_id}" style="margin-top:10px">Shop</a>`
-                : `<p class="link-unavailable" style="margin-top:10px">Link is not available.</p>`;
+                    data-link="${link.link_id}">Shop</a>`
+                : `<p class="link-unavailable p-shop">Link is not available.</p>`;
         })()}
       </div>
     </div>`;

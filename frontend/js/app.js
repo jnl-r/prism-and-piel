@@ -34,11 +34,9 @@ const App = {
 
   /* ---------------- LANDING BUTTONS ---------------- */
   bindLanding() {
-    /* "Browse Products" — enter app as guest */
+    /* "Browse Products" — scroll down to the products section, stay on landing */
     document.getElementById('btn-browse-guest').addEventListener('click', () => {
-      App.user = null;
-      App.guest = true;
-      App.navigate('products');
+      App._scrollTo('landing-products');
     });
   },
 
@@ -99,12 +97,13 @@ const App = {
     document.getElementById('btn-logout').addEventListener('click', () => {
       sessionStorage.removeItem('pp_user');
       App.user = null;
-      Views.cache = { users: {}, products: [], variants: [], reviews: [] };
+      App.guest = false;
+      Views.cache = { users: {}, products: [], variants: [], reviews: [], links: [] };
       this._refreshTopbar();
       this.navigate('home');
     });
 
-    /* Enter key */
+    /* enter key */
     document.getElementById('login-password').addEventListener('keydown', e => {
       if (e.key === 'Enter') document.getElementById('btn-login').click();
     });
@@ -163,9 +162,22 @@ const App = {
       e.preventDefault();
       App.navigate(link.dataset.nav);
     });
+  
+    document.body.addEventListener('click', e => {
+      const s = e.target.closest('[data-scroll]');
+      if (!s) return;
+      e.preventDefault();
+      App._scrollTo(s.dataset.scroll);
+    });
     document.getElementById('nav-toggle').addEventListener('click', () => {
       document.getElementById('main-nav').classList.toggle('open');
     });
+  },
+
+  /* smooth-scroll to a section in the current view */
+  _scrollTo(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   },
 
   navigate(view) {
@@ -183,7 +195,6 @@ const App = {
       landing:   'view-landing',
       home:      'view-home',
       profiles:  'view-profiles',
-      products:  'view-products',
       recommend: 'view-recommend',
     };
     const target = ids[realView] || 'view-home';
@@ -193,9 +204,9 @@ const App = {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     if (realView === 'profiles')       Views.profiles();
-    else if (realView === 'products')  Views.products();
     else if (realView === 'recommend') Views.recommend();
     else if (realView === 'home')      Views.home();
+    else if (realView === 'landing')   Views.landing();
   },
 
   /* ---------------- MODAL ---------------- */

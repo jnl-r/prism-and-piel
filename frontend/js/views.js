@@ -7,8 +7,6 @@ const Views = {
      ============================================================ */
   async home() {
     const isUser = !!App.user;
-    document.getElementById('home-kicker').textContent =
-      isUser ? 'Good to see you' : 'Welcome';
     document.getElementById('home-sub').textContent =
       isUser ? "Here's a quick look at what's waiting for you."
              : "You're browsing as a guest. Sign in to save profiles and get matches.";
@@ -17,12 +15,28 @@ const Views = {
     document.getElementById('home-comma').style.display = isUser ? '' : 'none';
 
     const block = document.getElementById('home-top-picks');
-    if (!isUser) { block.classList.add('hidden'); return; }
-    block.classList.remove('hidden');
+    if (isUser) {
+      block.classList.remove('hidden');
+      Views._renderTopPicks();
+    } else {
+      block.classList.add('hidden');
+    }
 
+    // browse Products section, rendered into the Home host
+    Views._renderProducts(document.getElementById('home-products'));
+  },
+
+  /* ============================================================
+     LANDING (guests) — Browse Products lives below the steps band
+     ============================================================ */
+  async landing() {
+    Views._renderProducts(document.getElementById('landing-products'));
+  },
+
+  /* Top Shade Picks (signed-in only) */
+  async _renderTopPicks() {
     const grid = document.getElementById('home-recs-grid');
     grid.innerHTML = loadingBox('Finding your shades…');
-
     try {
       const profiles = await api.getProfiles(App.user.user_id);
       if (!profiles.length) {
@@ -39,7 +53,7 @@ const Views = {
           'We could not find shades for this profile yet.');
         return;
       }
-      grid.innerHTML = recs.slice(0, 6)
+      grid.innerHTML = recs.slice(0, 4)
         .map((r, i) => recommendationCard(r, i + 1, Views.cache.links)).join('');
       Views._wireProductCardClicks(grid);
     } catch (err) {
@@ -88,7 +102,6 @@ const Views = {
         'No profiles yet',
         'Tap "+ New Profile" above to create your first skin profile.');
     } else {
-      /* simple chips, just the name */
       strip.innerHTML = profiles.map((p, i) => profileChip(p, i === 0)).join('');
       Views._renderProfileDetail(profiles[0], profiles);
 
@@ -165,10 +178,17 @@ const Views = {
   /* ============================================================
      PRODUCTS 
      ============================================================ */
-  async products() {
-    const grid       = document.getElementById('products-grid');
-    const brandChips = document.getElementById('product-brand-chips');
-    grid.innerHTML = loadingBox('Loading products…');
+  /* used by both Home (signed-in) and Landing (guests). */
+  async _renderProducts(host) {
+    if (!host) return;
+    host.innerHTML = productsSectionHTML();
+
+    const grid       = host.querySelector('.pp-grid');
+    const brandChips = host.querySelector('.pp-brand-chips');
+    const catChips   = host.querySelector('.pp-cat-chips');
+    const searchInput= host.querySelector('.pp-search-input');
+    const browseBtn  = host.querySelector('.pp-browse-btn');
+    const moreHost   = host.querySelector('.pp-more');
 
     try {
       await Views._ensureCatalogue();
@@ -183,24 +203,40 @@ const Views = {
       '<button class="filter-chip active" data-brand="">All brands</button>' +
       brands.map(b => `<button class="filter-chip" data-brand="${esc(b)}">${esc(b)}</button>`).join('');
 
-    let activeCat = '', activeBrand = '';
+    const PAGE = 6; // how many cards to reveal at a time
+    let activeCat = '', activeBrand = '', query = '', shown = PAGE;
 
     const render = () => {
+      const q = query.trim().toLowerCase();
       const list = Views.cache.products.filter(p =>
         (!activeCat   || p.category   === activeCat) &&
-        (!activeBrand || p.brand_name === activeBrand));
+        (!activeBrand || p.brand_name === activeBrand) &&
+        (!q || `${p.product_name} ${p.brand_name} ${p.category}`
+                 .toLowerCase().includes(q)));
+
       grid.innerHTML = list.length
-        ? list.map(p => productCard(p, Views.cache.variants, Views.cache.links)).join('')
-        : emptyBox('No products', 'Try a different filter.');
+        ? list.slice(0, shown)
+              .map(p => productCard(p, Views.cache.variants, Views.cache.links)).join('')
+        : emptyBox('No products found', 'Try a different search or filter.');
       Views._wireProductCardClicks(grid);
+
+      const remaining = list.length - shown;
+      if (remaining > 0) {
+        moreHost.innerHTML =
+          `<button class="btn btn-soft pp-see-more">See more (${remaining})</button>`;
+        moreHost.querySelector('.pp-see-more').onclick = () => { shown += PAGE; render(); };
+      } else {
+        moreHost.innerHTML = '';
+      }
     };
     render();
 
-    document.querySelectorAll('#product-cat-chips .filter-chip').forEach(chip =>
+    catChips.querySelectorAll('.filter-chip').forEach(chip =>
       chip.addEventListener('click', () => {
-        document.querySelectorAll('#product-cat-chips .filter-chip')
+        catChips.querySelectorAll('.filter-chip')
           .forEach(c => c.classList.toggle('active', c === chip));
         activeCat = chip.dataset.cat;
+        shown = PAGE; // reset paging when the filter changes
         render();
       }));
 
@@ -209,8 +245,29 @@ const Views = {
         brandChips.querySelectorAll('.filter-chip')
           .forEach(c => c.classList.toggle('active', c === chip));
         activeBrand = chip.dataset.brand;
+        shown = PAGE;
         render();
       }));
+
+    if (searchInput) {
+      searchInput.addEventListener('input', () => {
+        query = searchInput.value;
+        shown = PAGE; // reset paging on each new search
+        render();
+      });
+    }
+
+    if (browseBtn) {
+      browseBtn.addEventListener('click', () => {
+        query = ''; activeCat = ''; activeBrand = ''; shown = PAGE;
+        if (searchInput) searchInput.value = '';
+        catChips.querySelectorAll('.filter-chip')
+          .forEach((c, i) => c.classList.toggle('active', i === 0));
+        brandChips.querySelectorAll('.filter-chip')
+          .forEach((c, i) => c.classList.toggle('active', i === 0));
+        render();
+      });
+    }
   },
 
   /* ============================================================
@@ -308,7 +365,7 @@ const Views = {
     const form = document.getElementById('drawer-review-form');
     toggle.addEventListener('click', () => form.classList.toggle('hidden'));
 
-    // star rating: clicking a star fills up to it
+    // star rating where clicking a star fills up to it
     let rating = 0;
     const stars = document.getElementById('dr-stars');
     stars.querySelectorAll('span').forEach(s =>
@@ -334,7 +391,7 @@ const Views = {
         try {
         await api.createReview(data);
         toast('Review posted', 'success');
-        // refresh the cache + redraw the drawer so the new review shows
+        // refresh the cache plus redraw the drawer so the new review shows
         Views.cache.reviews = await api.getReviews();
         openDrawer(drawerContent(product, Views.cache.variants,
             Views.cache.reviews, Views.cache.users, Views.cache.links));

@@ -33,7 +33,6 @@
         <nav class="nav" id="main-nav">
           <a href="#" class="nav-link" data-nav="home">Home</a>
           <a href="#" class="nav-link" data-nav="profiles">Skin Profiles</a>
-          <a href="#" class="nav-link" data-nav="products">Products</a>
           <a href="#" class="nav-link" data-nav="recommend">Find My Shade</a>
         </nav>
 
@@ -110,6 +109,8 @@
           </div>
         </div>
       </section>
+
+      <div id="landing-products" class="products-section"></div>
       </div>
 
       <!-- ============ HOME ============ -->
@@ -117,7 +118,6 @@
 
         <div class="welcome-band">
           <div>
-            <p class="welcome-kicker" id="home-kicker">Good to see you</p>
             <h1 class="welcome-title">Welcome<span id="home-comma">,</span> <em id="welcome-name">there</em>.</h1>
             <p class="welcome-sub" id="home-sub">Here's a quick look at what's waiting for you.</p>
           </div>
@@ -133,26 +133,6 @@
           </div>
         </div>
 
-        <div class="feature-row">
-          <div class="feature-card feature-card-action" data-nav="profiles">
-            <div class="feature-num">01</div>
-            <h3>Skin Profiles</h3>
-            <p>Save your skin details so we can match the right shades for you.</p>
-            <span class="feature-link">Manage profiles &rarr;</span>
-          </div>
-          <div class="feature-card feature-card-action" data-nav="products">
-            <div class="feature-num">02</div>
-            <h3>Browse Products</h3>
-            <p>Explore foundations, lippies and blushes from Filipino brands.</p>
-            <span class="feature-link">Open catalog &rarr;</span>
-          </div>
-          <div class="feature-card feature-card-action" data-nav="recommend">
-            <div class="feature-num">03</div>
-            <h3>Find My Shade</h3>
-            <p>Get ranked recommendations from your active skin profile.</p>
-            <span class="feature-link">Match me &rarr;</span>
-          </div>
-        </div>
 
         <div id="home-top-picks">
           <div class="section-head">
@@ -164,6 +144,9 @@
             <div class="loading">Finding your shades&hellip;</div>
           </div>
         </div>
+
+      
+        <div id="home-products" class="products-section"></div>
 
       </div><!-- /view-home -->
 
@@ -197,42 +180,6 @@
           </div>
         </div>
       </div><!-- /view-profiles -->
-
-
-      <!-- ============ PRODUCTS ============ -->
-      <div id="view-products" class="view hidden">
-        <div class="section-head">
-          <p class="section-kicker">The collection</p>
-          <h2 class="section-title">Browse Products</h2>
-          <p class="section-sub">Foundations, lippies, blushes and more from local
-             and international brands available on TikTok Shop PH.</p>
-        </div>
-
-        <div class="filter-block">
-          <p class="filter-block-label">Shop by category</p>
-          <div class="filter-chips" id="product-cat-chips">
-            <button class="filter-chip active" data-cat="">All</button>
-            <button class="filter-chip" data-cat="Base">Base</button>
-            <button class="filter-chip" data-cat="Concealer">Concealer</button>
-            <button class="filter-chip" data-cat="Blush">Blush</button>
-            <button class="filter-chip" data-cat="Contour">Contour</button>
-            <button class="filter-chip" data-cat="Highlighter">Highlighter</button>
-            <button class="filter-chip" data-cat="Lipstick">Lipstick</button>
-            <button class="filter-chip" data-cat="Eye Palette">Eye Palette</button>
-          </div>
-        </div>
-
-        <div class="filter-block">
-          <p class="filter-block-label">Shop by brand</p>
-          <div class="filter-chips" id="product-brand-chips">
-            <div class="loading">Loading brands&hellip;</div>
-          </div>
-        </div>
-
-        <div class="card-grid" id="products-grid">
-          <div class="loading">Loading products&hellip;</div>
-        </div>
-      </div><!-- /view-products -->
 
 
       <!-- ============ FIND MY SHADE ============ -->
