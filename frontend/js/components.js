@@ -5,6 +5,11 @@ function esc(str) {
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+function linkForProduct(productId, links) {
+  // one product → one affiliate link (first match wins)
+  return (links || []).find(l => l.product_id === productId) || null;
+}
+
 /* ---------- toast ---------- */
 function toast(message, type = '') {
   let el = document.getElementById('toast');
@@ -174,7 +179,7 @@ function profileFormHTML(existing) {
 }
 
 /* ---------- ONE PRODUCT CARD ---------- */
-function productCard(product, variants) {
+function productCard(product, variants, links) {
   const vs = variants.filter(v => v.product_id === product.product_id);
   const swatches = vs.slice(0, 6).map(v =>
     `<span class="swatch" style="background:${esc(v.shade_hex || '#eee')}"
@@ -193,6 +198,15 @@ function productCard(product, variants) {
           <span class="tag">${vs.length} shade${vs.length === 1 ? '' : 's'}</span>
         </div>
         <div class="swatch-row">${swatches}</div>
+        ${(() => {
+            const link = linkForProduct(product.product_id, links);
+            return link
+                ? `<a class="btn btn-soft btn-sm" href="${esc(link.affiliate_url)}"
+                    target="_blank" rel="noopener"
+                    onclick="event.stopPropagation()"
+                    data-link="${link.link_id}" style="margin-top:10px">Shop</a>`
+                : '';
+        })()}
       </div>
     </div>`;
 }
@@ -228,7 +242,7 @@ function recommendationCard(rec, rank) {
 }
 
 /* ---------- DRAWER CONTENT for one product ---------- */
-function drawerContent(product, variants, reviews, userNames) {
+function drawerContent(product, variants, reviews, userNames, links) {
   const vs  = variants.filter(v => v.product_id === product.product_id);
   const rs  = reviews.filter(r => r.product_id === product.product_id);
   const avg = rs.length
@@ -250,6 +264,17 @@ function drawerContent(product, variants, reviews, userNames) {
         <span class="tag">${esc(product.formula_type || 'Formula n/a')}</span>
         <span class="tag">${esc(product.finish || 'Finish n/a')}</span>
       </div>
+
+      ${(() => {
+        const link = linkForProduct(product.product_id, links);
+        return link
+            ? `<a class="btn btn-primary btn-block" href="${esc(link.affiliate_url)}"
+                target="_blank" rel="noopener"
+                data-link="${link.link_id}" style="margin-bottom:18px">
+                Shop on TikTok &nearr;</a>`
+            : '';
+        })()}
+
       <p class="detail-desc">${esc(product.description || 'No description provided.')}</p>
 
       <p class="detail-section-label">Shades (${vs.length})</p>
@@ -277,5 +302,35 @@ function drawerContent(product, variants, reviews, userNames) {
           <div class="mini-review-date">${esc((r.created_at || '').slice(0, 10))}</div>
         </div>`).join('')
         : `<div class="detail-empty">No reviews yet.</div>`}
+    ${App.user ? `
+        <button class="btn btn-soft btn-sm" id="drawer-add-review" style="margin-top:14px">
+            + Add a Review
+        </button>
+        <div id="drawer-review-form" class="hidden" style="margin-top:16px">
+            <label class="field">
+            <span class="field-label">Your rating</span>
+            <div class="star-input" id="dr-stars">
+                <span data-v="1">&#10022;</span><span data-v="2">&#10022;</span>
+                <span data-v="3">&#10022;</span><span data-v="4">&#10022;</span>
+                <span data-v="5">&#10022;</span>
+            </div>
+            </label>
+            <label class="field">
+            <span class="field-label">Shade</span>
+            <select id="dr-variant">
+                ${vs.map(v => `<option value="${v.variant_id}">${esc(v.shade_name)}</option>`).join('')}
+            </select>
+            </label>
+            <label class="field">
+            <span class="field-label">Comment</span>
+            <textarea id="dr-comment" placeholder="How did it wear?"></textarea>
+            </label>
+            <label class="check-pill" style="margin-bottom:12px">
+            <input type="checkbox" id="dr-match" /><span>It matched my skin</span>
+            </label>
+            <p id="dr-error" class="form-error"></p>
+            <button class="btn btn-primary btn-sm" id="dr-submit-review">Post Review</button>
+        </div>` : ''}
+        
     </div>`;
 }

@@ -1,6 +1,6 @@
 const Views = {
 
-  cache: { users: {}, products: [], variants: [], reviews: [] },
+  cache: { users: {}, products: [], variants: [], reviews: [], links: []},
 
   /* ============================================================
      HOME 
@@ -189,7 +189,7 @@ const Views = {
         (!activeCat   || p.category   === activeCat) &&
         (!activeBrand || p.brand_name === activeBrand));
       grid.innerHTML = list.length
-        ? list.map(p => productCard(p, Views.cache.variants)).join('')
+        ? list.map(p => productCard(p, Views.cache.variants, Views.cache.links)).join('')
         : emptyBox('No products', 'Try a different filter.');
       Views._wireProductCardClicks(grid);
     };
@@ -278,6 +278,7 @@ const Views = {
     Views.cache.products = products;
     Views.cache.variants = variants;
     Views.cache.reviews  = reviews;
+    Views.cache.links    = links;
     users.forEach(u => { Views.cache.users[u.user_id] = u.name; });
   },
 
@@ -291,8 +292,52 @@ const Views = {
           product = Views.cache.products.find(p => p.product_id === id);
         }
         if (!product) { toast('Could not load that product', 'error'); return; }
-        openDrawer(drawerContent(
-          product, Views.cache.variants, Views.cache.reviews, Views.cache.users));
+         openDrawer(drawerContent(product, Views.cache.variants,
+            Views.cache.reviews, Views.cache.users, Views.cache.links));
+
+          Views._wireDrawerReview(product);
       }));
   },
+
+  _wireDrawerReview(product) {
+    const toggle = document.getElementById('drawer-add-review');
+    if (!toggle) return;                 // guest — no form rendered
+
+    const form = document.getElementById('drawer-review-form');
+    toggle.addEventListener('click', () => form.classList.toggle('hidden'));
+
+    // star rating: clicking a star fills up to it
+    let rating = 0;
+    const stars = document.getElementById('dr-stars');
+    stars.querySelectorAll('span').forEach(s =>
+        s.addEventListener('click', () => {
+        rating = +s.dataset.v;
+        stars.querySelectorAll('span').forEach(x =>
+            x.classList.toggle('on', +x.dataset.v <= rating));
+        }));
+
+    document.getElementById('dr-submit-review').addEventListener('click', async () => {
+        const err = document.getElementById('dr-error');
+        err.textContent = '';
+        if (!rating) { err.textContent = 'Please pick a star rating.'; return; }
+
+        const data = {
+        user_id:    App.user.user_id,
+        product_id: product.product_id,
+        variant_id: +document.getElementById('dr-variant').value,
+        rating:     rating,
+        comment:    document.getElementById('dr-comment').value.trim(),
+        skin_profile_match: document.getElementById('dr-match').checked,
+        };
+        try {
+        await api.createReview(data);
+        toast('Review posted', 'success');
+        // refresh the cache + redraw the drawer so the new review shows
+        Views.cache.reviews = await api.getReviews();
+        openDrawer(drawerContent(product, Views.cache.variants,
+            Views.cache.reviews, Views.cache.users, Views.cache.links));
+        Views._wireDrawerReview(product);
+        } catch (e) { err.textContent = e.message; }
+    });
+    },
 };
