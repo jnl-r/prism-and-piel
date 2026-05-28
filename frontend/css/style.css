@@ -1153,7 +1153,7 @@ img {
   height: 50px;
   margin: 0 auto 12px;
   border-radius: 50%;
-  background: var(--cream);
+  background: var(--pink-100);
   color: var(--pink-500);
   font-family: var(--serif);
   font-weight: 600;
