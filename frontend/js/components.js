@@ -5,7 +5,7 @@ function esc(str) {
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-/* ---------- notification ---------- */
+/* ---------- toast ---------- */
 function toast(message, type = '') {
   let el = document.getElementById('toast');
   if (!el) {
@@ -20,7 +20,7 @@ function toast(message, type = '') {
   el._t = setTimeout(() => { el.className = 'toast ' + type; }, 2600);
 }
 
-/* ---------- modal open / close ---------- */
+/* ---------- modal ---------- */
 function openModal(html) {
   document.getElementById('modal-content').innerHTML = html;
   document.getElementById('modal-overlay').classList.remove('hidden');
@@ -30,6 +30,19 @@ function closeModal() {
   document.getElementById('modal-content').innerHTML = '';
 }
 
+/* ---------- product drawer (slides in from the right) ---------- */
+function openDrawer(html) {
+  document.getElementById('drawer-content').innerHTML = html;
+  document.getElementById('product-drawer').classList.add('open');
+  document.getElementById('product-drawer').setAttribute('aria-hidden', 'false');
+  document.getElementById('drawer-overlay').classList.add('open');
+}
+function closeDrawer() {
+  document.getElementById('product-drawer').classList.remove('open');
+  document.getElementById('product-drawer').setAttribute('aria-hidden', 'true');
+  document.getElementById('drawer-overlay').classList.remove('open');
+}
+
 /* ---------- star rating  ---------- */
 function starsDisplay(rating) {
   let html = '<span class="stars">';
@@ -37,14 +50,6 @@ function starsDisplay(rating) {
     html += `<span class="${rating >= i - 0.25 ? '' : 'dim'}">&#10022;</span>`;
   }
   return html + '</span>';
-}
-
-/* ---------- placeholder image box ---------- */
-function thumbBox(category) {
-  const t = thumbStyle(category);
-  return `<div class="p-thumb" style="background:${t.bg};">
-    <span style="font-size:2rem;">${t.emoji}</span>
-  </div>`;
 }
 
 /* ---------- empty / loading ---------- */
@@ -57,7 +62,7 @@ function loadingBox(text = 'Loading…') {
   return `<div class="loading">${esc(text)}</div>`;
 }
 
-/* ---------- category → gradient + emoji map (for now since wa pay pic) can be removed ra after ---------- */
+/* ---------- category → gradient + emoji thumb (until real photos) ---------- */
 function thumbStyle(category) {
   const map = {
     'Base':        { bg: 'linear-gradient(160deg,#f9e8ef,#f4d3c4)', emoji: '💄' },
@@ -70,32 +75,62 @@ function thumbStyle(category) {
   };
   return map[category] || { bg: 'linear-gradient(160deg,var(--pink-100),var(--cream))', emoji: '✦' };
 }
+function thumbBox(category) {
+  const t = thumbStyle(category);
+  return `<div class="p-thumb" style="background:${t.bg};">
+    <span style="font-size:2rem;">${t.emoji}</span>
+  </div>`;
+}
 
-/* ---------- one PROFILE card ---------- */
-function profileCard(p) {
+/* ---------- ONE PROFILE CHIP ---------- */
+function profileChip(p, active) {
+  return `<button class="profile-chip ${active ? 'active' : ''}"
+                  data-profile="${p.profile_id}">${esc(p.profile_label)}</button>`;
+}
+
+/* ---------- BIG PROFILE DETAIL CARD ---------- */
+function profileDetailCard(p) {
   const concerns = (p.primary_concern || '').split(',').filter(Boolean);
   return `
-    <div class="profile-card">
-      <div class="profile-top">
-        <span class="profile-label">${esc(p.profile_label)}</span>
+    <div class="profile-detail-card">
+      <div class="profile-detail-header">
+        <div>
+          <p class="section-kicker">Active profile</p>
+          <h3 class="profile-detail-title">${esc(p.profile_label)}</h3>
+        </div>
+        <div class="profile-detail-actions">
+          <button class="btn btn-soft btn-sm" id="btn-edit-profile">Edit</button>
+          <button class="btn btn-danger btn-sm" id="btn-delete-profile">Delete</button>
+        </div>
       </div>
-      <div class="profile-attrs">
-        <span class="attr">Tone <b>${esc(p.skintone)}</b></span>
-        <span class="attr">Undertone <b>${esc(p.undertone)}</b></span>
-        <span class="attr">Type <b>${esc(p.skintype)}</b></span>
-        <span class="attr">Finish <b>${esc(p.preferred_finish || '—')}</b></span>
+      <div class="profile-attrs-grid">
+        <div class="profile-attr-box">
+          <div class="profile-attr-label">Skintone</div>
+          <div class="profile-attr-value">${esc(p.skintone)}</div>
+        </div>
+        <div class="profile-attr-box">
+          <div class="profile-attr-label">Undertone</div>
+          <div class="profile-attr-value">${esc(p.undertone)}</div>
+        </div>
+        <div class="profile-attr-box">
+          <div class="profile-attr-label">Skin Type</div>
+          <div class="profile-attr-value">${esc(p.skintype)}</div>
+        </div>
+        <div class="profile-attr-box">
+          <div class="profile-attr-label">Preferred Finish</div>
+          <div class="profile-attr-value">${esc(p.preferred_finish || '—')}</div>
+        </div>
       </div>
-      <p style="font-size:.9rem;color:var(--charcoal-soft);margin-bottom:14px">
-        Concerns: ${concerns.length ? esc(concerns.join(', ')) : 'none noted'}
-      </p>
-      <div class="p-actions">
-        <button class="btn btn-soft btn-sm" data-edit="${p.profile_id}">Edit</button>
-        <button class="btn btn-danger btn-sm" data-del="${p.profile_id}">Delete</button>
+      <div class="profile-detail-concerns">
+        <p class="detail-section-label">Primary Concerns</p>
+        ${concerns.length
+          ? `<div class="p-tags">${concerns.map(c => `<span class="tag">${esc(c)}</span>`).join('')}</div>`
+          : `<p class="detail-empty">None noted</p>`}
       </div>
     </div>`;
 }
 
-/* ---------- the PROFILE form  ---------- */
+/* ---------- PROFILE FORM ---------- */
 function profileFormHTML(existing) {
   const p = existing || {};
   const concerns = (p.primary_concern || '').split(',');
@@ -107,16 +142,13 @@ function profileFormHTML(existing) {
         ${opts.map(o => `<option ${o === val ? 'selected' : ''}>${o}</option>`).join('')}
       </select>
     </label>`;
-
   return `
     <h3 class="modal-title">${p.profile_id ? 'Edit' : 'New'} Skin Profile</h3>
-
     <label class="field">
       <span class="field-label">Profile Label</span>
       <input type="text" id="pf-label" value="${esc(p.profile_label || '')}"
              placeholder="e.g. Everyday Look, Glam Night" />
     </label>
-
     <div class="field-row">
       ${sel('pf-skintone',  'Skintone',  ENUMS.skintone,  p.skintone)}
       ${sel('pf-undertone', 'Undertone', ENUMS.undertone, p.undertone)}
@@ -125,7 +157,6 @@ function profileFormHTML(existing) {
       ${sel('pf-skintype', 'Skin Type',        ENUMS.skintype, p.skintype)}
       ${sel('pf-finish',   'Preferred Finish', ENUMS.finish,   p.preferred_finish)}
     </div>
-
     <label class="field">
       <span class="field-label">Primary Concerns</span>
       <div class="check-group" id="pf-concerns">
@@ -136,14 +167,13 @@ function profileFormHTML(existing) {
           </label>`).join('')}
       </div>
     </label>
-
     <p id="pf-error" class="form-error"></p>
     <button class="btn btn-primary btn-block" id="btn-save-profile">
       ${p.profile_id ? 'Save Changes' : 'Create Profile'}
     </button>`;
 }
 
-/* ---------- one PRODUCT card ---------- */
+/* ---------- ONE PRODUCT CARD ---------- */
 function productCard(product, variants) {
   const vs = variants.filter(v => v.product_id === product.product_id);
   const swatches = vs.slice(0, 6).map(v =>
@@ -167,7 +197,7 @@ function productCard(product, variants) {
     </div>`;
 }
 
-/* ---------- one RECOMMENDATION card  ---------- */
+/* ---------- ONE RECOMMENDATION CARD ---------- */
 function recommendationCard(rec, rank) {
   const t = thumbStyle(rec.category);
   return `
@@ -197,8 +227,8 @@ function recommendationCard(rec, rank) {
     </div>`;
 }
 
-/* ---------- side DETAIL panel with gradient thumb ---------- */
-function detailPanel(product, variants, reviews, userNames) {
+/* ---------- DRAWER CONTENT for one product ---------- */
+function drawerContent(product, variants, reviews, userNames) {
   const vs  = variants.filter(v => v.product_id === product.product_id);
   const rs  = reviews.filter(r => r.product_id === product.product_id);
   const avg = rs.length
@@ -208,14 +238,14 @@ function detailPanel(product, variants, reviews, userNames) {
 
   return `
     ${product.image_url
-      ? `<img class="detail-thumb" style="object-fit:cover" src="${esc(product.image_url)}" alt="">`
-      : `<div class="detail-thumb" style="background:${t.bg};">
-           <span style="font-size:3.2rem;">${t.emoji}</span>
+      ? `<img class="drawer-thumb" src="${esc(product.image_url)}" alt="">`
+      : `<div class="drawer-thumb" style="background:${t.bg};">
+           <span style="font-size:4rem;">${t.emoji}</span>
          </div>`}
-    <div class="detail-body">
+    <div class="drawer-body">
       <div class="detail-brand">${esc(product.brand_name)}</div>
       <div class="detail-name">${esc(product.product_name)}</div>
-      <div class="p-tags" style="margin-bottom:14px">
+      <div class="p-tags" style="margin-bottom:16px">
         <span class="tag tag-accent">${esc(product.category)}</span>
         <span class="tag">${esc(product.formula_type || 'Formula n/a')}</span>
         <span class="tag">${esc(product.finish || 'Finish n/a')}</span>

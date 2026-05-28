@@ -1,46 +1,92 @@
 const App = {
-  user: null,
+  user: null,          
+  guest: false,      
 
   init() {
     this.user = JSON.parse(sessionStorage.getItem('pp_user') || 'null');
     if (this.user) this.showApp();
     else           this.showLanding();
 
+    this.bindLanding();
     this.bindAuth();
     this.bindNav();
     this.bindModal();
+    this.bindDrawer();
   },
 
   /* ---------------- SCREEN SWITCHING ---------------- */
   showLanding() {
-    document.getElementById('landingPage-screen').classList.remove('hidden');
+    this.guest = false;
+    document.getElementById('landing').classList.remove('hidden');
     document.getElementById('app').classList.add('hidden');
+    document.body.classList.remove('app-open');
   },
 
   showApp() {
-    document.getElementById('landingPage-screen').classList.add('hidden');
+    document.getElementById('landing').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
+    document.body.classList.add('app-open');
 
-    const initial = (this.user.name || 'P').charAt(0).toUpperCase();
-    document.getElementById('user-avatar').textContent = initial;
-    document.getElementById('user-name').textContent = this.user.name;
+    /* update the topbar based on signed-in vs guest */
+    const chip       = document.getElementById('user-chip');
+    const logout     = document.getElementById('btn-logout');
+    const guestBtn   = document.getElementById('btn-guest-signin');
+
+    if (this.user) {
+      const initial = (this.user.name || 'P').charAt(0).toUpperCase();
+      document.getElementById('user-avatar').textContent = initial;
+      document.getElementById('user-name').textContent = this.user.name;
+      chip.classList.remove('hidden');
+      logout.classList.remove('hidden');
+      guestBtn.classList.add('hidden');
+    } else {
+      /* guest mode */
+      chip.classList.add('hidden');
+      logout.classList.add('hidden');
+      guestBtn.classList.remove('hidden');
+    }
 
     this.navigate('home');
   },
 
+  /* ---------------- LANDING BUTTONS ---------------- */
+  bindLanding() {
+    /* "Browse Products" — enter app as guest */
+    document.getElementById('btn-browse-guest').addEventListener('click', () => {
+      App.user = null;
+      App.guest = true;
+      App.showApp();
+      App.navigate('products');
+    });
+  },
+
   /* ---------------- AUTH ---------------- */
   bindAuth() {
+    /* any element with data-open-auth opens the auth modal */
+    document.body.addEventListener('click', e => {
+      const trigger = e.target.closest('[data-open-auth]');
+      if (!trigger) return;
+      e.preventDefault();
+      App.openAuth(trigger.dataset.openAuth);
+    });
+
+    /* close auth modal */
+    document.getElementById('auth-modal-close').addEventListener('click', App.closeAuth);
+    document.getElementById('auth-modal').addEventListener('click', e => {
+      if (e.target.id === 'auth-modal') App.closeAuth();
+    });
+
+    /* switch login or signup inside the modal */
     document.getElementById('go-signup').addEventListener('click', e => {
       e.preventDefault();
-      document.getElementById('login-form').classList.add('hidden');
-      document.getElementById('signup-form').classList.remove('hidden');
+      App._showAuthForm('signup');
     });
     document.getElementById('go-login').addEventListener('click', e => {
       e.preventDefault();
-      document.getElementById('signup-form').classList.add('hidden');
-      document.getElementById('login-form').classList.remove('hidden');
+      App._showAuthForm('login');
     });
 
+    /* LOGIN */
     document.getElementById('btn-login').addEventListener('click', async () => {
       const email = document.getElementById('login-email').value.trim();
       const pass  = document.getElementById('login-password').value;
@@ -53,6 +99,7 @@ const App = {
       } catch (e) { err.textContent = e.message; }
     });
 
+    /* SIGNUP */
     document.getElementById('btn-signup').addEventListener('click', async () => {
       const name  = document.getElementById('signup-name').value.trim();
       const email = document.getElementById('signup-email').value.trim();
@@ -66,6 +113,7 @@ const App = {
       } catch (e) { err.textContent = e.message; }
     });
 
+    /* LOGOUT */
     document.getElementById('btn-logout').addEventListener('click', () => {
       sessionStorage.removeItem('pp_user');
       App.user = null;
@@ -73,6 +121,7 @@ const App = {
       App.showLanding();
     });
 
+    /* Enter key */
     document.getElementById('login-password').addEventListener('keydown', e => {
       if (e.key === 'Enter') document.getElementById('btn-login').click();
     });
@@ -80,25 +129,45 @@ const App = {
       if (e.key === 'Enter') document.getElementById('btn-signup').click();
     });
 
-    // PASSWORD TOGGLE
+    /* Password show/hide */
     document.querySelectorAll('.toggle-pw').forEach(btn => {
       btn.addEventListener('click', () => {
         const input   = document.getElementById(btn.dataset.target);
         const eyeShow = btn.querySelector('.eye-show');
         const eyeHide = btn.querySelector('.eye-hide');
         const isHidden = input.type === 'password';
-
-        input.type          = isHidden ? 'text' : 'password';
-        eyeShow.style.display = isHidden ? 'none'  : '';
-        eyeHide.style.display = isHidden ? ''      : 'none';
+        input.type            = isHidden ? 'text' : 'password';
+        eyeShow.style.display = isHidden ? 'none' : '';
+        eyeHide.style.display = isHidden ? ''    : 'none';
         btn.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
       });
     });
   },
 
+  openAuth(mode = 'login') {
+    this._showAuthForm(mode);
+    document.getElementById('auth-modal').classList.remove('hidden');
+    /* clear any errors / passwords */
+    document.getElementById('login-error').textContent = '';
+    document.getElementById('signup-error').textContent = '';
+  },
+
+  closeAuth() {
+    document.getElementById('auth-modal').classList.add('hidden');
+  },
+
+  _showAuthForm(mode) {
+    document.getElementById('login-form')
+      .classList.toggle('hidden', mode !== 'login');
+    document.getElementById('signup-form')
+      .classList.toggle('hidden', mode !== 'signup');
+  },
+
   _signIn(user) {
     App.user = user;
+    App.guest = false;
     sessionStorage.setItem('pp_user', JSON.stringify(user));
+    App.closeAuth();
     App.showApp();
   },
 
@@ -144,6 +213,19 @@ const App = {
     document.getElementById('modal-close').addEventListener('click', closeModal);
     document.getElementById('modal-overlay').addEventListener('click', e => {
       if (e.target.id === 'modal-overlay') closeModal();
+    });
+  },
+
+  /* ---------------- PRODUCT DRAWER ---------------- */
+  bindDrawer() {
+    document.getElementById('drawer-close').addEventListener('click', closeDrawer);
+    document.getElementById('drawer-overlay').addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closeDrawer();
+        App.closeAuth();
+        closeModal();
+      }
     });
   },
 };
