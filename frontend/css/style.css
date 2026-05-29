@@ -481,6 +481,9 @@ p.link-unavailable.p-shop { margin-bottom: 0; }
   cursor: pointer;
 }
 
+/* ============================================================
+   AUTH MODAL — landing page style forms
+   ============================================================ */
 .landingPage-title {
   font-family: var(--serif);
   font-weight: 600;
@@ -496,6 +499,177 @@ p.link-unavailable.p-shop { margin-bottom: 0; }
   margin-bottom: 20px;
 }
 
+/* The dotted-grid background on the modal itself */
+.modal-auth {
+  /* overflow: hidden here would clip the sparkle stars — use visible instead */
+  overflow: visible;
+  position: relative;
+  background-image: radial-gradient(
+    circle,
+    rgba(233, 138, 160, 0.07) 1px,
+    transparent 1px
+  );
+  background-size: 24px 24px;
+}
+
+/* Clip sparkles at the modal boundary without clipping the scroll content */
+.modal-auth::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+/* Soft radial glow — top-right */
+.modal-auth::after {
+  content: '';
+  position: absolute;
+  top: -120px;
+  right: -100px;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(248, 168, 185, 0.18) 0%,
+    transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Both auth forms sit above sparkles */
+.landingPage-form {
+  position: relative;
+  z-index: 1;
+}
+
+/* Brand-mark divider line in modal */
+.landingPage-form .brand-mark {
+  position: relative;
+  padding-bottom: 24px;
+  margin-bottom: 4px;
+}
+
+.landingPage-form .brand-mark::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 1.5px;
+  background: linear-gradient(90deg,
+    transparent,
+    var(--pink-300),
+    transparent);
+}
+
+/* Slide-in animation on form switch */
+.modal-auth .auth-form {
+  animation: fadeUp .3s ease;
+}
+
+/* Slight nudge on focused field */
+.auth-field {
+  transition: transform .2s ease;
+}
+
+.auth-field:focus-within {
+  transform: translateX(3px);
+}
+
+/* "Shade Matching" / "Free to join" pill badge */
+.landingPage-form-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--pink-50);
+  border: 1px solid var(--pink-200);
+  border-radius: 100px;
+  padding: 5px 14px;
+  font-size: 0.78rem;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--pink-600);
+  margin-bottom: 12px;
+}
+
+.landingPage-form-badge span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--pink-400);
+  display: inline-block;
+}
+
+/* Skinntone swatch strip above the CTA button */
+.auth-swatch-strip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 16px;
+  opacity: 0.55;
+}
+
+.auth-swatch-strip span {
+  flex: 1;
+  height: 3px;
+  border-radius: 100px;
+}
+
+/* Decorative star row between CTA and switch link */
+.auth-deco-stars {
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--pink-200);
+  letter-spacing: 6px;
+  margin: 10px 0 4px;
+}
+
+/* ── Sparkle animations ── */
+@keyframes sparklePulse {
+  0%, 100% { transform: scale(1);   opacity: 1;    }
+  50%       { transform: scale(1.3); opacity: 0.55; }
+}
+
+@keyframes sparkleDrift {
+  0%   { transform: translateY(0px)  rotate(0deg);  }
+  50%  { transform: translateY(-6px) rotate(12deg); }
+  100% { transform: translateY(0px)  rotate(0deg);  }
+}
+
+.sparkle-star {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+  color: var(--pink-400);
+}
+
+.sparkle-star svg {
+  display: block;
+}
+
+.sparkle-pulse {
+  animation: sparklePulse 2.4s ease-in-out infinite;
+}
+
+.sparkle-drift {
+  animation: sparkleDrift 3.2s ease-in-out infinite;
+}
+
+.sparkle-drift-slow {
+  animation: sparkleDrift 4.8s ease-in-out infinite;
+}
+
+/* Close button stays above sparkles */
+.modal-auth .modal-close {
+  position: absolute;
+  z-index: 2;
+}
+
+/* ── Auth input (underline style) ── */
 .auth-input {
   display: flex;
   align-items: center;
@@ -521,6 +695,7 @@ p.link-unavailable.p-shop { margin-bottom: 0; }
   color: var(--pink-500);
 }
 
+/* Switch link ("New to Prism & Piel? Create an account") */
 .landingPage-switch {
   text-align: center;
   font-size: 0.96rem;
@@ -1079,20 +1254,19 @@ p.link-unavailable.p-shop { margin-bottom: 0; }
   color: var(--charcoal-soft);
 }
 
-/* some animations */
+/* Animations */
 @keyframes fadeUp {
   from {
     opacity: 0;
     transform: translateY(14px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* loading shimmer */
+/* Loading shimmer */
 .loading {
   text-align: center;
   padding: 60px;
@@ -1123,8 +1297,6 @@ p.link-unavailable.p-shop { margin-bottom: 0; }
   .steps-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-
-  
 }
 
 @media (max-width: 760px) {
@@ -1189,6 +1361,7 @@ p.link-unavailable.p-shop { margin-bottom: 0; }
   }
 }
 
+/* MODAL OVERLAY (shared by auth + general modal) */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -1223,6 +1396,7 @@ p.link-unavailable.p-shop { margin-bottom: 0; }
   color: var(--charcoal-faint);
   cursor: pointer;
   line-height: 1;
+  z-index: 2;
 }
 
 .modal-close:hover {
@@ -1237,6 +1411,7 @@ p.link-unavailable.p-shop { margin-bottom: 0; }
   margin-bottom: 20px;
 }
 
+/* TOAST */
 .toast {
   position: fixed;
   bottom: 28px;
@@ -1245,7 +1420,6 @@ p.link-unavailable.p-shop { margin-bottom: 0; }
   background: var(--charcoal);
   color: #fff;
   font-size: 0.9rem;
-
   padding: 12px 24px;
   border-radius: 100px;
   opacity: 0;
@@ -1263,6 +1437,7 @@ p.link-unavailable.p-shop { margin-bottom: 0; }
 .toast.success { background: var(--pink-600); }
 .toast.error   { background: #b04060; }
 
+/* WELCOME BAND (home) */
 .welcome-band {
   background: linear-gradient(135deg, var(--pink-100), var(--cream));
   border-radius: var(--radius-lg);
@@ -1329,6 +1504,7 @@ p.link-unavailable.p-shop { margin-bottom: 0; }
   letter-spacing: 0.4px;
 }
 
+/* PROFILE CHIPS */
 .profile-chip {
   background: var(--surface);
   border: 1px solid var(--line);
@@ -1430,8 +1606,8 @@ p.link-unavailable.p-shop { margin-bottom: 0; }
 
 #view-landing .hero { margin-bottom: 56px; }
 
+/* Auth modal max-width */
 .modal-auth { max-width: 460px; }
-.modal-auth .auth-form { animation: fadeUp .3s ease; }
 
 .user-chip.hidden,
 #btn-logout.hidden,
@@ -1538,6 +1714,7 @@ p.link-unavailable.p-shop { margin-bottom: 0; }
   padding: 80px 24px;
 }
 
+/* PRODUCT DRAWER */
 .drawer-overlay {
   position: fixed;
   inset: 0;
@@ -1614,9 +1791,11 @@ p.link-unavailable.p-shop { margin-bottom: 0; }
   .drawer-body { padding: 22px 22px 48px; }
 }
 
+/* z-index: auth and general modal sit above drawer */
 #auth-modal,
 #modal-overlay { z-index: 200; }
 
+/* CAROUSEL */
 .pp-carousel {
   position: relative;
   width: 100%;
@@ -1748,5 +1927,5 @@ p.link-unavailable.p-shop { margin-bottom: 0; }
 
 @media (max-width: 760px) {
   .drawer-media .pp-carousel { height: 220px; }
-  .pp-cz-arrow { opacity: 1; } 
+  .pp-cz-arrow { opacity: 1; }
 }
