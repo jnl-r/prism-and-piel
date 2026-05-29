@@ -58,6 +58,20 @@ router.post('/', async (req, res) => {
   }
 });
 
+// PUT increment click count
+router.put('/click/:id', async (req, res) => {
+  try {
+    const [result] = await db.query(
+      'UPDATE AffiliateLink SET click_count = click_count + 1 WHERE link_id = ?',
+      [req.params.id]
+    );
+    if (result.affectedRows === 0) return res.status(404).json({ error: 'Affiliate link not found' });
+    res.json({ message: 'Click recorded' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // PUT update affiliate URL
 router.put('/:id', async (req, res) => {
   try {
@@ -68,20 +82,6 @@ router.put('/:id', async (req, res) => {
     );
     if (result.affectedRows === 0) return res.status(404).json({ error: 'Affiliate link not found' });
     res.json({ message: 'Affiliate link updated successfully' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// PUT increment click count
-router.put('/click/:id', async (req, res) => {
-  try {
-    const [result] = await db.query(
-      'UPDATE AffiliateLink SET click_count = click_count + 1 WHERE link_id = ?',
-      [req.params.id]
-    );
-    if (result.affectedRows === 0) return res.status(404).json({ error: 'Affiliate link not found' });
-    res.json({ message: 'Click recorded' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

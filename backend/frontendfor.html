@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Prism & Piel — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+/* ── RESET & BASE ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:       #0d0b0e;
+  --surface:  #161318;
+  --card:     #1c1720;
+  --border:   #2a2430;
+  --border2:  #3a3044;
+  --muted:    #6b5f78;
+  --text:     #e8e0f0;
+  --soft:     #b8adc8;
+  --rose:     #e8a0b4;
+  --rose2:    #c86a88;
+  --peach:    #e8b490;
+  --gold:     #d4a86a;
+  --teal:     #8ec8c0;
+  --accent:   #c87090;
+  --danger:   #e06060;
+  --success:  #80c880;
+  --radius:   10px;
+  --mono:     'DM Mono', monospace;
+  --serif:    'Cormorant Garamond', serif;
+  --sans:     'DM Sans', sans-serif;
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  min-height: 100vh;
+  display: flex;
+  overflow-x: hidden;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+
+/* ── LOGIN SCREEN ── */
+#login-screen {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+  flex-direction: column;
+  gap: 0;
+}
+.login-wrap {
+  width: 400px;
+  animation: fadeUp .6s ease both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.login-logo {
+  font-family: var(--serif);
+  font-size: 36px;
+  font-weight: 300;
+  letter-spacing: .08em;
+  color: var(--rose);
+  text-align: center;
+  margin-bottom: 6px;
+}
+.login-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .3em;
+  color: var(--muted);
+  text-align: center;
+  text-transform: uppercase;
+  margin-bottom: 48px;
+}
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 40px;
+}
+.login-card h2 {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--text);
+  margin-bottom: 28px;
+}
+.field { margin-bottom: 18px; }
+.field label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .2em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.field input {
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  outline: none;
+  transition: border-color .2s;
+}
+.field input:focus { border-color: var(--rose2); }
+.login-hint {
+  font-size: 11px; color: var(--muted);
+  margin-bottom: 24px; line-height: 1.6;
+  background: var(--card); border-radius: 8px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--border2);
+}
+.login-hint code {
+  font-family: var(--mono);
+  color: var(--rose);
+  font-size: 11px;
+}
+.btn-primary {
+  width: 100%;
+  background: linear-gradient(135deg, var(--rose2), var(--accent));
+  border: none; border-radius: var(--radius);
+  padding: 12px;
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity .2s, transform .15s;
+}
+.btn-primary:hover { opacity: .88; transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(0); }
+#login-error {
+  margin-top: 14px;
+  font-size: 12px;
+  color: var(--danger);
+  text-align: center;
+  min-height: 16px;
+}
+
+/* ── SIDEBAR ── */
+#app { display: flex; width: 100%; min-height: 100vh; }
+#sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 28px 0 20px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.sidebar-logo {
+  padding: 0 20px 28px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-logo .brand {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--rose);
+  letter-spacing: .04em;
+}
+.sidebar-logo .tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .25em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+.nav-section {
+  padding: 20px 12px 0;
+}
+.nav-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .25em;
+  color: var(--muted);
+  text-transform: uppercase;
+  padding: 0 8px;
+  margin-bottom: 6px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--soft);
+  font-size: 13px;
+  transition: all .15s;
+  margin-bottom: 2px;
+  border: 1px solid transparent;
+}
+.nav-item:hover { background: var(--card); color: var(--text); }
+.nav-item.active {
+  background: var(--card);
+  border-color: var(--border2);
+  color: var(--rose);
+}
+.nav-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+.sidebar-footer {
+  margin-top: auto;
+  padding: 16px 20px 0;
+  border-top: 1px solid var(--border);
+}
+.user-pill {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.user-avatar {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--rose2), var(--peach));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--serif);
+  font-size: 14px;
+  color: #fff;
+  flex-shrink: 0;
+}
+.user-info .name { font-size: 12px; color: var(--text); }
+.user-info .role {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: .1em;
+}
+.logout-btn {
+  background: none; border: none;
+  color: var(--muted); cursor: pointer;
+  font-size: 14px; margin-left: auto;
+  padding: 4px;
+  transition: color .15s;
+}
+.logout-btn:hover { color: var(--danger); }
+
+/* ── MAIN CONTENT ── */
+#main {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+.page { display: none; flex: 1; flex-direction: column; }
+.page.active { display: flex; }
+
+/* ── PAGE HEADER ── */
+.page-header {
+  padding: 32px 36px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.page-header-left {}
+.page-title {
+  font-family: var(--serif);
+  font-size: 30px;
+  font-weight: 300;
+  color: var(--text);
+  letter-spacing: .02em;
+}
+.page-sub {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: .15em;
+  margin-top: 4px;
+}
+.btn-add {
+  display: flex; align-items: center; gap: 6px;
+  background: linear-gradient(135deg, var(--rose2), var(--accent));
+  border: none; border-radius: var(--radius);
+  padding: 9px 16px;
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity .2s;
+  white-space: nowrap;
+}
+.btn-add:hover { opacity: .85; }
+
+/* ── CONTENT AREA ── */
+.content-area { padding: 28px 36px; flex: 1; }
+
+/* ── STATS GRID ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  transition: border-color .2s;
+}
+.stat-card:hover { border-color: var(--border2); }
+.stat-icon { font-size: 22px; margin-bottom: 10px; }
+.stat-num {
+  font-family: var(--mono);
+  font-size: 26px;
+  color: var(--text);
+  font-weight: 500;
+}
+.stat-label {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+/* ── TABLE ── */
+.table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.table-toolbar {
+  padding: 16px 20px;
+  display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.search-input {
+  flex: 1; min-width: 160px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 12px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+  outline: none;
+  transition: border-color .2s;
+}
+.search-input:focus { border-color: var(--border2); }
+.search-input::placeholder { color: var(--muted); }
+.table-count {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th {
+  padding: 10px 16px;
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .18em;
+  color: var(--muted);
+  text-transform: uppercase;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--soft);
+  font-size: 13px;
+  vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,.015); }
+.id-badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--rose);
+  background: rgba(200,106,136,.1);
+  border: 1px solid rgba(200,106,136,.2);
+  border-radius: 6px;
+  padding: 2px 7px;
+  white-space: nowrap;
+}
+.chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-family: var(--mono);
+  border: 1px solid;
+}
+.chip-warm  { color: var(--peach); border-color: rgba(232,180,144,.3); background: rgba(232,180,144,.08); }
+.chip-cool  { color: var(--teal);  border-color: rgba(142,200,192,.3); background: rgba(142,200,192,.08); }
+.chip-neutral { color: var(--soft); border-color: rgba(184,173,200,.3); background: rgba(184,173,200,.08); }
+.chip-olive { color: var(--gold);  border-color: rgba(212,168,106,.3); background: rgba(212,168,106,.08); }
+.chip-matte { color: #b0b0c8; border-color: rgba(176,176,200,.3); background: rgba(176,176,200,.08); }
+.chip-dewy  { color: var(--teal);  border-color: rgba(142,200,192,.3); background: rgba(142,200,192,.08); }
+.chip-satin { color: var(--gold);  border-color: rgba(212,168,106,.3); background: rgba(212,168,106,.08); }
+.chip-natural { color: #a0c8a0; border-color: rgba(160,200,160,.3); background: rgba(160,200,160,.08); }
+.chip-shimmer { color: var(--rose); border-color: rgba(232,160,180,.3); background: rgba(232,160,180,.08); }
+.chip-cat {
+  color: var(--peach);
+  border-color: rgba(232,180,144,.25);
+  background: rgba(232,180,144,.07);
+}
+.shade-dot {
+  display: inline-block;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.15);
+  vertical-align: middle;
+  margin-right: 6px;
+}
+.star { color: var(--gold); }
+.action-btns { display: flex; gap: 6px; }
+.btn-icon {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 5px 8px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 12px;
+  transition: all .15s;
+}
+.btn-icon:hover { border-color: var(--border2); color: var(--text); }
+.btn-icon.del:hover { border-color: rgba(224,96,96,.4); color: var(--danger); }
+.btn-icon.edit:hover { border-color: rgba(200,112,144,.4); color: var(--rose); }
+.truncate { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+a.link { color: var(--teal); text-decoration: none; font-family: var(--mono); font-size: 11px; }
+a.link:hover { text-decoration: underline; }
+.clicks-bar-wrap { display: flex; align-items: center; gap: 8px; }
+.clicks-bar {
+  height: 4px; border-radius: 99px;
+  background: var(--card); width: 60px; overflow: hidden;
+}
+.clicks-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--rose2), var(--peach)); }
+.bool-yes { color: var(--success); font-size: 12px; }
+.bool-no  { color: var(--muted);   font-size: 12px; }
+
+/* ── MODAL ── */
+.modal-bg {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(4px);
+  z-index: 500;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s;
+}
+.modal-bg.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  width: min(540px, 95vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: translateY(16px);
+  transition: transform .25s;
+}
+.modal-bg.open .modal { transform: translateY(0); }
+.modal-head {
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-title {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--text);
+}
+.modal-close {
+  background: none; border: none;
+  color: var(--muted); cursor: pointer; font-size: 18px;
+  transition: color .15s; padding: 2px 6px;
+}
+.modal-close:hover { color: var(--text); }
+.modal-body { padding: 22px 24px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.form-row.single { grid-template-columns: 1fr; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: .18em; color: var(--muted); text-transform: uppercase;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 9px 12px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+  outline: none;
+  transition: border-color .2s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus { border-color: var(--rose2); }
+.form-group select option { background: var(--card); }
+.form-group textarea { resize: vertical; min-height: 80px; }
+.modal-foot {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: flex-end; gap: 10px;
+}
+.btn-cancel {
+  background: none; border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 9px 18px;
+  color: var(--soft); cursor: pointer; font-family: var(--sans);
+  font-size: 13px; transition: border-color .15s;
+}
+.btn-cancel:hover { border-color: var(--border2); }
+.btn-save {
+  background: linear-gradient(135deg, var(--rose2), var(--accent));
+  border: none; border-radius: var(--radius); padding: 9px 22px;
+  color: #fff; cursor: pointer; font-family: var(--sans);
+  font-size: 13px; font-weight: 500; transition: opacity .2s;
+}
+.btn-save:hover { opacity: .85; }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed; bottom: 28px; right: 28px;
+  background: var(--card); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 12px 18px;
+  font-size: 13px; color: var(--text);
+  box-shadow: 0 8px 32px rgba(0,0,0,.4);
+  z-index: 999;
+  transform: translateY(80px); opacity: 0;
+  transition: all .3s cubic-bezier(.34,1.56,.64,1);
+  display: flex; align-items: center; gap: 8px;
+}
+#toast.show { transform: translateY(0); opacity: 1; }
+#toast .toast-icon { font-size: 16px; }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center; padding: 60px 20px;
+  color: var(--muted);
+}
+.empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+.empty-state p { font-size: 13px; }
+
+/* ── DASHBOARD OVERVIEW ── */
+.recent-section { margin-top: 28px; }
+.section-title {
+  font-family: var(--serif);
+  font-size: 18px; font-weight: 400;
+  color: var(--text); margin-bottom: 14px;
+}
+.overview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.mini-table-wrap {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+}
+.mini-table-head {
+  padding: 12px 16px; border-bottom: 1px solid var(--border);
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: .18em; color: var(--muted); text-transform: uppercase;
+}
+.mini-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.mini-row:last-child { border-bottom: none; }
+.mini-row:hover { background: rgba(255,255,255,.015); }
+
+/* PAGINATION */
+.pagination {
+  display: flex; align-items: center; justify-content: flex-end;
+  gap: 6px; padding: 14px 16px;
+  border-top: 1px solid var(--border);
+}
+.page-btn {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 7px; padding: 5px 10px;
+  color: var(--soft); cursor: pointer; font-family: var(--mono);
+  font-size: 11px; transition: all .15s; min-width: 32px; text-align: center;
+}
+.page-btn:hover { border-color: var(--border2); color: var(--text); }
+.page-btn.active { background: var(--rose2); border-color: var(--rose2); color: #fff; }
+.page-btn:disabled { opacity: .35; cursor: default; }
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="login-screen">
+  <div class="login-wrap">
+    <div class="login-logo">Prism & Piel</div>
+    <div class="login-sub">Admin Portal</div>
+    <div class="login-card">
+      <h2>Sign in to continue</h2>
+      <div class="login-hint">
+        Admin credentials: <code>admin@prismandpiel.com</code> / <code>admin2024</code><br>
+        Or use any account from the database.
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="admin@prismandpiel.com" />
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="••••••••" />
+      </div>
+      <button class="btn-primary" onclick="doLogin()">Sign In</button>
+      <div id="login-error"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── APP SHELL ── -->
+<div id="app" style="display:none;">
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <div class="sidebar-logo">
+      <div class="brand">Prism & Piel</div>
+      <div class="tag">Admin Dashboard</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Overview</div>
+      <div class="nav-item active" data-page="dashboard">
+        <span class="nav-icon">◈</span> Dashboard
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Catalog</div>
+      <div class="nav-item" data-page="products">
+        <span class="nav-icon">✦</span> Products
+      </div>
+      <div class="nav-item" data-page="variants">
+        <span class="nav-icon">◐</span> Variants
+      </div>
+      <div class="nav-item" data-page="affiliates">
+        <span class="nav-icon">⟡</span> Affiliate Links
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Community</div>
+      <div class="nav-item" data-page="users">
+        <span class="nav-icon">◎</span> Users
+      </div>
+      <div class="nav-item" data-page="skinprofiles">
+        <span class="nav-icon">❋</span> Skin Profiles
+      </div>
+      <div class="nav-item" data-page="reviews">
+        <span class="nav-icon">✶</span> Reviews
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Analytics</div>
+      <div class="nav-item" data-page="recommendations">
+        <span class="nav-icon">⊹</span> Rec. Logs
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar" id="sidebar-avatar">A</div>
+        <div class="user-info">
+          <div class="name" id="sidebar-name">Admin</div>
+          <div class="role">ADMIN</div>
+        </div>
+        <button class="logout-btn" onclick="doLogout()" title="Sign out">⏻</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main id="main">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-title">Dashboard</div>
+          <div class="page-sub">PRISM & PIEL — BACKEND OVERVIEW</div>
+        </div>
+      </div>
+      <div class="content-area">
+        <div class="stats-grid" id="overview-stats"></div>
+        <div class="overview-grid">
+          <div>
+            <div class="section-title">Recent Reviews</div>
+            <div class="mini-table-wrap" id="recent-reviews-wrap"></div>
+          </div>
+          <div>
+            <div class="section-title">Top Affiliate Clicks</div>
+            <div class="mini-table-wrap" id="top-affiliates-wrap"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div class="page" id="page-products">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-title">Products</div>
+          <div class="page-sub">CATALOG MANAGEMENT</div>
+        </div>
+        <button class="btn-add" onclick="openModal('product')">＋ Add Product</button>
+      </div>
+      <div class="content-area">
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <input class="search-input" placeholder="Search products…" oninput="filterTable('products',this.value)" />
+            <span class="table-count" id="products-count"></span>
+          </div>
+          <div style="overflow-x:auto">
+            <table id="products-table">
+              <thead><tr>
+                <th>ID</th><th>Brand</th><th>Product</th><th>Category</th><th>Formula</th><th>Finish</th><th>Actions</th>
+              </tr></thead>
+              <tbody id="products-tbody"></tbody>
+            </table>
+          </div>
+          <div class="pagination" id="products-pages"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VARIANTS -->
+    <div class="page" id="page-variants">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-title">Product Variants</div>
+          <div class="page-sub">SHADES & UNDERTONES</div>
+        </div>
+        <button class="btn-add" onclick="openModal('variant')">＋ Add Variant</button>
+      </div>
+      <div class="content-area">
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <input class="search-input" placeholder="Search variants…" oninput="filterTable('variants',this.value)" />
+            <span class="table-count" id="variants-count"></span>
+          </div>
+          <div style="overflow-x:auto">
+            <table id="variants-table">
+              <thead><tr>
+                <th>ID</th><th>Product</th><th>Shade</th><th>Hex</th><th>Undertone</th><th>Actions</th>
+              </tr></thead>
+              <tbody id="variants-tbody"></tbody>
+            </table>
+          </div>
+          <div class="pagination" id="variants-pages"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AFFILIATES -->
+    <div class="page" id="page-affiliates">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-title">Affiliate Links</div>
+          <div class="page-sub">CLICK TRACKING</div>
+        </div>
+        <button class="btn-add" onclick="openModal('affiliate')">＋ Add Link</button>
+      </div>
+      <div class="content-area">
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <input class="search-input" placeholder="Search links…" oninput="filterTable('affiliates',this.value)" />
+            <span class="table-count" id="affiliates-count"></span>
+          </div>
+          <div style="overflow-x:auto">
+            <table id="affiliates-table">
+              <thead><tr>
+                <th>ID</th><th>Product</th><th>URL</th><th>Clicks</th><th>Last Updated</th><th>Actions</th>
+              </tr></thead>
+              <tbody id="affiliates-tbody"></tbody>
+            </table>
+          </div>
+          <div class="pagination" id="affiliates-pages"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div class="page" id="page-users">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-title">Users</div>
+          <div class="page-sub">ACCOUNT MANAGEMENT</div>
+        </div>
+        <button class="btn-add" onclick="openModal('user')">＋ Add User</button>
+      </div>
+      <div class="content-area">
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <input class="search-input" placeholder="Search users…" oninput="filterTable('users',this.value)" />
+            <span class="table-count" id="users-count"></span>
+          </div>
+          <div style="overflow-x:auto">
+            <table id="users-table">
+              <thead><tr>
+                <th>ID</th><th>Name</th><th>Email</th><th>Joined</th><th>Actions</th>
+              </tr></thead>
+              <tbody id="users-tbody"></tbody>
+            </table>
+          </div>
+          <div class="pagination" id="users-pages"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SKIN PROFILES -->
+    <div class="page" id="page-skinprofiles">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-title">Skin Profiles</div>
+          <div class="page-sub">USER SKIN DATA</div>
+        </div>
+        <button class="btn-add" onclick="openModal('skinprofile')">＋ Add Profile</button>
+      </div>
+      <div class="content-area">
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <input class="search-input" placeholder="Search profiles…" oninput="filterTable('skinprofiles',this.value)" />
+            <span class="table-count" id="skinprofiles-count"></span>
+          </div>
+          <div style="overflow-x:auto">
+            <table id="skinprofiles-table">
+              <thead><tr>
+                <th>User</th><th>Profile</th><th>Label</th><th>Skintone</th><th>Undertone</th><th>Type</th><th>Concerns</th><th>Finish</th><th>Actions</th>
+              </tr></thead>
+              <tbody id="skinprofiles-tbody"></tbody>
+            </table>
+          </div>
+          <div class="pagination" id="skinprofiles-pages"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVIEWS -->
+    <div class="page" id="page-reviews">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-title">Reviews</div>
+          <div class="page-sub">CUSTOMER FEEDBACK</div>
+        </div>
+        <button class="btn-add" onclick="openModal('review')">＋ Add Review</button>
+      </div>
+      <div class="content-area">
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <input class="search-input" placeholder="Search reviews…" oninput="filterTable('reviews',this.value)" />
+            <span class="table-count" id="reviews-count"></span>
+          </div>
+          <div style="overflow-x:auto">
+            <table id="reviews-table">
+              <thead><tr>
+                <th>ID</th><th>User</th><th>Variant</th><th>Rating</th><th>Comment</th><th>Profile Match</th><th>Date</th><th>Actions</th>
+              </tr></thead>
+              <tbody id="reviews-tbody"></tbody>
+            </table>
+          </div>
+          <div class="pagination" id="reviews-pages"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECOMMENDATIONS -->
+    <div class="page" id="page-recommendations">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-title">Recommendation Logs</div>
+          <div class="page-sub">AI RECOMMENDATION ANALYTICS</div>
+        </div>
+      </div>
+      <div class="content-area">
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <input class="search-input" placeholder="Search logs…" oninput="filterTable('recommendations',this.value)" />
+            <span class="table-count" id="recommendations-count"></span>
+          </div>
+          <div style="overflow-x:auto">
+            <table id="recommendations-table">
+              <thead><tr>
+                <th>ID</th><th>User</th><th>Variant</th><th>Rank</th><th>Clicked</th><th>Generated</th><th>Actions</th>
+              </tr></thead>
+              <tbody id="recommendations-tbody"></tbody>
+            </table>
+          </div>
+          <div class="pagination" id="recommendations-pages"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ── MODAL ── -->
+<div class="modal-bg" id="modal-bg" onclick="closeModalBg(event)">
+  <div class="modal" id="modal">
+    <div class="modal-head">
+      <span class="modal-title" id="modal-title">Add Item</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div id="toast"><span class="toast-icon">✓</span><span id="toast-msg"></span></div>
+
+<script>
+// ════════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════════
+const API = 'http://localhost:3000/api';
+const ADMIN_EMAIL = 'admin@prismandpiel.com';
+const ADMIN_PASS  = 'admin2024';
+const PER_PAGE = 10;
+
+// ════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════
+let currentUser = null;
+let DATA = {
+  products: [], variants: [], affiliates: [],
+  users: [], skinprofiles: [], reviews: [], recommendations: []
+};
+let FILTERED = {};
+let PAGES = {};
+let modalType = null, modalEditId = null;
+
+// ════════════════════════════════════════════════
+// BOOTSTRAP
+// ════════════════════════════════════════════════
+async function apiFetch(path, opts={}) {
+  try {
+    const r = await fetch(API + path, { headers:{'Content-Type':'application/json'}, ...opts });
+    if (!r.ok) { const e = await r.json().catch(()=>({error:'Request failed'})); throw new Error(e.error||r.statusText); }
+    return await r.json();
+  } catch(e) {
+    // If server not available, return mock data / empty
+    console.warn('API unavailable:', e.message);
+    return null;
+  }
+}
+
+// ════════════════════════════════════════════════
+// LOGIN
+// ════════════════════════════════════════════════
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  errEl.textContent = '';
+
+  if (!email || !pass) { errEl.textContent = 'Please enter email and password.'; return; }
+
+  // Check admin credentials first
+  if (email === ADMIN_EMAIL && pass === ADMIN_PASS) {
+    currentUser = { user_id: 'ADMIN', name: 'Admin', email: ADMIN_EMAIL, role: 'admin' };
+    enterApp();
+    return;
+  }
+
+  // Try backend login
+  const res = await apiFetch('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password: pass })
+  });
+
+  if (res && res.user_id) {
+    currentUser = { ...res, role: 'admin' };
+    enterApp();
+  } else {
+    errEl.textContent = res?.error || 'Invalid credentials.';
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !document.getElementById('login-screen').style.display) doLogin();
+});
+
+function enterApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('sidebar-name').textContent = currentUser.name;
+  document.getElementById('sidebar-avatar').textContent = currentUser.name[0].toUpperCase();
+  loadAllData();
+}
+
+function doLogout() {
+  currentUser = null;
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-password').value = '';
+  document.getElementById('login-error').textContent = '';
+}
+
+// ════════════════════════════════════════════════
+// DATA LOADING — SEED FALLBACK
+// ════════════════════════════════════════════════
+const SEED = {
+  products: [
+    {product_id:'PRD-001',brand_name:'BLK Cosmetics',product_name:'Fresh Radiant Glow Filter Foundation',category:'Base',formula_type:'Liquid',finish:'Dewy',description:'A radiant glow-filter foundation for a luminous skin-like finish.'},
+    {product_id:'PRD-002',brand_name:'BLK Cosmetics',product_name:'Creamy All-Over Paint Blush',category:'Blush',formula_type:'Liquid',finish:'Dewy',description:'A creamy liquid blush formulated without parabens.'},
+    {product_id:'PRD-003',brand_name:'BLK Cosmetics',product_name:'Universal Skin Tint Sun Shield',category:'Base',formula_type:'Cream',finish:'Matte',description:'A skin tint with SPF 30 that evens tone while shielding from the sun.'},
+    {product_id:'PRD-004',brand_name:'Absidy Beauty',product_name:'Complexion Blur Translucent Perfecting Powder',category:'Base',formula_type:'Compact Powder',finish:'Matte',description:'An oil-controlling, pore-minimizing, long-lasting perfecting powder.'},
+    {product_id:'PRD-005',brand_name:'Absidy Beauty',product_name:'Weightless Touch Concealer',category:'Concealer',formula_type:'Cream',finish:'Satin',description:'A medium-to-full coverage concealer.'},
+    {product_id:'PRD-006',brand_name:'Chu Chu Beauty',product_name:'Heart Blush Duo',category:'Blush',formula_type:'Powder',finish:'Matte',description:'A compact dual blush palette with a built-in mirror.'},
+    {product_id:'PRD-007',brand_name:'Ever Bilena',product_name:'Pillow Pop Liquid Blush',category:'Blush',formula_type:'Liquid',finish:'Natural',description:'A soft liquid blush that blends into a natural, pillowy flush.'},
+  ],
+  variants: [
+    {variant_id:'VAR-001',product_id:'PRD-001',shade_name:'Oat',shade_hex:'#E8C9A8',recommended_undertone:'Neutral'},
+    {variant_id:'VAR-002',product_id:'PRD-001',shade_name:'Creme',shade_hex:'#F0D9BE',recommended_undertone:'Neutral'},
+    {variant_id:'VAR-003',product_id:'PRD-001',shade_name:'Vanilla',shade_hex:'#EAD0B0',recommended_undertone:'Warm'},
+    {variant_id:'VAR-004',product_id:'PRD-001',shade_name:'Butterscotch',shade_hex:'#C99A6B',recommended_undertone:'Warm'},
+    {variant_id:'VAR-005',product_id:'PRD-001',shade_name:'Sand',shade_hex:'#D8B48C',recommended_undertone:'Neutral'},
+    {variant_id:'VAR-006',product_id:'PRD-001',shade_name:'Toast',shade_hex:'#A9764C',recommended_undertone:'Warm'},
+    {variant_id:'VAR-007',product_id:'PRD-002',shade_name:'Reef',shade_hex:'#E59A86',recommended_undertone:'Warm'},
+    {variant_id:'VAR-008',product_id:'PRD-002',shade_name:'Beach',shade_hex:'#E8A38C',recommended_undertone:'Warm'},
+    {variant_id:'VAR-009',product_id:'PRD-002',shade_name:'Palm Springs',shade_hex:'#D97E74',recommended_undertone:'Cool'},
+    {variant_id:'VAR-010',product_id:'PRD-002',shade_name:'Coast',shade_hex:'#E2876F',recommended_undertone:'Warm'},
+    {variant_id:'VAR-011',product_id:'PRD-002',shade_name:'Golden Hour',shade_hex:'#E0925E',recommended_undertone:'Warm'},
+    {variant_id:'VAR-012',product_id:'PRD-003',shade_name:'Chestnut',shade_hex:'#9A6B45',recommended_undertone:'Warm'},
+    {variant_id:'VAR-013',product_id:'PRD-003',shade_name:'Creme',shade_hex:'#F0D9BE',recommended_undertone:'Neutral'},
+    {variant_id:'VAR-014',product_id:'PRD-003',shade_name:'Linen',shade_hex:'#EAD7BE',recommended_undertone:'Neutral'},
+    {variant_id:'VAR-015',product_id:'PRD-003',shade_name:'Oat',shade_hex:'#E8C9A8',recommended_undertone:'Neutral'},
+    {variant_id:'VAR-016',product_id:'PRD-003',shade_name:'Toffee',shade_hex:'#B07F50',recommended_undertone:'Warm'},
+    {variant_id:'VAR-017',product_id:'PRD-004',shade_name:'Honey',shade_hex:'#E2B583',recommended_undertone:'Warm'},
+    {variant_id:'VAR-018',product_id:'PRD-004',shade_name:'Milk',shade_hex:'#F2DCC4',recommended_undertone:'Neutral'},
+    {variant_id:'VAR-019',product_id:'PRD-004',shade_name:'Oat',shade_hex:'#E8C9A8',recommended_undertone:'Neutral'},
+    {variant_id:'VAR-020',product_id:'PRD-004',shade_name:'Ube',shade_hex:'#D8B6AE',recommended_undertone:'Cool'},
+    {variant_id:'VAR-021',product_id:'PRD-004',shade_name:'Petal',shade_hex:'#EBC9BE',recommended_undertone:'Cool'},
+    {variant_id:'VAR-022',product_id:'PRD-005',shade_name:'0N',shade_hex:'#F0D6BC',recommended_undertone:'Neutral'},
+    {variant_id:'VAR-023',product_id:'PRD-005',shade_name:'1W',shade_hex:'#E7C19A',recommended_undertone:'Warm'},
+    {variant_id:'VAR-024',product_id:'PRD-005',shade_name:'2N',shade_hex:'#D9B488',recommended_undertone:'Neutral'},
+    {variant_id:'VAR-025',product_id:'PRD-005',shade_name:'3W',shade_hex:'#C99A6B',recommended_undertone:'Warm'},
+    {variant_id:'VAR-026',product_id:'PRD-006',shade_name:'Hey Sugar',shade_hex:'#E79A88',recommended_undertone:'Warm'},
+    {variant_id:'VAR-027',product_id:'PRD-006',shade_name:'Miss Dolly',shade_hex:'#DE8296',recommended_undertone:'Cool'},
+    {variant_id:'VAR-028',product_id:'PRD-006',shade_name:'Peachy Pop',shade_hex:'#E8A077',recommended_undertone:'Warm'},
+    {variant_id:'VAR-029',product_id:'PRD-006',shade_name:'Darling Baby',shade_hex:'#E0A0A0',recommended_undertone:'Neutral'},
+    {variant_id:'VAR-030',product_id:'PRD-007',shade_name:'Rouge',shade_hex:'#C8506A',recommended_undertone:'Cool'},
+    {variant_id:'VAR-031',product_id:'PRD-007',shade_name:'Raspberry',shade_hex:'#B83E5E',recommended_undertone:'Cool'},
+    {variant_id:'VAR-032',product_id:'PRD-007',shade_name:'Fresno',shade_hex:'#D9785E',recommended_undertone:'Warm'},
+  ],
+  affiliates: [
+    {link_id:'LNK-001',product_id:'PRD-001',affiliate_url:'https://vt.tiktok.com/ZS9Y3vTUBK6Co-fqn9r/',click_count:64,last_updated:'2026-05-10T00:00:00'},
+    {link_id:'LNK-002',product_id:'PRD-002',affiliate_url:'https://vt.tiktok.com/ZS9Y33KGGCejs-OQEln/',click_count:41,last_updated:'2026-05-10T00:00:00'},
+    {link_id:'LNK-003',product_id:'PRD-003',affiliate_url:'https://www.tiktok.com/@prismandpiel/sample-skin-tint',click_count:17,last_updated:'2026-05-10T00:00:00'},
+    {link_id:'LNK-004',product_id:'PRD-004',affiliate_url:'https://vt.tiktok.com/ZS9Y3TpQedyUP-c3AzV',click_count:120,last_updated:'2026-05-10T00:00:00'},
+    {link_id:'LNK-005',product_id:'PRD-005',affiliate_url:'https://vt.tiktok.com/ZS9Y3whFYWX1P-bVh1r',click_count:88,last_updated:'2026-05-10T00:00:00'},
+    {link_id:'LNK-006',product_id:'PRD-006',affiliate_url:'https://vt.tiktok.com/ZS9Y3oxVb3hgV-9B5jg',click_count:73,last_updated:'2026-05-10T00:00:00'},
+    {link_id:'LNK-007',product_id:'PRD-007',affiliate_url:'https://www.tiktok.com/@prismandpiel/sample-pillow-pop',click_count:9,last_updated:'2026-05-10T00:00:00'},
+  ],
+  users: [
+    {user_id:'USR-001',name:'Demo User',email:'demo@prism.ph',created_at:'2026-05-01T00:00:00'},
+    {user_id:'USR-002',name:'Janelle Ranario',email:'janelle@email.com',created_at:'2026-05-02T00:00:00'},
+    {user_id:'USR-003',name:'Trishia Camalonggay',email:'trishia@email.com',created_at:'2026-05-03T00:00:00'},
+  ],
+  skinprofiles: [
+    {user_id:'USR-001',profile_id:1,profile_label:'Everyday Look',skintone:'Medium',undertone:'Warm',skintype:'Combination',primary_concern:'Oiliness,Dark Spots',preferred_finish:'Natural'},
+    {user_id:'USR-001',profile_id:2,profile_label:'Glam Night',skintone:'Tan',undertone:'Warm',skintype:'Dry',primary_concern:'Dryness,Dullness',preferred_finish:'Dewy'},
+    {user_id:'USR-002',profile_id:1,profile_label:'Office Routine',skintone:'Light',undertone:'Neutral',skintype:'Normal',primary_concern:'Dullness',preferred_finish:'Satin'},
+  ],
+  reviews: [
+    {review_id:'REV-001',user_id:'USR-001',variant_id:'VAR-004',rating:4.5,comment:'Butterscotch melts into my warm undertone perfectly. Glowy but not greasy.',skin_profile_match:1,created_at:'2026-05-10T00:00:00'},
+    {review_id:'REV-002',user_id:'USR-001',variant_id:'VAR-011',rating:5.0,comment:'Golden Hour is the prettiest everyday flush. A tiny dab is enough.',skin_profile_match:1,created_at:'2026-05-12T00:00:00'},
+    {review_id:'REV-003',user_id:'USR-002',variant_id:'VAR-022',rating:4.0,comment:'Shade 0N brightens my under-eyes well. Wish it had more deep shades.',skin_profile_match:1,created_at:'2026-05-15T00:00:00'},
+    {review_id:'REV-004',user_id:'USR-002',variant_id:'VAR-018',rating:3.5,comment:'Milk keeps me matte but can look a little dry by afternoon.',skin_profile_match:0,created_at:'2026-05-16T00:00:00'},
+    {review_id:'REV-005',user_id:'USR-003',variant_id:'VAR-027',rating:5.0,comment:'Miss Dolly is such a flattering cool-toned blush for fair skin.',skin_profile_match:1,created_at:'2026-05-18T00:00:00'},
+    {review_id:'REV-006',user_id:'USR-003',variant_id:'VAR-014',rating:4.5,comment:'Linen skin tint evens me out with light, comfortable coverage.',skin_profile_match:1,created_at:'2026-05-20T00:00:00'},
+  ],
+  recommendations: [
+    {log_id:'LOG-001',user_id:'USR-001',variant_id:'VAR-004',rank_position:1,clicked:1,generated_at:'2026-05-10T00:00:00'},
+    {log_id:'LOG-002',user_id:'USR-001',variant_id:'VAR-011',rank_position:2,clicked:1,generated_at:'2026-05-10T00:00:00'},
+    {log_id:'LOG-003',user_id:'USR-001',variant_id:'VAR-003',rank_position:3,clicked:0,generated_at:'2026-05-10T00:00:00'},
+    {log_id:'LOG-004',user_id:'USR-002',variant_id:'VAR-022',rank_position:1,clicked:1,generated_at:'2026-05-15T00:00:00'},
+    {log_id:'LOG-005',user_id:'USR-002',variant_id:'VAR-018',rank_position:2,clicked:0,generated_at:'2026-05-15T00:00:00'},
+  ],
+};
+
+async function loadAllData() {
+  // Try API first, fall back to seed data
+  const endpoints = [
+    ['products','/products'],['variants','/variants'],['affiliates','/affiliatelinks'],
+    ['users','/users'],['skinprofiles','/skinprofiles'],['reviews','/reviews'],
+    ['recommendations','/recommendations'],
+  ];
+  for (const [key, path] of endpoints) {
+    const res = await apiFetch(path);
+    DATA[key] = (res && Array.isArray(res)) ? res : [...SEED[key]];
+    FILTERED[key] = [...DATA[key]];
+    PAGES[key] = 1;
+  }
+  renderAll();
+}
+
+// ════════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════════
+document.querySelectorAll('.nav-item').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('page-' + el.dataset.page).classList.add('active');
+  });
+});
+
+// ════════════════════════════════════════════════
+// RENDER ALL
+// ════════════════════════════════════════════════
+function renderAll() {
+  renderDashboard();
+  renderProducts();
+  renderVariants();
+  renderAffiliates();
+  renderUsers();
+  renderSkinProfiles();
+  renderReviews();
+  renderRecommendations();
+}
+
+function paginate(key) {
+  const arr = FILTERED[key] || [];
+  const p = PAGES[key] || 1;
+  const total = Math.ceil(arr.length / PER_PAGE);
+  return { slice: arr.slice((p-1)*PER_PAGE, p*PER_PAGE), total, p };
+}
+
+function renderPager(key, total, cur) {
+  const el = document.getElementById(key + '-pages');
+  if (!el) return;
+  let html = '';
+  if (total <= 1) { el.innerHTML = ''; return; }
+  html += `<button class="page-btn" ${cur<=1?'disabled':''} onclick="goPage('${key}',${cur-1})">‹</button>`;
+  for (let i=1;i<=total;i++) {
+    if (total>7 && (i>2 && i<cur-1)) { if(i===3) html+='<span style="color:var(--muted);padding:0 4px">…</span>'; continue; }
+    if (total>7 && (i<total-1 && i>cur+1)) { if(i===total-2) html+='<span style="color:var(--muted);padding:0 4px">…</span>'; continue; }
+    html += `<button class="page-btn ${i===cur?'active':''}" onclick="goPage('${key}',${i})">${i}</button>`;
+  }
+  html += `<button class="page-btn" ${cur>=total?'disabled':''} onclick="goPage('${key}',${cur+1})">›</button>`;
+  el.innerHTML = html;
+}
+
+function goPage(key, p) {
+  PAGES[key] = p;
+  const fn = {products:renderProducts,variants:renderVariants,affiliates:renderAffiliates,users:renderUsers,skinprofiles:renderSkinProfiles,reviews:renderReviews,recommendations:renderRecommendations};
+  fn[key]?.();
+}
+
+// helper lookups
+function productName(id) { return DATA.products.find(p=>p.product_id===id)?.product_name || id; }
+function variantLabel(id) {
+  const v = DATA.variants.find(v=>v.variant_id===id);
+  if (!v) return id;
+  return `<span class="shade-dot" style="background:${v.shade_hex||'#888'}"></span>${v.shade_name}`;
+}
+function undertoneChip(ut) {
+  const cls = {Warm:'chip-warm',Cool:'chip-cool',Neutral:'chip-neutral',Olive:'chip-olive'}[ut]||'chip-neutral';
+  return ut ? `<span class="chip ${cls}">${ut}</span>` : '—';
+}
+function finishChip(f) {
+  if (!f) return '—';
+  const cls = {Matte:'chip-matte',Dewy:'chip-dewy',Satin:'chip-satin',Natural:'chip-natural',Shimmer:'chip-shimmer'}[f]||'chip-matte';
+  return `<span class="chip ${cls}">${f}</span>`;
+}
+function starRating(r) {
+  const n = parseFloat(r)||0;
+  const full = Math.floor(n), half = (n%1)>=.5?1:0;
+  let s = '';
+  for(let i=0;i<full;i++) s+='★';
+  if(half) s+='½';
+  return `<span class="star">${s}</span> <span style="color:var(--soft);font-size:12px">${r}</span>`;
+}
+function fmtDate(d) { if(!d) return '—'; return new Date(d).toLocaleDateString('en-PH',{year:'2-digit',month:'short',day:'numeric'}); }
+function actBtns(type, id, id2='') {
+  return `<div class="action-btns">
+    <button class="btn-icon edit" onclick="openEdit('${type}','${id}','${id2}')" title="Edit">✎</button>
+    <button class="btn-icon del" onclick="deleteItem('${type}','${id}','${id2}')" title="Delete">✕</button>
+  </div>`;
+}
+
+// ── DASHBOARD ──
+function renderDashboard() {
+  const maxClicks = Math.max(...DATA.affiliates.map(a=>a.click_count), 1);
+  document.getElementById('overview-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-icon">✦</div><div class="stat-num">${DATA.products.length}</div><div class="stat-label">Products</div></div>
+    <div class="stat-card"><div class="stat-icon">◐</div><div class="stat-num">${DATA.variants.length}</div><div class="stat-label">Variants</div></div>
+    <div class="stat-card"><div class="stat-icon">◎</div><div class="stat-num">${DATA.users.length}</div><div class="stat-label">Users</div></div>
+    <div class="stat-card"><div class="stat-icon">❋</div><div class="stat-num">${DATA.skinprofiles.length}</div><div class="stat-label">Skin Profiles</div></div>
+    <div class="stat-card"><div class="stat-icon">✶</div><div class="stat-num">${DATA.reviews.length}</div><div class="stat-label">Reviews</div></div>
+    <div class="stat-card"><div class="stat-icon">⟡</div><div class="stat-num">${DATA.affiliates.reduce((s,a)=>s+a.click_count,0)}</div><div class="stat-label">Total Clicks</div></div>
+    <div class="stat-card"><div class="stat-icon">⊹</div><div class="stat-num">${DATA.recommendations.length}</div><div class="stat-label">Rec. Logs</div></div>
+    <div class="stat-card"><div class="stat-icon">★</div><div class="stat-num">${DATA.reviews.length?(DATA.reviews.reduce((s,r)=>s+parseFloat(r.rating),0)/DATA.reviews.length).toFixed(1):'—'}</div><div class="stat-label">Avg Rating</div></div>
+  `;
+
+  const sortedReviews = [...DATA.reviews].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,5);
+  document.getElementById('recent-reviews-wrap').innerHTML =
+    `<div class="mini-table-head">Recent Reviews</div>` +
+    (sortedReviews.length ? sortedReviews.map(r=>`
+      <div class="mini-row">
+        <span style="color:var(--text)">${DATA.users.find(u=>u.user_id===r.user_id)?.name||r.user_id}</span>
+        <span style="color:var(--soft);font-size:11px">${variantLabel(r.variant_id)}</span>
+        <span class="star">★</span><span style="font-size:12px;color:var(--soft)">${r.rating}</span>
+      </div>`).join('') : '<div class="mini-row" style="color:var(--muted)">No reviews yet</div>');
+
+  const sortedAff = [...DATA.affiliates].sort((a,b)=>b.click_count-a.click_count).slice(0,5);
+  document.getElementById('top-affiliates-wrap').innerHTML =
+    `<div class="mini-table-head">Top by Clicks</div>` +
+    (sortedAff.length ? sortedAff.map(a=>`
+      <div class="mini-row">
+        <span style="color:var(--text);font-size:12px" class="truncate">${productName(a.product_id)}</span>
+        <div class="clicks-bar-wrap">
+          <div class="clicks-bar"><div class="clicks-fill" style="width:${Math.round(a.click_count/maxClicks*100)}%"></div></div>
+          <span style="font-family:var(--mono);font-size:11px;color:var(--muted)">${a.click_count}</span>
+        </div>
+      </div>`).join('') : '<div class="mini-row" style="color:var(--muted)">No data</div>');
+}
+
+// ── PRODUCTS ──
+function renderProducts() {
+  const {slice,total,p} = paginate('products');
+  document.getElementById('products-count').textContent = `${FILTERED.products.length} records`;
+  document.getElementById('products-tbody').innerHTML = slice.length ? slice.map(r=>`
+    <tr>
+      <td><span class="id-badge">${r.product_id}</span></td>
+      <td style="color:var(--text)">${r.brand_name}</td>
+      <td class="truncate" style="max-width:200px;color:var(--text)">${r.product_name}</td>
+      <td><span class="chip chip-cat">${r.category}</span></td>
+      <td style="color:var(--muted)">${r.formula_type||'—'}</td>
+      <td>${finishChip(r.finish)}</td>
+      <td>${actBtns('product',r.product_id)}</td>
+    </tr>`).join('') : `<tr><td colspan="7"><div class="empty-state"><div class="icon">✦</div><p>No products found</p></div></td></tr>`;
+  renderPager('products', total, p);
+}
+
+// ── VARIANTS ──
+function renderVariants() {
+  const {slice,total,p} = paginate('variants');
+  document.getElementById('variants-count').textContent = `${FILTERED.variants.length} records`;
+  document.getElementById('variants-tbody').innerHTML = slice.length ? slice.map(r=>`
+    <tr>
+      <td><span class="id-badge">${r.variant_id}</span></td>
+      <td style="color:var(--muted);font-size:12px">${r.product_id}</td>
+      <td style="color:var(--text)">${r.shade_name}</td>
+      <td>${r.shade_hex?`<span class="shade-dot" style="background:${r.shade_hex}"></span><span style="font-family:var(--mono);font-size:11px;color:var(--muted)">${r.shade_hex}</span>`:'—'}</td>
+      <td>${undertoneChip(r.recommended_undertone)}</td>
+      <td>${actBtns('variant',r.variant_id)}</td>
+    </tr>`).join('') : `<tr><td colspan="6"><div class="empty-state"><div class="icon">◐</div><p>No variants found</p></div></td></tr>`;
+  renderPager('variants', total, p);
+}
+
+// ── AFFILIATES ──
+function renderAffiliates() {
+  const {slice,total,p} = paginate('affiliates');
+  const maxClicks = Math.max(...DATA.affiliates.map(a=>a.click_count), 1);
+  document.getElementById('affiliates-count').textContent = `${FILTERED.affiliates.length} records`;
+  document.getElementById('affiliates-tbody').innerHTML = slice.length ? slice.map(r=>`
+    <tr>
+      <td><span class="id-badge">${r.link_id}</span></td>
+      <td style="font-size:12px;color:var(--soft)">${r.product_id}</td>
+      <td><a class="link" href="${r.affiliate_url}" target="_blank">${r.affiliate_url.replace('https://','').slice(0,35)}…</a></td>
+      <td><div class="clicks-bar-wrap"><div class="clicks-bar"><div class="clicks-fill" style="width:${Math.round(r.click_count/maxClicks*100)}%"></div></div><span style="font-family:var(--mono);font-size:12px">${r.click_count}</span></div></td>
+      <td style="font-size:11px;color:var(--muted)">${fmtDate(r.last_updated)}</td>
+      <td>${actBtns('affiliate',r.link_id)}</td>
+    </tr>`).join('') : `<tr><td colspan="6"><div class="empty-state"><div class="icon">⟡</div><p>No links found</p></div></td></tr>`;
+  renderPager('affiliates', total, p);
+}
+
+// ── USERS ──
+function renderUsers() {
+  const {slice,total,p} = paginate('users');
+  document.getElementById('users-count').textContent = `${FILTERED.users.length} records`;
+  document.getElementById('users-tbody').innerHTML = slice.length ? slice.map(r=>`
+    <tr>
+      <td><span class="id-badge">${r.user_id}</span></td>
+      <td style="color:var(--text)">${r.name}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--soft)">${r.email}</td>
+      <td style="font-size:12px;color:var(--muted)">${fmtDate(r.created_at)}</td>
+      <td>${actBtns('user',r.user_id)}</td>
+    </tr>`).join('') : `<tr><td colspan="5"><div class="empty-state"><div class="icon">◎</div><p>No users found</p></div></td></tr>`;
+  renderPager('users', total, p);
+}
+
+// ── SKIN PROFILES ──
+function renderSkinProfiles() {
+  const {slice,total,p} = paginate('skinprofiles');
+  document.getElementById('skinprofiles-count').textContent = `${FILTERED.skinprofiles.length} records`;
+  document.getElementById('skinprofiles-tbody').innerHTML = slice.length ? slice.map(r=>`
+    <tr>
+      <td><span class="id-badge">${r.user_id}</span></td>
+      <td style="font-family:var(--mono);font-size:12px;color:var(--muted)">#${r.profile_id}</td>
+      <td style="color:var(--text)">${r.profile_label}</td>
+      <td style="color:var(--soft);font-size:12px">${r.skintone}</td>
+      <td>${undertoneChip(r.undertone)}</td>
+      <td style="color:var(--soft);font-size:12px">${r.skintype}</td>
+      <td style="font-size:11px;color:var(--muted)">${r.primary_concern||'—'}</td>
+      <td>${finishChip(r.preferred_finish)}</td>
+      <td>${actBtns('skinprofile',r.user_id,r.profile_id)}</td>
+    </tr>`).join('') : `<tr><td colspan="9"><div class="empty-state"><div class="icon">❋</div><p>No profiles found</p></div></td></tr>`;
+  renderPager('skinprofiles', total, p);
+}
+
+// ── REVIEWS ──
+function renderReviews() {
+  const {slice,total,p} = paginate('reviews');
+  document.getElementById('reviews-count').textContent = `${FILTERED.reviews.length} records`;
+  document.getElementById('reviews-tbody').innerHTML = slice.length ? slice.map(r=>`
+    <tr>
+      <td><span class="id-badge">${r.review_id}</span></td>
+      <td style="font-size:12px;color:var(--soft)">${r.user_id}</td>
+      <td style="font-size:12px">${variantLabel(r.variant_id)}</td>
+      <td>${starRating(r.rating)}</td>
+      <td class="truncate" style="color:var(--muted);font-size:12px">${r.comment||'—'}</td>
+      <td>${r.skin_profile_match?'<span class="bool-yes">✓ Match</span>':'<span class="bool-no">✗</span>'}</td>
+      <td style="font-size:11px;color:var(--muted)">${fmtDate(r.created_at)}</td>
+      <td>${actBtns('review',r.review_id)}</td>
+    </tr>`).join('') : `<tr><td colspan="8"><div class="empty-state"><div class="icon">✶</div><p>No reviews found</p></div></td></tr>`;
+  renderPager('reviews', total, p);
+}
+
+// ── RECOMMENDATIONS ──
+function renderRecommendations() {
+  const {slice,total,p} = paginate('recommendations');
+  document.getElementById('recommendations-count').textContent = `${FILTERED.recommendations.length} records`;
+  document.getElementById('recommendations-tbody').innerHTML = slice.length ? slice.map(r=>`
+    <tr>
+      <td><span class="id-badge">${r.log_id}</span></td>
+      <td style="font-size:12px;color:var(--soft)">${r.user_id}</td>
+      <td style="font-size:12px">${variantLabel(r.variant_id)}</td>
+      <td style="font-family:var(--mono);font-size:12px;color:var(--muted)">#${r.rank_position||'—'}</td>
+      <td>${r.clicked?'<span class="bool-yes">✓ Clicked</span>':'<span class="bool-no">Not clicked</span>'}</td>
+      <td style="font-size:11px;color:var(--muted)">${fmtDate(r.generated_at)}</td>
+      <td>${actBtns('recommendation',r.log_id)}</td>
+    </tr>`).join('') : `<tr><td colspan="7"><div class="empty-state"><div class="icon">⊹</div><p>No logs found</p></div></td></tr>`;
+  renderPager('recommendations', total, p);
+}
+
+// ════════════════════════════════════════════════
+// SEARCH / FILTER
+// ════════════════════════════════════════════════
+function filterTable(key, q) {
+  const lower = q.toLowerCase();
+  const searchMap = {
+    products: r => [r.product_id,r.brand_name,r.product_name,r.category,r.formula_type,r.finish].join(' '),
+    variants: r => [r.variant_id,r.product_id,r.shade_name,r.shade_hex,r.recommended_undertone].join(' '),
+    affiliates: r => [r.link_id,r.product_id,r.affiliate_url].join(' '),
+    users: r => [r.user_id,r.name,r.email].join(' '),
+    skinprofiles: r => [r.user_id,r.profile_label,r.skintone,r.undertone,r.skintype].join(' '),
+    reviews: r => [r.review_id,r.user_id,r.variant_id,r.comment,r.rating].join(' '),
+    recommendations: r => [r.log_id,r.user_id,r.variant_id].join(' '),
+  };
+  FILTERED[key] = q ? DATA[key].filter(r => searchMap[key](r).toLowerCase().includes(lower)) : [...DATA[key]];
+  PAGES[key] = 1;
+  const fn = {products:renderProducts,variants:renderVariants,affiliates:renderAffiliates,users:renderUsers,skinprofiles:renderSkinProfiles,reviews:renderReviews,recommendations:renderRecommendations};
+  fn[key]?.();
+}
+
+// ════════════════════════════════════════════════
+// MODAL FORMS
+// ════════════════════════════════════════════════
+const PRODUCT_CATS = ['Base','Contour','Blush','Eye Palette','Lipstick','Highlighter','Concealer'];
+const FINISHES = ['Matte','Dewy','Satin','Natural','Shimmer'];
+const UNDERTONES = ['Warm','Cool','Neutral','Olive'];
+const SKINTONES = ['Fair','Light','Medium','Tan','Deep'];
+const SKINTYPES = ['Oily','Dry','Combination','Normal','Sensitive'];
+const CONCERNS = ['Acne','Dark Spots','Dullness','Oiliness','Dryness','Aging'];
+
+function selOpts(arr, val) { return arr.map(o=>`<option value="${o}" ${val===o?'selected':''}>${o}</option>`).join(''); }
+
+function openModal(type, data={}) {
+  modalType = type; modalEditId = data._id || null;
+  const titles = {product:'Product',variant:'Variant',affiliate:'Affiliate Link',user:'User',skinprofile:'Skin Profile',review:'Review'};
+  const prefix = modalEditId ? 'Edit' : 'Add';
+  document.getElementById('modal-title').textContent = `${prefix} ${titles[type]}`;
+
+  const bodies = {
+    product: () => `
+      <div class="form-row"><div class="form-group"><label>Brand</label><input id="f-brand" value="${data.brand_name||''}" /></div><div class="form-group"><label>Category</label><select id="f-cat">${selOpts(PRODUCT_CATS,data.category)}</select></div></div>
+      <div class="form-row single"><div class="form-group"><label>Product Name</label><input id="f-name" value="${data.product_name||''}" /></div></div>
+      <div class="form-row"><div class="form-group"><label>Formula Type</label><input id="f-formula" value="${data.formula_type||''}" /></div><div class="form-group"><label>Finish</label><select id="f-finish"><option value="">—</option>${selOpts(FINISHES,data.finish)}</select></div></div>
+      <div class="form-row single"><div class="form-group"><label>Description</label><textarea id="f-desc">${data.description||''}</textarea></div></div>
+      <div class="form-row single"><div class="form-group"><label>Image URL</label><input id="f-img" value="${data.product_img||''}" placeholder="https://…" /></div></div>`,
+    variant: () => `
+      <div class="form-row"><div class="form-group"><label>Product ID</label><select id="f-pid">${DATA.products.map(p=>`<option value="${p.product_id}" ${data.product_id===p.product_id?'selected':''}>${p.product_id} – ${p.product_name}</option>`).join('')}</select></div><div class="form-group"><label>Undertone</label><select id="f-ut"><option value="">—</option>${selOpts(UNDERTONES,data.recommended_undertone)}</select></div></div>
+      <div class="form-row"><div class="form-group"><label>Shade Name</label><input id="f-shade" value="${data.shade_name||''}" /></div><div class="form-group"><label>Hex Color</label><input id="f-hex" value="${data.shade_hex||''}" placeholder="#RRGGBB" /></div></div>
+      <div class="form-row single"><div class="form-group"><label>Variant Image URL</label><input id="f-vimg" value="${data.product_variant_img||''}" placeholder="https://…" /></div></div>`,
+    affiliate: () => `
+      <div class="form-row single"><div class="form-group"><label>Product</label><select id="f-pid">${DATA.products.map(p=>`<option value="${p.product_id}" ${data.product_id===p.product_id?'selected':''}>${p.product_id} – ${p.product_name}</option>`).join('')}</select></div></div>
+      <div class="form-row single"><div class="form-group"><label>Affiliate URL</label><input id="f-url" value="${data.affiliate_url||''}" placeholder="https://…" /></div></div>`,
+    user: () => `
+      <div class="form-row single"><div class="form-group"><label>Name</label><input id="f-name" value="${data.name||''}" /></div></div>
+      <div class="form-row"><div class="form-group"><label>Email</label><input id="f-email" type="email" value="${data.email||''}" /></div><div class="form-group"><label>Password</label><input id="f-pw" type="password" placeholder="${modalEditId?'Leave blank to keep':'New password'}" /></div></div>`,
+    skinprofile: () => `
+      <div class="form-row"><div class="form-group"><label>User</label><select id="f-uid">${DATA.users.map(u=>`<option value="${u.user_id}" ${data.user_id===u.user_id?'selected':''}>${u.user_id} – ${u.name}</option>`).join('')}</select></div><div class="form-group"><label>Profile ID (number)</label><input id="f-pid" type="number" value="${data.profile_id||''}" /></div></div>
+      <div class="form-row single"><div class="form-group"><label>Label</label><input id="f-label" value="${data.profile_label||''}" /></div></div>
+      <div class="form-row"><div class="form-group"><label>Skintone</label><select id="f-tone">${selOpts(SKINTONES,data.skintone)}</select></div><div class="form-group"><label>Undertone</label><select id="f-ut">${selOpts(UNDERTONES,data.undertone)}</select></div></div>
+      <div class="form-row"><div class="form-group"><label>Skin Type</label><select id="f-stype">${selOpts(SKINTYPES,data.skintype)}</select></div><div class="form-group"><label>Preferred Finish</label><select id="f-fin"><option value="">—</option>${selOpts(FINISHES,data.preferred_finish)}</select></div></div>
+      <div class="form-row single"><div class="form-group"><label>Primary Concerns (comma-separated)</label><input id="f-concern" value="${data.primary_concern||''}" placeholder="Acne,Dullness…" /></div></div>`,
+    review: () => `
+      <div class="form-row"><div class="form-group"><label>User</label><select id="f-uid">${DATA.users.map(u=>`<option value="${u.user_id}" ${data.user_id===u.user_id?'selected':''}>${u.user_id} – ${u.name}</option>`).join('')}</select></div><div class="form-group"><label>Variant</label><select id="f-vid">${DATA.variants.map(v=>`<option value="${v.variant_id}" ${data.variant_id===v.variant_id?'selected':''}>${v.variant_id} – ${v.shade_name}</option>`).join('')}</select></div></div>
+      <div class="form-row"><div class="form-group"><label>Rating (1.0–5.0)</label><input id="f-rating" type="number" min="1" max="5" step="0.5" value="${data.rating||''}" /></div><div class="form-group"><label>Profile Match?</label><select id="f-match"><option value="">—</option><option value="1" ${data.skin_profile_match==1?'selected':''}>Yes</option><option value="0" ${data.skin_profile_match==0?'selected':''}>No</option></select></div></div>
+      <div class="form-row single"><div class="form-group"><label>Comment</label><textarea id="f-comment">${data.comment||''}</textarea></div></div>`,
+  };
+
+  document.getElementById('modal-body').innerHTML = bodies[type]?.() || '';
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+function openEdit(type, id, id2='') {
+  const maps = {
+    product: () => DATA.products.find(r=>r.product_id===id),
+    variant: () => DATA.variants.find(r=>r.variant_id===id),
+    affiliate: () => DATA.affiliates.find(r=>r.link_id===id),
+    user: () => DATA.users.find(r=>r.user_id===id),
+    skinprofile: () => DATA.skinprofiles.find(r=>r.user_id===id&&String(r.profile_id)===String(id2)),
+    review: () => DATA.reviews.find(r=>r.review_id===id),
+    recommendation: () => DATA.recommendations.find(r=>r.log_id===id),
+  };
+  const data = maps[type]?.() || {};
+  data._id = id; data._id2 = id2;
+  if (type === 'recommendation') { showToast('Rec. logs are read-only.', '⊹'); return; }
+  openModal(type, data);
+  modalEditId = id;
+}
+
+function closeModal() { document.getElementById('modal-bg').classList.remove('open'); }
+function closeModalBg(e) { if (e.target === document.getElementById('modal-bg')) closeModal(); }
+
+async function saveModal() {
+  const g = id => document.getElementById(id)?.value;
+  let payload = {}, path = '', method = 'POST';
+
+  if (modalType === 'product') {
+    payload = { brand_name:g('f-brand'), product_name:g('f-name'), category:g('f-cat'), formula_type:g('f-formula'), finish:g('f-finish'), description:g('f-desc'), product_img:g('f-img') };
+    path = '/products'; if (modalEditId) { path += '/'+modalEditId; method='PUT'; }
+  } else if (modalType === 'variant') {
+    payload = { product_id:g('f-pid'), shade_name:g('f-shade'), shade_hex:g('f-hex'), product_variant_img:g('f-vimg'), recommended_undertone:g('f-ut') };
+    path = '/variants'; if (modalEditId) { path += '/'+modalEditId; method='PUT'; }
+  } else if (modalType === 'affiliate') {
+    payload = { product_id:g('f-pid'), affiliate_url:g('f-url') };
+    path = '/affiliatelinks'; if (modalEditId) { path += '/'+modalEditId; method='PUT'; }
+  } else if (modalType === 'user') {
+    payload = { name:g('f-name'), email:g('f-email') };
+    const pw = g('f-pw'); if (pw) payload.password = pw;
+    path = '/users'; if (modalEditId) { path += '/'+modalEditId; method='PUT'; }
+  } else if (modalType === 'skinprofile') {
+    payload = { user_id:g('f-uid'), profile_id:parseInt(g('f-pid')), profile_label:g('f-label'), skintone:g('f-tone'), undertone:g('f-ut'), skintype:g('f-stype'), preferred_finish:g('f-fin'), primary_concern:g('f-concern') };
+    path = '/skinprofiles';
+    if (modalEditId) { path += '/'+modalEditId+'/'+(document.querySelector('[id=f-pid]')?.value||''); method='PUT'; }
+  } else if (modalType === 'review') {
+    payload = { user_id:g('f-uid'), variant_id:g('f-vid'), rating:parseFloat(g('f-rating')), comment:g('f-comment'), skin_profile_match:g('f-match')===''?null:parseInt(g('f-match')) };
+    path = '/reviews'; if (modalEditId) { path += '/'+modalEditId; method='PUT'; }
+  }
+
+  // Try API, update local data either way
+  const res = await apiFetch(path, { method, body: JSON.stringify(payload) });
+
+  // Apply locally
+  applyLocalChange(modalType, method, modalEditId, payload, res);
+  closeModal();
+  renderAll();
+  showToast(modalEditId ? 'Record updated' : 'Record created', '✓');
+}
+
+function applyLocalChange(type, method, id, payload, res) {
+  const keyMap = {product:'products',variant:'variants',affiliate:'affiliates',user:'users',skinprofile:'skinprofiles',review:'reviews'};
+  const key = keyMap[type];
+  if (!key) return;
+  if (method === 'POST') {
+    const newId = res?.[Object.keys(res||{})[0]] || ('NEW-'+Date.now());
+    const idField = {product:'product_id',variant:'variant_id',affiliate:'link_id',user:'user_id',skinprofile:null,review:'review_id'}[type];
+    const row = {...payload};
+    if (idField) row[idField] = newId;
+    DATA[key].push(row);
+  } else if (method === 'PUT') {
+    const idField = {product:'product_id',variant:'variant_id',affiliate:'link_id',user:'user_id',review:'review_id'}[type];
+    const idx = DATA[key].findIndex(r => r[idField] === id);
+    if (idx > -1) DATA[key][idx] = {...DATA[key][idx], ...payload};
+  }
+  FILTERED[key] = [...DATA[key]];
+}
+
+async function deleteItem(type, id, id2='') {
+  if (!confirm(`Delete this ${type}? This cannot be undone.`)) return;
+  const pathMap = {product:'/products/',variant:'/variants/',affiliate:'/affiliatelinks/',user:'/users/',skinprofile:`/skinprofiles/${id}/`,review:'/reviews/',recommendation:'/recommendations/'};
+  const path = pathMap[type] + (id2 ? id2 : id);
+  await apiFetch(path, { method: 'DELETE' });
+
+  // Remove locally
+  const keyMap = {product:'products',variant:'variants',affiliate:'affiliates',user:'users',skinprofile:'skinprofiles',review:'reviews',recommendation:'recommendations'};
+  const key = keyMap[type];
+  const idField = {product:'product_id',variant:'variant_id',affiliate:'link_id',user:'user_id',review:'review_id',recommendation:'log_id'}[type];
+  if (type === 'skinprofile') {
+    DATA[key] = DATA[key].filter(r => !(r.user_id===id && String(r.profile_id)===String(id2)));
+  } else {
+    DATA[key] = DATA[key].filter(r => r[idField] !== id);
+  }
+  FILTERED[key] = [...DATA[key]];
+  renderAll();
+  showToast('Deleted', '✓');
+}
+
+// ════════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════════
+let toastTimer;
+function showToast(msg, icon='✓') {
+  const t = document.getElementById('toast');
+  t.querySelector('.toast-icon').textContent = icon;
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// Prefill login hint
+document.getElementById('login-email').value = 'admin@prismandpiel.com';
+document.getElementById('login-password').value = 'admin2024';
+</script>
+</body>
+</html>

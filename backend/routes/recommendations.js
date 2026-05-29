@@ -87,7 +87,7 @@ router.post('/generate/:user_id', async (req, res) => {
       [profile.undertone, profile.preferred_finish]
     );
 
-    // Log each recommendation (variant surrogate key only)
+    // Log each recommendation and attach log_id to each variant for frontend tracking
     for (let i = 0; i < variants.length; i++) {
       const log_id = await genId(db, 'RecommendationLog', 'log_id', 'LOG');
       await db.query(
@@ -95,6 +95,7 @@ router.post('/generate/:user_id', async (req, res) => {
          VALUES (?, ?, ?, ?, FALSE)`,
         [log_id, user_id, variants[i].variant_id, i + 1]
       );
+      variants[i].log_id = log_id;
     }
 
     res.status(201).json({
