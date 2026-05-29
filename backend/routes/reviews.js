@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
+const { genId } = require('../utils/genId');
 
 // GET all reviews
 router.get('/', async (req, res) => {
@@ -12,7 +13,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET reviews by user
+// GET reviews by user (e.g. /user/USR-001)
 router.get('/user/:user_id', async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -25,12 +26,12 @@ router.get('/user/:user_id', async (req, res) => {
   }
 });
 
-// GET reviews by variant (requires product_id too, since variant_id is not globally unique)
-router.get('/variant/:product_id/:variant_id', async (req, res) => {
+// GET reviews for a variant (e.g. /variant/VAR-001)
+router.get('/variant/:variant_id', async (req, res) => {
   try {
     const [rows] = await db.query(
-      'SELECT * FROM Review WHERE product_id = ? AND variant_id = ?',
-      [req.params.product_id, req.params.variant_id]
+      'SELECT * FROM Review WHERE variant_id = ?',
+      [req.params.variant_id]
     );
     res.json(rows);
   } catch (err) {
@@ -38,7 +39,7 @@ router.get('/variant/:product_id/:variant_id', async (req, res) => {
   }
 });
 
-// GET single review by ID
+// GET single review by ID (e.g. REV-001)
 router.get('/:id', async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -52,21 +53,22 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST create review
+// POST create review (references variant_id only)
 router.post('/', async (req, res) => {
   try {
-    const { user_id, variant_id, product_id, rating, comment, skin_profile_match } = req.body;
-    if (!user_id || !variant_id || !product_id || !rating)
-      return res.status(400).json({ error: 'user_id, variant_id, product_id, and rating are required' });
+    const { user_id, variant_id, rating, comment, skin_profile_match } = req.body;
+    if (!user_id || !variant_id || !rating)
+      return res.status(400).json({ error: 'user_id, variant_id, and rating are required' });
     if (rating < 1.0 || rating > 5.0)
       return res.status(400).json({ error: 'rating must be between 1.0 and 5.0' });
 
-    const [result] = await db.query(
-      `INSERT INTO Review (user_id, variant_id, product_id, rating, comment, skin_profile_match)
+    const review_id = await genId(db, 'Review', 'review_id', 'REV');
+    await db.query(
+      `INSERT INTO Review (review_id, user_id, variant_id, rating, comment, skin_profile_match)
        VALUES (?, ?, ?, ?, ?, ?)`,
-      [user_id, variant_id, product_id, rating, comment || null, skin_profile_match ?? null]
+      [review_id, user_id, variant_id, rating, comment || null, skin_profile_match ?? null]
     );
-    res.status(201).json({ review_id: result.insertId });
+    res.status(201).json({ review_id });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

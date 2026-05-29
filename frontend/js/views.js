@@ -164,6 +164,7 @@ const Views = {
           toast('Profile updated', 'success');
         } else {
           data.user_id    = App.user.user_id;
+          // profile_id is the per-user local counter (weak entity)
           data.profile_id = profiles.length
             ? Math.max(...profiles.map(p => p.profile_id)) + 1 : 1;
           await api.createProfile(data);
@@ -219,6 +220,7 @@ const Views = {
               .map(p => productCard(p, Views.cache.variants, Views.cache.links)).join('')
         : emptyBox('No products found', 'Try a different search or filter.');
       Views._wireProductCardClicks(grid);
+      mountCarousels(grid); // wire image swipe / touchbar / hex-switching
 
       const remaining = list.length - shown;
       if (remaining > 0) {
@@ -341,20 +343,24 @@ const Views = {
     users.forEach(u => { Views.cache.users[u.user_id] = u.name; });
   },
 
+  _openProductDrawer(product) {
+    openDrawer(drawerContent(product, Views.cache.variants,
+      Views.cache.reviews, Views.cache.users, Views.cache.links));
+    mountCarousels(document.getElementById('drawer-content'));
+    Views._wireDrawerReview(product);
+  },
+
   _wireProductCardClicks(grid) {
     grid.querySelectorAll('[data-product]').forEach(card =>
       card.addEventListener('click', async () => {
-        const id = +card.dataset.product;
+        const id = card.dataset.product; // prefixed string id (PRD-001)
         let product = Views.cache.products.find(p => p.product_id === id);
         if (!product) {
           try { await Views._ensureCatalogue(); } catch (e) {}
           product = Views.cache.products.find(p => p.product_id === id);
         }
         if (!product) { toast('Could not load that product', 'error'); return; }
-         openDrawer(drawerContent(product, Views.cache.variants,
-            Views.cache.reviews, Views.cache.users, Views.cache.links));
-
-          Views._wireDrawerReview(product);
+        Views._openProductDrawer(product);
       }));
   },
 
@@ -382,8 +388,7 @@ const Views = {
 
         const data = {
         user_id:    App.user.user_id,
-        product_id: product.product_id,
-        variant_id: +document.getElementById('dr-variant').value,
+        variant_id: document.getElementById('dr-variant').value, // VAR-xxx surrogate key
         rating:     rating,
         comment:    document.getElementById('dr-comment').value.trim(),
         skin_profile_match: document.getElementById('dr-match').checked,
@@ -393,9 +398,7 @@ const Views = {
         toast('Review posted', 'success');
         // refresh the cache plus redraw the drawer so the new review shows
         Views.cache.reviews = await api.getReviews();
-        openDrawer(drawerContent(product, Views.cache.variants,
-            Views.cache.reviews, Views.cache.users, Views.cache.links));
-        Views._wireDrawerReview(product);
+        Views._openProductDrawer(product);
         } catch (e) { err.textContent = e.message; }
     });
     },

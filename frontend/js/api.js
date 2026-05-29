@@ -19,9 +19,12 @@ async function request(path, method = 'GET', body) {
   try { return await res.json(); } catch (e) { return {}; }
 }
 
+// IDs are now prefixed strings (USR-001, PRD-001, …) so encode them in URLs.
+const enc = encodeURIComponent;
+
 const api = {
 
-  // ------------------ AUTH ---------------- 
+  // ------------------ AUTH ----------------
   // POST /api/auth/login
   login(email, password) {
     return request('/auth/login', 'POST', { email, password });
@@ -37,7 +40,7 @@ const api = {
 
   /* ------------- SKIN PROFILES ------------- */
   // GET /api/skinprofiles/user/:userId
-  getProfiles(userId) { return request('/skinprofiles/user/' + userId); },
+  getProfiles(userId) { return request('/skinprofiles/user/' + enc(userId)); },
 
   // POST /api/skinprofiles
   // Backend requires profile_id in the body (weak entity). We compute
@@ -46,12 +49,12 @@ const api = {
 
   // PUT /api/skinprofiles/:userId/:profileId
   updateProfile(userId, profileId, data) {
-    return request('/skinprofiles/' + userId + '/' + profileId, 'PUT', data);
+    return request('/skinprofiles/' + enc(userId) + '/' + enc(profileId), 'PUT', data);
   },
 
   // DELETE /api/skinprofiles/:userId/:profileId
   deleteProfile(userId, profileId) {
-    return request('/skinprofiles/' + userId + '/' + profileId, 'DELETE');
+    return request('/skinprofiles/' + enc(userId) + '/' + enc(profileId), 'DELETE');
   },
 
   /* ---------------- PRODUCTS ---------------- */
@@ -59,7 +62,7 @@ const api = {
   getProducts() { return request('/products'); },
   // GET /api/products/category/:category
   getProductsByCategory(cat) {
-    return request('/products/category/' + encodeURIComponent(cat));
+    return request('/products/category/' + enc(cat));
   },
 
   /* ------------- PRODUCT VARIANTS ------------- */
@@ -67,32 +70,36 @@ const api = {
   getVariants() { return request('/variants'); },
   // GET /api/variants/product/:productId
   getVariantsForProduct(productId) {
-    return request('/variants/product/' + productId);
+    return request('/variants/product/' + enc(productId));
   },
 
   /* ------------- AFFILIATE LINKS ------------- */
   // GET /api/affiliatelinks
   getLinks() { return request('/affiliatelinks'); },
+  // GET /api/affiliatelinks/product/:productId  (links are per-product now)
+  getLinksForProduct(productId) {
+    return request('/affiliatelinks/product/' + enc(productId));
+  },
   // PUT /api/affiliatelinks/click/:linkId
-  clickLink(linkId) { return request('/affiliatelinks/click/' + linkId, 'PUT'); },
+  clickLink(linkId) { return request('/affiliatelinks/click/' + enc(linkId), 'PUT'); },
 
   /* ------------- RECOMMENDATIONS ------------- */
   // POST /api/recommendations/generate/:userId   body: { profile_id }
   // Backend matches variants to the profile and logs them.
   generateRecommendations(userId, profileId) {
-    return request('/recommendations/generate/' + userId, 'POST', { profile_id: profileId });
+    return request('/recommendations/generate/' + enc(userId), 'POST', { profile_id: profileId });
   },
   // PUT /api/recommendations/click/:logId
   markRecommendationClicked(logId) {
-    return request('/recommendations/click/' + logId, 'PUT');
+    return request('/recommendations/click/' + enc(logId), 'PUT');
   },
 
   /* ---------------- REVIEWS ---------------- */
   // GET /api/reviews
   getReviews() { return request('/reviews'); },
-  // GET /api/reviews/variant/:productId/:variantId
-  getReviewsForVariant(productId, variantId) {
-    return request('/reviews/variant/' + productId + '/' + variantId);
+  // GET /api/reviews/variant/:variantId
+  getReviewsForVariant(variantId) {
+    return request('/reviews/variant/' + enc(variantId));
   },
   // POST /api/reviews
   createReview(data) { return request('/reviews', 'POST', data); },
