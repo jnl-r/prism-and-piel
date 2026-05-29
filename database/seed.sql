@@ -54,14 +54,14 @@ VALUES
   ('VAR-009', 'PRD-002', 'Palm Springs', '#D97E74', '/assets/VAR_009.png', 'Cool'),
   ('VAR-010', 'PRD-002', 'Coast', '#E2876F', '/assets/VAR_010.png', 'Warm'),
   ('VAR-011', 'PRD-002', 'Golden Hour', '#E0925E', '/assets/VAR_011.png', 'Warm'),
-  ('VAR-012', 'PRD-002', 'Summer Time', '#B8604B', '/assets/VAR_012.png', 'Warm'), --------
-  ('VAR-013', 'PRD-002', 'Poolside', '#A83720', '/assets/VAR_013.png', 'Warm'), ------
-  ('VAR-014', 'PRD-003', 'Chestnut', '#9A6B45', '/assets/VAR_014.png', 'Warm'), ------
-  ('VAR-015', 'PRD-003', 'Creme', '#F0D9BE', '/assets/VAR_015.png', 'Neutral'), ------/
-  ('VAR-016', 'PRD-003', 'Linen', '#EAD7BE', '/assets/VAR_016.png', 'Neutral'), -----
+  ('VAR-012', 'PRD-002', 'Summer Time', '#B8604B', '/assets/VAR_012.png', 'Warm'), 
+  ('VAR-013', 'PRD-002', 'Poolside', '#A83720', '/assets/VAR_013.png', 'Warm'),
+  ('VAR-014', 'PRD-003', 'Chestnut', '#9A6B45', '/assets/VAR_014.png', 'Warm'), 
+  ('VAR-015', 'PRD-003', 'Creme', '#F0D9BE', '/assets/VAR_015.png', 'Neutral'), 
+  ('VAR-016', 'PRD-003', 'Linen', '#EAD7BE', '/assets/VAR_016.png', 'Neutral'),
   ('VAR-017', 'PRD-003', 'Oat', '#E8C9A8', '/assets/VAR_017.png', 'Neutral'),
   ('VAR-018', 'PRD-003', 'Toffee', '#B07F50', '/assets/VAR_018.png', 'Warm'),
-  ('VAR-019', 'PRD-003', 'Sand', '#E5C5AA', '/assets/VAR_019.png', 'Neutral'),---
+  ('VAR-019', 'PRD-003', 'Sand', '#E5C5AA', '/assets/VAR_019.png', 'Neutral'),
   ('VAR-020', 'PRD-003', 'Toast', '#D4A074', '/assets/VAR_020.png', 'Neutral'),
   ('VAR-021', 'PRD-003', 'Vanilla', '#F5D7BA', '/assets/VAR_021.png', 'Cool'),
   ('VAR-022', 'PRD-004', 'Honey', '#E2B583', '/assets/VAR_022.png', 'Warm'),
@@ -87,7 +87,7 @@ VALUES
   ('VAR-042', 'PRD-007', 'Peachy Pop', '#E8A077', '/assets/VAR_042.png', 'Warm'),
   ('VAR-043', 'PRD-007', 'Darling Baby', '#E0A0A0', '/assets/VAR_043.png', 'Neutral'),
   ('VAR-044', 'PRD-007', 'Bubblegum Kiss', '#CC70B6', '/assets/VAR_044.png', 'Neutral'),
-  ('VAR-045', 'PRD-007', 'Chiffon Dream', '#FFE4E3', '/assets/VAR_045.png', 'Neutral');
+  ('VAR-045', 'PRD-007', 'Chiffon Dream', '#FFE4E3', '/assets/VAR_045.png', 'Neutral'),
   ('VAR-046', 'PRD-008', 'Toast of New York', '#E8807B', '/assets/VAR_046.png', 'Cool'),
   ('VAR-047', 'PRD-008', 'Raspberry', '#B83E5E', '/assets/VAR_047.png', 'Cool'),
   ('VAR-048', 'PRD-008', 'Fresno', '#D9785E', '/assets/VAR_048.png', 'Warm');
