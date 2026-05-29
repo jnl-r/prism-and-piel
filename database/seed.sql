@@ -29,13 +29,13 @@ VALUES
   ('PRD-005', 'Absidy Beauty', 'Weightless Touch Concealer', 'Concealer', 'Cream', 'Satin',
       'A medium-to-full coverage concealer for spot-concealing, under-eye brightening and colour-correcting.', '/assets/PRD_005.png'),
   ('PRD-006', 'Absidy Beauty', 'Vital Blur Filter Skin Tint', 'Base', 'Cream', 'Matte',
-      'SPF 50+ UVA/UVB', '/assets/PRD_006.png'),
+      'A blurring skin tint with SPF 50+ UVA/UVB protection for an even, matte finish.', '/assets/PRD_006.png'),
   ('PRD-007', 'Chu Chu Beauty', 'Heart Blush Duo', 'Blush', 'Powder', 'Matte',
       'A compact dual blush palette with a built-in mirror.', '/assets/PRD_007.png'),
   ('PRD-008', 'Ever Bilena', 'Pillow Pop Liquid Blush', 'Blush', 'Liquid', 'Natural',
       'A soft liquid blush that blends into a natural, pillowy flush.', '/assets/PRD_008.png'),
   ('PRD-009', 'Ever Bilena', 'All Day Liquid Concealer', 'Concealer', 'Liquid', 'Natural',
-      'A soft liquid blush that blends into a natural, pillowy flush.', '/assets/PRD_009.png'),
+      'A long-wearing liquid concealer that gives smooth, natural everyday coverage.', '/assets/PRD_009.png'),
   ('PRD-010', 'Ever Bilena', 'Ever Bilena Powder Blush', 'Blush', 'Powder', 'Natural',
       'A soft powder blush that provides a natural, pillowy flush.', '/assets/PRD_010.png');
 
@@ -54,10 +54,10 @@ VALUES
   ('VAR-009', 'PRD-002', 'Palm Springs', '#D97E74', '/assets/VAR_009.png', 'Cool'),
   ('VAR-010', 'PRD-002', 'Coast', '#E2876F', '/assets/VAR_010.png', 'Warm'),
   ('VAR-011', 'PRD-002', 'Golden Hour', '#E0925E', '/assets/VAR_011.png', 'Warm'),
-  ('VAR-012', 'PRD-002', 'Summer Time', '#B8604B', '/assets/VAR_012.png', 'Warm'), 
+  ('VAR-012', 'PRD-002', 'Summer Time', '#B8604B', '/assets/VAR_012.png', 'Warm'),
   ('VAR-013', 'PRD-002', 'Poolside', '#A83720', '/assets/VAR_013.png', 'Warm'),
-  ('VAR-014', 'PRD-003', 'Chestnut', '#9A6B45', '/assets/VAR_014.png', 'Warm'), 
-  ('VAR-015', 'PRD-003', 'Creme', '#F0D9BE', '/assets/VAR_015.png', 'Neutral'), 
+  ('VAR-014', 'PRD-003', 'Chestnut', '#9A6B45', '/assets/VAR_014.png', 'Warm'),
+  ('VAR-015', 'PRD-003', 'Creme', '#F0D9BE', '/assets/VAR_015.png', 'Neutral'),
   ('VAR-016', 'PRD-003', 'Linen', '#EAD7BE', '/assets/VAR_016.png', 'Neutral'),
   ('VAR-017', 'PRD-003', 'Oat', '#E8C9A8', '/assets/VAR_017.png', 'Neutral'),
   ('VAR-018', 'PRD-003', 'Toffee', '#B07F50', '/assets/VAR_018.png', 'Warm'),
@@ -80,7 +80,7 @@ VALUES
   ('VAR-035', 'PRD-006', '1W', '#E7C19A', '/assets/VAR_029.png', 'Warm'),
   ('VAR-036', 'PRD-006', '2N', '#D9B488', '/assets/VAR_030.png', 'Neutral'),
   ('VAR-037', 'PRD-006', '3W', '#C99A6B', '/assets/VAR_031.png', 'Warm'),
-  ('VAR-038', 'PRD-006', '1NW', '#E8C9B7', '/assets/VAR_032.png', 'Neutral'), 
+  ('VAR-038', 'PRD-006', '1NW', '#E8C9B7', '/assets/VAR_032.png', 'Neutral'),
   ('VAR-039', 'PRD-006', '2W', '#968874', '/assets/VAR_033.png', 'Warm'),
   ('VAR-040', 'PRD-007', 'Hey Sugar', '#E79A88', '/assets/VAR_040.png', 'Warm'),
   ('VAR-041', 'PRD-007', 'Miss Dolly', '#DE8296', '/assets/VAR_041.png', 'Cool'),
@@ -92,9 +92,7 @@ VALUES
   ('VAR-047', 'PRD-008', 'Raspberry', '#B83E5E', '/assets/VAR_047.png', 'Cool'),
   ('VAR-048', 'PRD-008', 'Fresno', '#D9785E', '/assets/VAR_048.png', 'Warm');
 
-
-
--- ---------- AFFILIATE LINKS (LNK-xxx) ----------
+-- ---------- AFFILIATE LINKS (LNK-xxx) — one per Product ----------
 INSERT INTO AffiliateLink
   (link_id, product_id, affiliate_url, click_count)
 VALUES
@@ -104,20 +102,23 @@ VALUES
   ('LNK-004', 'PRD-004', 'https://vt.tiktok.com/ZS9Y3TpQedyUP-c3AzV', 120),
   ('LNK-005', 'PRD-005', 'https://vt.tiktok.com/ZS9Y3whFYWX1P-bVh1r', 88),
   ('LNK-006', 'PRD-006', 'https://vt.tiktok.com/ZS9Y3oxVb3hgV-9B5jg', 73),
-  ('LNK-007', 'PRD-007', 'https://www.tiktok.com/@prismandpiel/sample-pillow-pop', 9);
+  ('LNK-007', 'PRD-007', 'https://www.tiktok.com/@prismandpiel/sample-pillow-pop', 9),
+  ('LNK-008', 'PRD-008', 'https://www.tiktok.com/@prismandpiel/sample-liquid-blush', 12),
+  ('LNK-009', 'PRD-009', 'https://www.tiktok.com/@prismandpiel/sample-liquid-concealer', 6),
+  ('LNK-010', 'PRD-010', 'https://www.tiktok.com/@prismandpiel/sample-powder-blush', 4);
 
--- ---------- REVIEWS (REV-xxx) ----------
+-- ---------- REVIEWS (REV-xxx) — reference variant_id only ----------
 INSERT INTO Review
   (review_id, user_id, variant_id, rating, comment, skin_profile_match, created_at)
 VALUES
   ('REV-001', 'USR-001', 'VAR-004', 4.5, 'Butterscotch melts into my warm undertone perfectly. Glowy but not greasy.', TRUE, '2026-05-10'),
   ('REV-002', 'USR-001', 'VAR-011', 5.0, 'Golden Hour is the prettiest everyday flush. A tiny dab is enough.', TRUE, '2026-05-12'),
-  ('REV-003', 'USR-002', 'VAR-022', 4.0, 'Shade 0N brightens my under-eyes well. Wish it had more deep shades.', TRUE, '2026-05-15'),
-  ('REV-004', 'USR-002', 'VAR-018', 3.5, 'Milk keeps me matte but can look a little dry by afternoon.', FALSE, '2026-05-16'),
-  ('REV-005', 'USR-003', 'VAR-027', 5.0, 'Miss Dolly is such a flattering cool-toned blush for fair skin.', TRUE, '2026-05-18'),
-  ('REV-006', 'USR-003', 'VAR-014', 4.5, 'Linen skin tint evens me out with light, comfortable coverage.', TRUE, '2026-05-20');
+  ('REV-003', 'USR-002', 'VAR-028', 4.0, 'Shade 0N brightens my under-eyes well. Wish it had more deep shades.', TRUE, '2026-05-15'),
+  ('REV-004', 'USR-002', 'VAR-023', 3.5, 'Milk keeps me matte but can look a little dry by afternoon.', FALSE, '2026-05-16'),
+  ('REV-005', 'USR-003', 'VAR-041', 5.0, 'Miss Dolly is such a flattering cool-toned blush for fair skin.', TRUE, '2026-05-18'),
+  ('REV-006', 'USR-003', 'VAR-016', 4.5, 'Linen skin tint evens me out with light, comfortable coverage.', TRUE, '2026-05-20');
 
--- ---------- RECOMMENDATION LOGS (LOG-xxx) ----------
+-- ---------- RECOMMENDATION LOGS (LOG-xxx) — reference variant_id only ----------
 INSERT INTO RecommendationLog
   (log_id, user_id, variant_id, rank_position, clicked, generated_at)
 VALUES
