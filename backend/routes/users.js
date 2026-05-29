@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET single user by ID (e.g. USR-001)
+// GET single user by ID
 router.get('/:id', async (req, res) => {
   try {
     const [rows] = await db.query(
