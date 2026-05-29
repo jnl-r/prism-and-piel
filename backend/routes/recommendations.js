@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET recommendation logs for a specific user (e.g. /user/USR-001)
+// GET recommendation logs for a specific user
 router.get('/user/:user_id', async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -26,7 +26,7 @@ router.get('/user/:user_id', async (req, res) => {
   }
 });
 
-// GET single log entry (e.g. LOG-001)
+// GET single log entry
 router.get('/:id', async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -43,7 +43,7 @@ router.get('/:id', async (req, res) => {
 router.post('/generate/:user_id', async (req, res) => {
   try {
     const { user_id } = req.params;
-    const { profile_id } = req.body; // optional: specify which profile to use
+    const { profile_id } = req.body;
 
     // Fetch the skin profile to use
     let profileQuery = 'SELECT * FROM SkinProfile WHERE user_id = ?';
