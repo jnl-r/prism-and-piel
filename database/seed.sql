@@ -19,25 +19,25 @@ INSERT INTO Product
   (product_id, brand_name, product_name, category, formula_type, finish, description, product_img)
 VALUES
   ('PRD-001', 'BLK Cosmetics', 'Fresh Radiant Glow Filter Foundation', 'Base', 'Liquid', 'Dewy',
-      'A radiant glow-filter foundation, 30 ml, for a luminous skin-like finish.', '/assets/PRD_001.png'),
+      'A radiant glow-filter foundation, 30 ml, for a luminous skin-like finish.', '/assets/PRD-001.png'),
   ('PRD-002', 'BLK Cosmetics', 'Creamy All-Over Paint Blush', 'Blush', 'Liquid', 'Dewy',
-      'A creamy liquid blush formulated without parabens, phthalates, SLS/SLES and artificial fragrance.', '/assets/PRD_002.png'),
+      'A creamy liquid blush formulated without parabens, phthalates, SLS/SLES and artificial fragrance.', '/assets/PRD-002.png'),
   ('PRD-003', 'BLK Cosmetics', 'Universal Skin Tint Sun Shield', 'Base', 'Cream', 'Matte',
-      'A skin tint with SPF 30 that evens tone while shielding from the sun.', '/assets/PRD_003.png'),
+      'A skin tint with SPF 30 that evens tone while shielding from the sun.', '/assets/PRD-003.png'),
   ('PRD-004', 'Absidy Beauty', 'Complexion Blur Translucent Perfecting Powder', 'Base', 'Compact Powder', 'Matte',
-      'An oil-controlling, pore-minimizing, long-lasting perfecting powder.', '/assets/PRD_004.png'),
+      'An oil-controlling, pore-minimizing, long-lasting perfecting powder.', '/assets/PRD-004.png'),
   ('PRD-005', 'Absidy Beauty', 'Weightless Touch Concealer', 'Concealer', 'Cream', 'Satin',
-      'A medium-to-full coverage concealer for spot-concealing, under-eye brightening and colour-correcting.', '/assets/PRD_005.png'),
+      'A medium-to-full coverage concealer for spot-concealing, under-eye brightening and colour-correcting.', '/assets/PRD-005.png'),
   ('PRD-006', 'Absidy Beauty', 'Vital Blur Filter Skin Tint', 'Base', 'Cream', 'Matte',
-      'A blurring skin tint with SPF 50+ UVA/UVB protection for an even, matte finish.', '/assets/PRD_006.png'),
+      'A blurring skin tint with SPF 50+ UVA/UVB protection for an even, matte finish.', '/assets/PRD-006.png'),
   ('PRD-007', 'Chu Chu Beauty', 'Heart Blush Duo', 'Blush', 'Powder', 'Matte',
-      'A compact dual blush palette with a built-in mirror.', '/assets/PRD_007.png'),
+      'A compact dual blush palette with a built-in mirror.', '/assets/PRD-007.png'),
   ('PRD-008', 'Ever Bilena', 'Pillow Pop Liquid Blush', 'Blush', 'Liquid', 'Natural',
-      'A soft liquid blush that blends into a natural, pillowy flush.', '/assets/PRD_008.png'),
+      'A soft liquid blush that blends into a natural, pillowy flush.', '/assets/PRD-008.png'),
   ('PRD-009', 'Ever Bilena', 'All Day Liquid Concealer', 'Concealer', 'Liquid', 'Natural',
-      'A long-wearing liquid concealer that gives smooth, natural everyday coverage.', '/assets/PRD_009.png'),
+      'A long-wearing liquid concealer that gives smooth, natural everyday coverage.', '/assets/PRD-009.png'),
   ('PRD-010', 'Ever Bilena', 'Ever Bilena Powder Blush', 'Blush', 'Powder', 'Natural',
-      'A soft powder blush that provides a natural, pillowy flush.', '/assets/PRD_010.png');
+      'A soft powder blush that provides a natural, pillowy flush.', '/assets/PRD-010.png');
 
 -- ---------- PRODUCT VARIANTS (surrogate VAR-xxx; product_id is an FK) ----------
 INSERT INTO ProductVariant
