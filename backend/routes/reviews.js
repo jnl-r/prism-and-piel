@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET reviews by user (e.g. /user/USR-001)
+// GET reviews by user
 router.get('/user/:user_id', async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -26,7 +26,7 @@ router.get('/user/:user_id', async (req, res) => {
   }
 });
 
-// GET reviews for a variant (e.g. /variant/VAR-001)
+// GET reviews for a variant
 router.get('/variant/:variant_id', async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -39,7 +39,7 @@ router.get('/variant/:variant_id', async (req, res) => {
   }
 });
 
-// GET single review by ID (e.g. REV-001)
+// GET single review by ID
 router.get('/:id', async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -53,7 +53,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST create review (references variant_id only)
+// POST create review
 router.post('/', async (req, res) => {
   try {
     const { user_id, variant_id, rating, comment, skin_profile_match } = req.body;
