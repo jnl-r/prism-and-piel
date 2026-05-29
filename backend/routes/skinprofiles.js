@@ -25,7 +25,7 @@ router.get('/user/:user_id', async (req, res) => {
   }
 });
 
-// GET single profile by composite PK
+// GET single profile
 router.get('/:user_id/:profile_id', async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -40,7 +40,6 @@ router.get('/:user_id/:profile_id', async (req, res) => {
 });
 
 // POST create skin profile
-// profile_id must be supplied by client (weak entity — scoped per user)
 router.post('/', async (req, res) => {
   try {
     const { user_id, profile_id, profile_label, skintone, undertone, skintype, primary_concern, preferred_finish } = req.body;
