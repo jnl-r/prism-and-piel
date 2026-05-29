@@ -66,9 +66,19 @@ VALUES
   ('VAR-027', 'PRD-006', 'Miss Dolly', '#DE8296', 'https://placehold.co/600x600/DE8296/ffffff?text=Miss+Dolly', 'Cool'),
   ('VAR-028', 'PRD-006', 'Peachy Pop', '#E8A077', 'https://placehold.co/600x600/E8A077/ffffff?text=Peachy+Pop', 'Warm'),
   ('VAR-029', 'PRD-006', 'Darling Baby', '#E0A0A0', 'https://placehold.co/600x600/E0A0A0/ffffff?text=Darling+Baby', 'Neutral'),
-  ('VAR-030', 'PRD-007', 'Rouge', '#C8506A', 'https://placehold.co/600x600/C8506A/ffffff?text=Rouge', 'Cool'),
+  ('VAR-030', 'PRD-007', 'Toast of New York', '#E8807B', 'https://placehold.co/600x600/E8807B/ffffff?text=Toast+of+New+York', 'Cool'),
   ('VAR-031', 'PRD-007', 'Raspberry', '#B83E5E', 'https://placehold.co/600x600/B83E5E/ffffff?text=Raspberry', 'Cool'),
-  ('VAR-032', 'PRD-007', 'Fresno', '#D9785E', 'https://placehold.co/600x600/D9785E/ffffff?text=Fresno', 'Warm');
+  ('VAR-032', 'PRD-007', 'Fresno', '#D9785E', 'https://placehold.co/600x600/D9785E/ffffff?text=Fresno', 'Warm'),
+  ('VAR-033', 'PRD-002', 'Summer Time', '#B8604B', 'https://placehold.co/600x600/B8604B/ffffff?text=Summer+Time', 'Warm'),
+  ('VAR-034', 'PRD-002', 'Poolside', '#A83720', 'https://placehold.co/600x600/A83720/ffffff?text=Poolside', 'Warm'),
+  ('VAR-035', 'PRD-003', 'Sand', '#E5C5AA', 'https://placehold.co/600x600/E5C5AA/ffffff?text=Sand', 'Neutral'),
+  ('VAR-036', 'PRD-003', 'Toast', '#D4A074', 'https://placehold.co/600x600/D4A074/ffffff?text=Toast', 'Neutral'),
+  ('VAR-037', 'PRD-003', 'Vanilla', '#F5D7BA', 'https://placehold.co/600x600/F5D7BA/ffffff?text=Vanilla', 'Cool'),
+  ('VAR-038', 'PRD-004', 'Banana Pudding', '#F5E5C6', 'https://placehold.co/600x600/F5E5C6/ffffff?text=Banana+Pudding', 'Warm'),
+  ('VAR-039', 'PRD-005', '1NW', '#E8C9B7', 'https://placehold.co/600x600/E8C9B7/ffffff?text=1NW', 'Neutral'),
+  ('VAR-040', 'PRD-005', '2W', '#968874', 'https://placehold.co/600x600/968874/ffffff?text=2W', 'Warm'),
+  ('VAR-041', 'PRD-006', 'Bubblegum Kiss', '#CC70B6', 'https://placehold.co/600x600/CC70B6/ffffff?text=Bubblegum+Kiss', 'Neutral'),
+  ('VAR-042', 'PRD-006', 'Chiffon Dream', '#FFE4E3', 'https://placehold.co/600x600/FFE4E3/ffffff?text=Chiffon+Dream', 'Neutral');
 
 -- ---------- AFFILIATE LINKS (LNK-xxx) ----------
 INSERT INTO AffiliateLink
