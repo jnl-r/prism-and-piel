@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET all variants for a product (e.g. /product/PRD-001)
+// GET all variants for a product
 router.get('/product/:product_id', async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -26,7 +26,7 @@ router.get('/product/:product_id', async (req, res) => {
   }
 });
 
-// GET single variant by its surrogate key (e.g. /VAR-001)
+// GET single variant
 router.get('/:variant_id', async (req, res) => {
   try {
     const [rows] = await db.query(
