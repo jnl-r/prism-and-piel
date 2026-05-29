@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
+const { genId } = require('../utils/genId');
 
 
 router.post('/login', async (req, res) => {
@@ -29,11 +30,12 @@ router.post('/signup', async (req, res) => {
     if (!name || !email || !password)
       return res.status(400).json({ error: 'Name, email, and password are required.' });
 
-    const [result] = await db.query(
-      'INSERT INTO User (name, email, password) VALUES (?, ?, ?)',
-      [name, email, password]
+    const user_id = await genId(db, 'User', 'user_id', 'USR');
+    await db.query(
+      'INSERT INTO User (user_id, name, email, password) VALUES (?, ?, ?, ?)',
+      [user_id, name, email, password]
     );
-    res.status(201).json({ user_id: result.insertId, name, email });
+    res.status(201).json({ user_id, name, email });
   } catch (err) {
     if (err.code === 'ER_DUP_ENTRY')
       return res.status(409).json({ error: 'That email is already registered.' });

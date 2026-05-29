@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
+const { genId } = require('../utils/genId');
 
 // GET all products
 router.get('/', async (req, res) => {
@@ -12,7 +13,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET products filtered by category (query param: ?category=Base)
 router.get('/category/:category', async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -42,16 +42,17 @@ router.get('/:id', async (req, res) => {
 // POST create product
 router.post('/', async (req, res) => {
   try {
-    const { product_name, brand_name, category, formula_type, finish, description } = req.body;
+    const { product_name, brand_name, category, formula_type, finish, description, product_img } = req.body;
     if (!product_name || !brand_name || !category || !description)
       return res.status(400).json({ error: 'product_name, brand_name, category, and description are required' });
 
-    const [result] = await db.query(
-      `INSERT INTO Product (product_name, brand_name, category, formula_type, finish, description)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [product_name, brand_name, category, formula_type || null, finish || null, description]
+    const product_id = await genId(db, 'Product', 'product_id', 'PRD');
+    await db.query(
+      `INSERT INTO Product (product_id, product_name, brand_name, category, formula_type, finish, description, product_img)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [product_id, product_name, brand_name, category, formula_type || null, finish || null, description, product_img || null]
     );
-    res.status(201).json({ product_id: result.insertId, product_name, brand_name });
+    res.status(201).json({ product_id, product_name, brand_name });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -60,12 +61,12 @@ router.post('/', async (req, res) => {
 // PUT update product
 router.put('/:id', async (req, res) => {
   try {
-    const { product_name, brand_name, category, formula_type, finish, description } = req.body;
+    const { product_name, brand_name, category, formula_type, finish, description, product_img } = req.body;
     const [result] = await db.query(
       `UPDATE Product
-       SET product_name = ?, brand_name = ?, category = ?, formula_type = ?, finish = ?, description = ?
+       SET product_name = ?, brand_name = ?, category = ?, formula_type = ?, finish = ?, description = ?, product_img = ?
        WHERE product_id = ?`,
-      [product_name, brand_name, category, formula_type || null, finish || null, description, req.params.id]
+      [product_name, brand_name, category, formula_type || null, finish || null, description, product_img || null, req.params.id]
     );
     if (result.affectedRows === 0) return res.status(404).json({ error: 'Product not found' });
     res.json({ message: 'Product updated successfully' });
@@ -74,7 +75,7 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// DELETE product (cascades to ProductVariant → AffiliateLink, Review, RecommendationLog)
+// DELETE product
 router.delete('/:id', async (req, res) => {
   try {
     const [result] = await db.query('DELETE FROM Product WHERE product_id = ?', [req.params.id]);

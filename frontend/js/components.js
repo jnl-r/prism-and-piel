@@ -66,7 +66,7 @@ function loadingBox(text = 'Loading…') {
   return `<div class="loading">${esc(text)}</div>`;
 }
 
-/* ---------- category -> gradient + emoji thumb (until real photos) ---------- */
+/* ---------- category -> gradient + emoji thumb (fallback when a photo fails) ---------- */
 function thumbStyle(category) {
   const map = {
     'Base':        { bg: 'linear-gradient(160deg,#f9e8ef,#f4d3c4)', emoji: '💄' },
@@ -84,6 +84,116 @@ function thumbBox(category) {
   return `<div class="p-thumb" style="background:${t.bg};">
     <span style="font-size:2rem;">${t.emoji}</span>
   </div>`;
+}
+
+function buildMedia(product, vs) {
+  const t = thumbStyle(product.category);
+  const slides = [{
+    src:      product.product_img || '',
+    bg:       t.bg,
+    fallback: t.emoji,
+    label:    'Product',
+  }];
+  vs.forEach(v => slides.push({
+    src:      v.product_variant_img || product.product_img || '',
+    bg:       v.shade_hex || t.bg,
+    fallback: t.emoji,
+    label:    v.shade_name,
+  }));
+  return slides;
+}
+
+function carouselHTML(slides) {
+  const slideEls = slides.map(s => `
+    <div class="pp-slide" style="background:${esc(s.bg)};">
+      <span class="pp-slide-fallback">${s.fallback || ''}</span>
+      ${s.src
+        ? `<img src="${esc(s.src)}" alt="${esc(s.label)}" loading="lazy"
+                onerror="this.style.display='none';this.previousElementSibling.style.display='flex';">`
+        : ''}
+      <span class="pp-slide-cap">${esc(s.label)}</span>
+    </div>`).join('');
+
+  const dots = slides.map((_, i) =>
+    `<span class="pp-cz-dot ${i === 0 ? 'active' : ''}" data-i="${i}"></span>`).join('');
+
+  return `
+    <div class="pp-carousel" data-count="${slides.length}">
+      <div class="pp-carousel-viewport">
+        <div class="pp-carousel-track">${slideEls}</div>
+      </div>
+      ${slides.length > 1 ? `
+        <button class="pp-cz-arrow pp-cz-prev" type="button" aria-label="Previous photo">&#8249;</button>
+        <button class="pp-cz-arrow pp-cz-next" type="button" aria-label="Next photo">&#8250;</button>
+        <div class="pp-cz-bar" role="group" aria-label="Browse photos">${dots}</div>
+      ` : ''}
+    </div>`;
+}
+
+/* wire one carousel element, and exposes el._goTo(index) for hex swatches */
+function mountCarousel(root) {
+  const track  = root.querySelector('.pp-carousel-track');
+  const slides = root.querySelectorAll('.pp-slide');
+  const dots   = root.querySelectorAll('.pp-cz-dot');
+  const vp     = root.querySelector('.pp-carousel-viewport');
+  const count  = slides.length;
+  let idx = 0;
+
+  function go(i) {
+    idx = Math.max(0, Math.min(count - 1, i));
+    track.style.transform = `translateX(${-idx * 100}%)`;
+    dots.forEach((d, k) => d.classList.toggle('active', k === idx));
+  }
+  root._goTo = go;
+
+  const stop = e => e.stopPropagation();
+  root.querySelector('.pp-cz-prev')?.addEventListener('click', e => { stop(e); go(idx - 1); });
+  root.querySelector('.pp-cz-next')?.addEventListener('click', e => { stop(e); go(idx + 1); });
+  dots.forEach(d => d.addEventListener('click', e => { stop(e); go(+d.dataset.i); }));
+
+  /* swipe on the picture itself */
+  let startX = null;
+  vp.addEventListener('pointerdown', e => { startX = e.clientX; });
+  vp.addEventListener('pointerup', e => {
+    if (startX == null) return;
+    const dx = e.clientX - startX;
+    startX = null;
+    if (Math.abs(dx) > 30) { stop(e); go(idx + (dx < 0 ? 1 : -1)); } // real swipe thus a tap still opens the drawer
+  });
+
+  /* press/drag across the dot bar picks the nearest slide */
+  const bar = root.querySelector('.pp-cz-bar');
+  if (bar && count > 1) {
+    let dragging = false;
+    const pickFrom = clientX => {
+      const r = bar.getBoundingClientRect();
+      const ratio = Math.max(0, Math.min(1, (clientX - r.left) / r.width));
+      go(Math.round(ratio * (count - 1)));
+    };
+    bar.addEventListener('pointerdown', e => {
+      dragging = true;
+      try { bar.setPointerCapture(e.pointerId); } catch (_) {}
+      stop(e); pickFrom(e.clientX);
+    });
+    bar.addEventListener('pointermove', e => { if (dragging) { stop(e); pickFrom(e.clientX); } });
+    bar.addEventListener('pointerup',   e => { dragging = false; stop(e); });
+    bar.addEventListener('pointercancel', () => { dragging = false; });
+  }
+
+  go(0);
+}
+
+function mountCarousels(scope) {
+  if (!scope) return;
+  scope.querySelectorAll('.pp-carousel').forEach(mountCarousel);
+  scope.querySelectorAll('.swatch[data-idx]').forEach(sw => {
+    sw.addEventListener('click', e => {
+      e.stopPropagation();
+      const host = sw.closest('[data-cz-host]');
+      const cz = host && host.querySelector('.pp-carousel');
+      if (cz && cz._goTo) cz._goTo(+sw.dataset.idx);
+    });
+  });
 }
 
 /* ---------- ONE PROFILE CHIP ---------- */
@@ -177,9 +287,7 @@ function profileFormHTML(existing) {
     </button>`;
 }
 
-/* ---------- BROWSE PRODUCTS SECTION SHELL ----------
-   reusable across Landing (guests) and Home (signed-in). 
-   scoped by classes (not IDs) so it can safely exist in two places at once. */
+/* ---------- BROWSE PRODUCTS SECTION SHELL ----------*/
 function productsSectionHTML() {
   const cats = ['Base', 'Concealer', 'Blush', 'Contour', 'Highlighter', 'Lipstick', 'Eye Palette'];
   return `
@@ -214,17 +322,34 @@ function productsSectionHTML() {
     <div class="products-more pp-more"></div>`;
 }
 
+/* small reusable shop-button block */
+function shopButton(product, links, opts = {}) {
+  const link = linkForProduct(product.product_id, links);
+  if (opts.block) {
+    return link
+      ? `<a class="btn btn-primary btn-block" href="${esc(link.affiliate_url)}"
+            target="_blank" rel="noopener"
+            data-link="${esc(link.link_id)}" style="margin-bottom:18px">Shop on TikTok &nearr;</a>`
+      : `<p class="link-unavailable" style="margin-bottom:18px">Link is not available.</p>`;
+  }
+  return link
+    ? `<a class="btn btn-soft btn-sm p-shop" href="${esc(link.affiliate_url)}"
+          target="_blank" rel="noopener" onclick="event.stopPropagation()"
+          data-link="${esc(link.link_id)}">Shop</a>`
+    : `<p class="link-unavailable p-shop">Link is not available.</p>`;
+}
+
 /* ---------- ONE PRODUCT CARD ---------- */
 function productCard(product, variants, links) {
   const vs = variants.filter(v => v.product_id === product.product_id);
-  const swatches = vs.slice(0, 6).map(v =>
+  // swatches carry data-idx -> slide index (slide 0 is the product photo)
+  const swatches = vs.slice(0, 6).map((v, i) =>
     `<span class="swatch" style="background:${esc(v.shade_hex || '#eee')}"
-           title="${esc(v.shade_name)}"></span>`).join('');
+           title="View ${esc(v.shade_name)}" data-idx="${i + 1}"></span>`).join('');
+
   return `
-    <div class="p-card" data-product="${product.product_id}">
-      ${product.image_url
-        ? `<img class="p-thumb" style="object-fit:cover" src="${esc(product.image_url)}" alt="">`
-        : thumbBox(product.category)}
+    <div class="p-card" data-product="${esc(product.product_id)}" data-cz-host>
+      ${carouselHTML(buildMedia(product, vs))}
       <div class="p-body">
         <div class="p-brand">${esc(product.brand_name)}</div>
         <div class="p-name">${esc(product.product_name)}</div>
@@ -234,15 +359,7 @@ function productCard(product, variants, links) {
           <span class="tag">${vs.length} shade${vs.length === 1 ? '' : 's'}</span>
         </div>
         <div class="swatch-row">${swatches}</div>
-        ${(() => {
-            const link = linkForProduct(product.product_id, links);
-            return link
-                ? `<a class="btn btn-soft btn-sm p-shop" href="${esc(link.affiliate_url)}"
-                    target="_blank" rel="noopener"
-                    onclick="event.stopPropagation()"
-                    data-link="${link.link_id}">Shop</a>`
-                : `<p class="link-unavailable p-shop">Link is not available.</p>`;
-        })()}
+        ${shopButton(product, links)}
       </div>
     </div>`;
 }
@@ -250,12 +367,18 @@ function productCard(product, variants, links) {
 /* ---------- ONE RECOMMENDATION CARD ---------- */
 function recommendationCard(rec, rank, links) {
   const t = thumbStyle(rec.category);
+  const src = rec.product_variant_img || rec.product_img || '';
+  const bg  = rec.shade_hex || t.bg;
+  const media = `
+    <div class="p-thumb pp-rec-thumb" style="background:${esc(bg)};">
+      <span class="pp-slide-fallback" ${src ? 'style="display:none"' : ''}>${t.emoji}</span>
+      ${src ? `<img src="${esc(src)}" alt="${esc(rec.shade_name || '')}" loading="lazy"
+                    onerror="this.style.display='none';this.previousElementSibling.style.display='flex';">` : ''}
+    </div>`;
   return `
-    <div class="p-card" data-product="${rec.product_id}">
+    <div class="p-card" data-product="${esc(rec.product_id)}">
       <span class="rank-badge">${rank}</span>
-      <div class="p-thumb" style="background:${t.bg};">
-        <span style="font-size:2rem;">${t.emoji}</span>
-      </div>
+      ${media}
       <div class="p-body">
         <div class="p-brand">${esc(rec.brand_name)}</div>
         <div class="p-name">${esc(rec.product_name)}</div>
@@ -273,15 +396,7 @@ function recommendationCard(rec, rank, links) {
               Number(rec.avg_rating).toFixed(1) + ' (' + rec.review_count + ')'
             : '<span style="color:var(--charcoal-faint);font-size:.85rem;">No reviews yet</span>'}
         </div>
-        ${(() => {
-            const link = linkForProduct(rec.product_id, links);
-            return link
-                ? `<a class="btn btn-soft btn-sm p-shop" href="${esc(link.affiliate_url)}"
-                    target="_blank" rel="noopener"
-                    onclick="event.stopPropagation()"
-                    data-link="${link.link_id}">Shop</a>`
-                : `<p class="link-unavailable p-shop">Link is not available.</p>`;
-        })()}
+        ${shopButton(rec, links)}
       </div>
     </div>`;
 }
@@ -289,93 +404,83 @@ function recommendationCard(rec, rank, links) {
 /* ---------- DRAWER CONTENT for one product ---------- */
 function drawerContent(product, variants, reviews, userNames, links) {
   const vs  = variants.filter(v => v.product_id === product.product_id);
-  const rs  = reviews.filter(r => r.product_id === product.product_id);
+  const vIds = new Set(vs.map(v => v.variant_id));
+  const rs  = reviews.filter(r => vIds.has(r.variant_id));
   const avg = rs.length
     ? (rs.reduce((s, r) => s + Number(r.rating), 0) / rs.length).toFixed(1)
     : null;
-  const t = thumbStyle(product.category);
 
   return `
-    ${product.image_url
-      ? `<img class="drawer-thumb" src="${esc(product.image_url)}" alt="">`
-      : `<div class="drawer-thumb" style="background:${t.bg};">
-           <span style="font-size:4rem;">${t.emoji}</span>
-         </div>`}
-    <div class="drawer-body">
-      <div class="detail-brand">${esc(product.brand_name)}</div>
-      <div class="detail-name">${esc(product.product_name)}</div>
-      <div class="p-tags" style="margin-bottom:16px">
-        <span class="tag tag-accent">${esc(product.category)}</span>
-        <span class="tag">${esc(product.formula_type || 'Formula n/a')}</span>
-        <span class="tag">${esc(product.finish || 'Finish n/a')}</span>
-      </div>
+    <div data-cz-host>
+      <div class="drawer-media">${carouselHTML(buildMedia(product, vs))}</div>
+      <div class="drawer-body">
+        <div class="detail-brand">${esc(product.brand_name)}</div>
+        <div class="detail-name">${esc(product.product_name)}</div>
+        <div class="p-tags" style="margin-bottom:16px">
+          <span class="tag tag-accent">${esc(product.category)}</span>
+          <span class="tag">${esc(product.formula_type || 'Formula n/a')}</span>
+          <span class="tag">${esc(product.finish || 'Finish n/a')}</span>
+        </div>
 
-      ${(() => {
-        const link = linkForProduct(product.product_id, links);
-        return link
-            ? `<a class="btn btn-primary btn-block" href="${esc(link.affiliate_url)}"
-                target="_blank" rel="noopener"
-                data-link="${link.link_id}" style="margin-bottom:18px">
-                Shop on TikTok &nearr;</a>`
-            : `<p class="link-unavailable" style="margin-bottom:18px">Link is not available.</p>`;
-        })()}
+        ${shopButton(product, links, { block: true })}
 
-      <p class="detail-desc">${esc(product.description || 'No description provided.')}</p>
+        <p class="detail-desc">${esc(product.description || 'No description provided.')}</p>
 
-      <p class="detail-section-label">Shades (${vs.length})</p>
-      <div class="detail-shades">
-        ${vs.length ? vs.map(v => `
-          <div class="detail-shade-row">
-            <span class="swatch" style="background:${esc(v.shade_hex || '#eee')}"></span>
-            <span style="color:var(--charcoal)">${esc(v.shade_name)}</span>
-            <span style="margin-left:auto;font-size:.82rem;color:var(--charcoal-soft)">
-              ${esc(v.recommended_undertone || '')}</span>
-          </div>`).join('')
-          : `<div class="detail-empty">No shades listed.</div>`}
-      </div>
+        <p class="detail-section-label">Shades (${vs.length}) &middot; tap a swatch to preview</p>
+        <div class="detail-shades">
+          ${vs.length ? vs.map((v, i) => `
+            <div class="detail-shade-row">
+              <span class="swatch" style="background:${esc(v.shade_hex || '#eee')}"
+                    title="View ${esc(v.shade_name)}" data-idx="${i + 1}"></span>
+              <span style="color:var(--charcoal)">${esc(v.shade_name)}</span>
+              <span style="margin-left:auto;font-size:.82rem;color:var(--charcoal-soft)">
+                ${esc(v.recommended_undertone || '')}</span>
+            </div>`).join('')
+            : `<div class="detail-empty">No shades listed.</div>`}
+        </div>
 
-      <p class="detail-section-label">
-        Reviews ${avg ? '&middot; ' + avg + ' avg' : ''}
-      </p>
-      ${rs.length ? rs.map(r => `
-        <div class="mini-review">
-          <div class="mini-review-top">
-            <span class="mini-review-author">${esc(userNames[r.user_id] || 'A Prism user')}</span>
-            ${starsDisplay(r.rating)}
-          </div>
-          <div class="mini-review-text">${esc(r.comment || '—')}</div>
-          <div class="mini-review-date">${esc((r.created_at || '').slice(0, 10))}</div>
-        </div>`).join('')
-        : `<div class="detail-empty">No reviews yet.</div>`}
-    ${App.user ? `
-        <button class="btn btn-soft btn-sm" id="drawer-add-review" style="margin-top:14px">
-            + Add a Review
-        </button>
-        <div id="drawer-review-form" class="hidden" style="margin-top:16px">
-            <label class="field">
-            <span class="field-label">Your rating</span>
-            <div class="star-input" id="dr-stars">
-                <span data-v="1">&#10022;</span><span data-v="2">&#10022;</span>
-                <span data-v="3">&#10022;</span><span data-v="4">&#10022;</span>
-                <span data-v="5">&#10022;</span>
+        <p class="detail-section-label">
+          Reviews ${avg ? '&middot; ' + avg + ' avg' : ''}
+        </p>
+        ${rs.length ? rs.map(r => `
+          <div class="mini-review">
+            <div class="mini-review-top">
+              <span class="mini-review-author">${esc(userNames[r.user_id] || 'A Prism user')}</span>
+              ${starsDisplay(r.rating)}
             </div>
-            </label>
-            <label class="field">
-            <span class="field-label">Shade</span>
-            <select id="dr-variant">
-                ${vs.map(v => `<option value="${v.variant_id}">${esc(v.shade_name)}</option>`).join('')}
-            </select>
-            </label>
-            <label class="field">
-            <span class="field-label">Comment</span>
-            <textarea id="dr-comment" placeholder="How did it wear?"></textarea>
-            </label>
-            <label class="check-pill" style="margin-bottom:12px">
-            <input type="checkbox" id="dr-match" /><span>It matched my skin</span>
-            </label>
-            <p id="dr-error" class="form-error"></p>
-            <button class="btn btn-primary btn-sm" id="dr-submit-review">Post Review</button>
-        </div>` : ''}
-        
+            <div class="mini-review-text">${esc(r.comment || '—')}</div>
+            <div class="mini-review-date">${esc((r.created_at || '').slice(0, 10))}</div>
+          </div>`).join('')
+          : `<div class="detail-empty">No reviews yet.</div>`}
+      ${App.user ? `
+          <button class="btn btn-soft btn-sm" id="drawer-add-review" style="margin-top:14px">
+              + Add a Review
+          </button>
+          <div id="drawer-review-form" class="hidden" style="margin-top:16px">
+              <label class="field">
+              <span class="field-label">Your rating</span>
+              <div class="star-input" id="dr-stars">
+                  <span data-v="1">&#10022;</span><span data-v="2">&#10022;</span>
+                  <span data-v="3">&#10022;</span><span data-v="4">&#10022;</span>
+                  <span data-v="5">&#10022;</span>
+              </div>
+              </label>
+              <label class="field">
+              <span class="field-label">Shade</span>
+              <select id="dr-variant">
+                  ${vs.map(v => `<option value="${v.variant_id}">${esc(v.shade_name)}</option>`).join('')}
+              </select>
+              </label>
+              <label class="field">
+              <span class="field-label">Comment</span>
+              <textarea id="dr-comment" placeholder="How did it wear?"></textarea>
+              </label>
+              <label class="check-pill" style="margin-bottom:12px">
+              <input type="checkbox" id="dr-match" /><span>It matched my skin</span>
+              </label>
+              <p id="dr-error" class="form-error"></p>
+              <button class="btn btn-primary btn-sm" id="dr-submit-review">Post Review</button>
+          </div>` : ''}
+      </div>
     </div>`;
 }
