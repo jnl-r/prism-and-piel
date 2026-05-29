@@ -25,7 +25,7 @@ router.get('/category/:category', async (req, res) => {
   }
 });
 
-// GET single product by ID (e.g. PRD-001)
+// GET single product by ID
 router.get('/:id', async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -75,7 +75,7 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// DELETE product (cascades to ProductVariant -> AffiliateLink, Review, RecommendationLog)
+// DELETE product
 router.delete('/:id', async (req, res) => {
   try {
     const [result] = await db.query('DELETE FROM Product WHERE product_id = ?', [req.params.id]);
