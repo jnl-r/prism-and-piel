@@ -98,14 +98,14 @@ INSERT INTO AffiliateLink
 VALUES
   ('LNK-001', 'PRD-001', 'https://vt.tiktok.com/ZS9Y3vTUBK6Co-fqn9r/', 64),
   ('LNK-002', 'PRD-002', 'https://vt.tiktok.com/ZS9Y33KGGCejs-OQEln/', 41),
-  ('LNK-003', 'PRD-003', 'https://www.tiktok.com/@prismandpiel/sample-skin-tint', 17),
+  ('LNK-003', 'PRD-003', 'https://vt.tiktok.com/ZS9Y3TRDANHxX-grtD1/ ', 17),
   ('LNK-004', 'PRD-004', 'https://vt.tiktok.com/ZS9Y3TpQedyUP-c3AzV', 120),
-  ('LNK-005', 'PRD-005', 'https://vt.tiktok.com/ZS9Y3whFYWX1P-bVh1r', 88),
-  ('LNK-006', 'PRD-006', 'https://vt.tiktok.com/ZS9Y3oxVb3hgV-9B5jg', 73),
-  ('LNK-007', 'PRD-007', 'https://www.tiktok.com/@prismandpiel/sample-pillow-pop', 9),
-  ('LNK-008', 'PRD-008', 'https://www.tiktok.com/@prismandpiel/sample-liquid-blush', 12),
-  ('LNK-009', 'PRD-009', 'https://www.tiktok.com/@prismandpiel/sample-liquid-concealer', 6),
-  ('LNK-010', 'PRD-010', 'https://www.tiktok.com/@prismandpiel/sample-powder-blush', 4);
+  ('LNK-005', 'PRD-005', 'https://vt.tiktok.com/ZS9Y3whFYWX1P-bVh1r/', 88),
+  ('LNK-006', 'PRD-006', 'https://vt.tiktok.com/ZS9Y3wwDtvUtP-E9mGP/', 73),
+  ('LNK-007', 'PRD-007', 'https://vt.tiktok.com/ZS9Y3oxVb3hgV-9B5jg/ ', 9),
+  ('LNK-008', 'PRD-008', 'https://vt.tiktok.com/ZS9YTYKkA4dvS-fvd', 12),
+  ('LNK-009', 'PRD-009', 'https://vt.tiktok.com/ZS9YTMkG7fyKh-efFJX/', 6),
+  ('LNK-010', 'PRD-010', 'https://vt.tiktok.com/ZS9YTMLSss3o4-r9Lfr/', 4);
 
 -- ---------- REVIEWS (REV-xxx) — reference variant_id only ----------
 INSERT INTO Review
