@@ -105,8 +105,6 @@ VALUES
   ('VAR-060', 'PRD-010', 'Rosy Glow', '#E0A0A0', '/assets/VAR_060.png', 'Cool');
 
 
-
-
 -- ---------- AFFILIATE LINKS (LNK-xxx) — one per Product ----------
 INSERT INTO AffiliateLink
   (link_id, product_id, affiliate_url, click_count)
