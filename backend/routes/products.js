@@ -3,11 +3,19 @@ const router = express.Router();
 const db = require('../config/db');
 const { genId } = require('../utils/genId');
 
+/* Derive the image path from product_id (which always uses the correct hyphen),
+   so a wrong separator stored in product_img (e.g. "PRD_001") can't break the
+   <img> on the frontend. Assumes each product image file is named <product_id>.png. */
+function fixImg(row) {
+  if (!row) return row;
+  return { ...row, product_img: `/assets/${row.product_id}.png` };
+}
+
 // GET all products
 router.get('/', async (req, res) => {
   try {
     const [rows] = await db.query('SELECT * FROM Product');
-    res.json(rows);
+    res.json(rows.map(fixImg));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -19,7 +27,7 @@ router.get('/category/:category', async (req, res) => {
       'SELECT * FROM Product WHERE category = ?',
       [req.params.category]
     );
-    res.json(rows);
+    res.json(rows.map(fixImg));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -33,7 +41,7 @@ router.get('/:id', async (req, res) => {
       [req.params.id]
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Product not found' });
-    res.json(rows[0]);
+    res.json(fixImg(rows[0]));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -86,16 +86,25 @@ function thumbBox(category) {
   </div>`;
 }
 
+/* Turn a stored image path into one that works under BOTH http:// and file://.
+   - Strips any leading "/" so the path is RELATIVE to index.html
+     (an absolute "/assets/x.png" resolves to the filesystem root under file://).
+   - Falls back to "assets/<id>.png" when the stored value is empty/NULL. */
+function assetUrl(stored, idFallback) {
+  let p = (stored && String(stored).trim()) || (idFallback ? `assets/${idFallback}.png` : '');
+  return p.replace(/^\/+/, '');
+}
+
 function buildMedia(product, vs) {
   const t = thumbStyle(product.category);
   const slides = [{
-    src:      product.product_img || '',
+    src:      assetUrl(product.product_img, product.product_id),
     bg:       t.bg,
     fallback: t.emoji,
     label:    'Product',
   }];
   vs.forEach(v => slides.push({
-    src:      v.product_variant_img || product.product_img || '',
+    src:      assetUrl(v.product_variant_img || product.product_img, product.product_id),
     bg:       v.shade_hex || t.bg,
     fallback: t.emoji,
     label:    v.shade_name,
@@ -367,7 +376,7 @@ function productCard(product, variants, links) {
 /* ---------- ONE RECOMMENDATION CARD ---------- */
 function recommendationCard(rec, rank, links) {
   const t = thumbStyle(rec.category);
-  const src = rec.product_variant_img || rec.product_img || '';
+  const src = assetUrl(rec.product_variant_img || rec.product_img, rec.product_id);
   const bg  = rec.shade_hex || t.bg;
   const media = `
     <div class="p-thumb pp-rec-thumb" style="background:${esc(bg)};">
