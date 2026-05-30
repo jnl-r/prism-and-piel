@@ -88,9 +88,24 @@ VALUES
   ('VAR-043', 'PRD-007', 'Darling Baby', '#E0A0A0', '/assets/VAR_043.png', 'Neutral'),
   ('VAR-044', 'PRD-007', 'Bubblegum Kiss', '#CC70B6', '/assets/VAR_044.png', 'Neutral'),
   ('VAR-045', 'PRD-007', 'Chiffon Dream', '#FFE4E3', '/assets/VAR_045.png', 'Neutral'),
-  ('VAR-046', 'PRD-008', 'Toast of New York', '#E8807B', '/assets/VAR_046.png', 'Cool'),
-  ('VAR-047', 'PRD-008', 'Raspberry', '#B83E5E', '/assets/VAR_047.png', 'Cool'),
-  ('VAR-048', 'PRD-008', 'Fresno', '#D9785E', '/assets/VAR_048.png', 'Warm');
+  ('VAR-046', 'PRD-008', 'Toast of New York', '#E8807B', '/assets/VAR_046.png', 'Warm'),
+  ('VAR-047', 'PRD-008', 'Raspberry', '#B83E5E', '/assets/VAR_047.png', 'Neutral'),
+  ('VAR-048', 'PRD-008', 'Fresno', '#D9785E', '/assets/VAR_048.png', 'Warm'),
+  ('VAR-049', 'PRD-008', 'Rouge', '#D9785E', '/assets/VAR_049.png', 'Cool'),
+  ('VAR-050', 'PRD-009', 'Silk', '#D9B488', '/assets/VAR_050.png', 'Cool'),
+  ('VAR-051', 'PRD-009', 'Porcelain', '#F0D6BC', '/assets/VAR_051.png', 'Cool'),
+  ('VAR-052', 'PRD-009', 'Oriental', '#D9B488', '/assets/VAR_052.png', 'Neutral'),
+  ('VAR-053', 'PRD-009', 'Olive', '#D9B488', '/assets/VAR_053.png', 'Warm'),
+  ('VAR-054', 'PRD-009', 'Dusk', '#D9785E', '/assets/VAR_054.png', 'Warm'), 
+  ('VAR-055', 'PRD-010', 'Dazzling Barbie', '#DE8296', '/assets/VAR_055.png', 'Cool'),
+  ('VAR-056', 'PRD-010', 'Fever Dream', '#D9785E', '/assets/VAR_056.png', 'Neutral'),
+  ('VAR-057', 'PRD-010', 'Golden Hour', '#D9B488', '/assets/VAR_057.png', 'Warm'),
+  ('VAR-058', 'PRD-010', 'Heatwave', '#E8807B', '/assets/VAR_058.png', 'Warm'),
+  ('VAR-059', 'PRD-010', 'Peachy Pinch', '#E8A077', '/assets/VAR_059.png', 'Neutral'),
+  ('VAR-060', 'PRD-010', 'Rosy Glow', '#E0A0A0', '/assets/VAR_060.png', 'Cool');
+
+
+
 
 -- ---------- AFFILIATE LINKS (LNK-xxx) — one per Product ----------
 INSERT INTO AffiliateLink
