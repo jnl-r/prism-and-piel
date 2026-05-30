@@ -490,7 +490,7 @@ p.link-unavailable.p-shop { margin-bottom: 0; }
   font-size: 2.05rem;
   color: var(--charcoal);
   margin-bottom: 2px;
-  padding-top: 5px;
+  padding-top: 2px;
 }
 
 .landingPage-desc {
@@ -1928,4 +1928,24 @@ p.link-unavailable.p-shop { margin-bottom: 0; }
 @media (max-width: 760px) {
   .drawer-media .pp-carousel { height: 220px; }
   .pp-cz-arrow { opacity: 1; }
+}
+
+.landingPage-title,
+.landingPage-desc {
+  text-align: center;
+}
+
+.modal-auth .landingPage-form .brand-mark {
+  padding-bottom: 12px;   
+  margin-bottom: 0;     
+}
+
+.landingPage-title {
+  margin-top: 0;
+  margin-bottom: 6px;    
+}
+
+.landingPage-desc {
+  margin-top: 0;
+  margin-bottom: 16px;    
 }
