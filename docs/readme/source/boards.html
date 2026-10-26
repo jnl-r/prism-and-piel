@@ -86,6 +86,25 @@ body{background:transparent;font-family:var(--sans);color:var(--charcoal);paddin
 #footer h4{font-family:var(--serif);font-weight:500;font-size:34px}
 #footer h4 em{color:var(--pink-500);font-weight:400}
 #footer small{display:block;color:var(--soft);font-size:12.5px;margin-top:10px;letter-spacing:.04em}
+
+/* ---- no pink text: accents and kickers use the normal text colors ---- */
+.kicker{color:var(--soft)}
+#banner h1 em,.sec h2 em,#tiktok h3 em,#footer h4 em{color:inherit}
+.sec .num{color:var(--faint)}
+#banner .nav b{color:var(--charcoal)}
+
+/* ---- dark theme (for GitHub dark mode) ---- */
+body.dark{--charcoal:#F5ECEE;--soft:#CDBBC0;--faint:#8F7E83;--line:rgba(255,255,255,.10);--paper:#2A2125}
+body.dark #banner,body.dark #tiktok,body.dark #footer,body.dark .frame{background:linear-gradient(135deg,#33252B 0%,#2A2125 55%,#2E2C24 100%)}
+body.dark .sec{background:linear-gradient(120deg,#33252B,#2A2125 60%,#2E2C24)}
+body.dark .blob{opacity:.22}
+body.dark .pill.ghost{background:transparent;border-color:rgba(255,255,255,.22);color:var(--soft)}
+body.dark #banner .nav b{background:rgba(255,255,255,.08)}
+body.dark #banner .chip{color:#4A3B3F}
+body.dark #banner .chip small{color:#8C7B80}
+body.dark #tiktok .brands span{background:rgba(255,255,255,.05);border-color:rgba(248,168,185,.35);color:var(--charcoal)}
+body.dark .frame .win,body.dark #tiktok .shot{box-shadow:0 30px 60px -24px rgba(0,0,0,.8)}
+body.dark .sw span{border-color:#2A2125}
 </style></head><body>
 
 <!-- 1 -->
