@@ -1,0 +1,152 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#FAFFC7; --pink-50:#FFF6F8; --pink-100:#FFE9EF; --pink-200:#FFC9D7; --pink-300:#FFBCCD;
+  --pink-400:#F8A8B9; --pink-500:#E98AA0; --pink-600:#C96A82;
+  --charcoal:#4A3B3F; --soft:#8C7B80; --faint:#B9ABAF; --paper:#FFFDF8; --line:#F0E4E7;
+  --serif:'Cormorant Garamond',Georgia,serif; --sans:'Jost','Helvetica Neue',sans-serif;
+  --shadow:0 18px 50px -22px rgba(180,120,135,.45);
+}
+*{box-sizing:border-box;margin:0}
+body{background:transparent;font-family:var(--sans);color:var(--charcoal);padding:40px;display:flex;flex-direction:column;gap:60px;align-items:flex-start}
+.board{width:900px;position:relative;overflow:hidden;background:var(--paper)}
+.wordmark{font-family:var(--serif);letter-spacing:.32em;font-size:15px;font-weight:600;color:var(--charcoal)}
+.wordmark em{font-style:normal;color:var(--pink-500);font-weight:500}
+.wordmark .amp{color:var(--pink-400);font-style:italic;font-weight:400;letter-spacing:0;margin:0 .5em}
+.kicker{font-family:var(--serif);font-style:italic;color:var(--pink-500);font-size:20px}
+.serif{font-family:var(--serif);font-weight:500}
+.pill{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:13px 26px;font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:400}
+.pill.primary{background:linear-gradient(135deg,var(--pink-400),var(--pink-500));color:#fff;box-shadow:0 14px 30px -14px rgba(233,138,160,.9)}
+.pill.ghost{border:1px solid var(--line);background:#fff;color:var(--soft)}
+.blob{position:absolute;border-radius:50%;filter:blur(40px);opacity:.7}
+.sw{display:flex}
+.sw span{width:22px;height:22px;border-radius:50%;border:2px solid #fff;margin-left:-6px;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.sw span:first-child{margin-left:0}
+
+/* 1. BANNER */
+#banner{height:500px;border-radius:28px;background:linear-gradient(135deg,var(--pink-100) 0%,#FFF4EC 55%,var(--cream) 100%);padding:38px 44px}
+#banner .top{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:2}
+#banner .nav{display:flex;gap:26px;font-size:13px;color:var(--soft);letter-spacing:.04em}
+#banner .nav b{font-weight:400;color:var(--pink-500);background:#fff;padding:6px 14px;border-radius:999px;margin:-6px 0}
+#banner .copy{position:absolute;left:44px;top:120px;width:430px;z-index:2}
+#banner h1{font-family:var(--serif);font-weight:500;font-size:58px;line-height:1.02;margin:10px 0 18px}
+#banner h1 em{color:var(--pink-500);font-weight:400}
+#banner p{color:var(--soft);font-size:15px;line-height:1.65;font-weight:300;margin-bottom:24px}
+#banner .photo{position:absolute;right:44px;top:92px;width:330px;height:340px;border-radius:24px;overflow:hidden;box-shadow:var(--shadow);z-index:2}
+#banner .photo img{width:100%;height:100%;object-fit:cover}
+#banner .chip{position:absolute;left:14px;right:14px;bottom:14px;background:rgba(255,255,255,.93);border-radius:16px;padding:12px 14px;display:flex;align-items:center;gap:12px}
+#banner .chip b{display:block;font-weight:500;font-size:13px}
+#banner .chip small{color:var(--soft);font-size:12px}
+
+/* 2. SECTION HEADERS */
+.sec{height:118px;display:flex;flex-direction:column;justify-content:center;padding:0 34px;border-radius:22px;background:linear-gradient(120deg,var(--pink-100),#FFF6EE 60%,var(--cream))}
+.sec .row{display:flex;align-items:center;gap:18px}
+.sec h2{font-family:var(--serif);font-weight:500;font-size:44px;line-height:1.1}
+.sec h2 em{color:var(--pink-500);font-weight:400}
+.sec .rule{flex:1;height:1px;background:linear-gradient(90deg,var(--pink-400),rgba(248,168,185,0))}
+.sec .sw{margin-left:6px}
+.sec .num{font-family:var(--serif);font-style:italic;font-size:44px;color:var(--pink-300);line-height:1}
+
+/* 3. STATS */
+#stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;background:transparent}
+#stats div{border-radius:20px;padding:24px 22px;background:linear-gradient(160deg,var(--pink-100),#FFFDF8);border:1px solid var(--pink-200)}
+#stats b{display:block;font-family:var(--serif);font-weight:500;font-size:46px;line-height:1;color:var(--charcoal)}
+#stats b em{color:var(--pink-500);font-style:normal}
+#stats span{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--soft)}
+
+/* 4. FRAMED SCREENSHOT */
+.frame{border-radius:28px;padding:34px 34px 0;background:linear-gradient(150deg,var(--pink-100),var(--cream))}
+.frame .win{border-radius:16px 16px 0 0;overflow:hidden;background:#fff;box-shadow:0 30px 60px -30px rgba(150,90,105,.6)}
+.frame .bar{height:30px;display:flex;align-items:center;gap:7px;padding:0 14px;background:#fff;border-bottom:1px solid var(--line)}
+.frame .bar i{width:10px;height:10px;border-radius:50%;background:var(--pink-200)}
+.frame .bar i:nth-child(2){background:var(--pink-300)}.frame .bar i:nth-child(3){background:#F5E7A8}
+.frame .bar span{margin-left:auto;margin-right:auto;font-size:11px;color:var(--faint);letter-spacing:.06em}
+.frame img{display:block;width:100%}
+.frame .tag{position:absolute;top:18px;right:22px;background:#fff;border-radius:999px;padding:6px 14px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--pink-600);box-shadow:var(--shadow)}
+
+/* 5. TIKTOK CARD */
+#tiktok{border-radius:28px;background:linear-gradient(135deg,var(--pink-100),#FFF4EC 60%,var(--cream));padding:36px;display:flex;gap:34px;align-items:center}
+#tiktok .shot{width:330px;flex:none;border-radius:20px;overflow:hidden;box-shadow:0 30px 60px -28px rgba(150,90,105,.7);transform:rotate(-2deg)}
+#tiktok .shot img{display:block;width:100%}
+#tiktok h3{font-family:var(--serif);font-weight:500;font-size:46px;line-height:1.02;margin:6px 0 14px}
+#tiktok h3 em{color:var(--pink-500);font-weight:400}
+#tiktok p{color:var(--soft);font-size:15px;line-height:1.6;font-weight:300;margin-bottom:18px}
+#tiktok ul{list-style:none;padding:0;margin:0 0 22px;display:grid;gap:10px}
+#tiktok li{display:flex;gap:10px;align-items:flex-start;font-size:14.5px}
+#tiktok li i{flex:none;width:20px;height:20px;border-radius:50%;background:var(--pink-400);color:#fff;font-style:normal;font-size:11px;display:grid;place-items:center;margin-top:1px}
+#tiktok .brands{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+#tiktok .brands span{border:1px solid var(--pink-200);background:#fff;border-radius:999px;padding:6px 13px;font-size:12px;color:var(--charcoal)}
+
+/* 6. FOOTER */
+#footer{border-radius:28px;background:linear-gradient(135deg,var(--pink-100),var(--cream));padding:40px;text-align:center}
+#footer .sw{justify-content:center;margin:16px 0 14px}
+#footer .sw span{width:34px;height:34px;margin-left:-8px;border-width:3px}
+#footer h4{font-family:var(--serif);font-weight:500;font-size:34px}
+#footer h4 em{color:var(--pink-500);font-weight:400}
+#footer small{display:block;color:var(--soft);font-size:12.5px;margin-top:10px;letter-spacing:.04em}
+</style></head><body>
+
+<!-- 1 -->
+<div class="board" id="banner">
+  <div class="blob" style="width:260px;height:260px;background:var(--pink-200);left:-60px;bottom:-80px"></div>
+  <div class="blob" style="width:220px;height:220px;background:#FFF7B0;left:380px;top:-90px"></div>
+  <div class="top">
+    <div class="wordmark">PRISM<span class="amp">&amp;</span><em>PIEL</em></div>
+    <div class="nav"><b>Home</b><span>Skin Profiles</span><span>Find My Shade</span></div>
+  </div>
+  <div class="copy">
+    <div class="kicker">For every Filipino undertone</div>
+    <h1>Find the shade that was <em>made</em> for your skin.</h1>
+    <p>Tell us about your skin, get matched to real shades from local brands, and shop them on TikTok.</p>
+    <span class="pill primary">Find my shade</span>
+    <span class="pill ghost" style="margin-left:8px">Shop on TikTok &nearr;</span>
+  </div>
+  <div class="photo"><img src="hero.jpg">
+    <div class="chip"><div class="sw"><span style="background:#F1D3BE"></span><span style="background:#E2B48C"></span><span style="background:#C68E62"></span><span style="background:#9C6A45"></span></div>
+      <div><b>Every undertone</b><small>Warm · Cool · Neutral · Olive</small></div></div>
+  </div>
+</div>
+
+<!-- 2 headers -->
+<div class="board sec" id="h-why"><div class="kicker">The idea</div><div class="row"><h2>Why Prism <em>&amp;</em> Piel</h2><div class="rule"></div><div class="sw"><span style="background:#F3D9C6"></span><span style="background:#E6BA94"></span><span style="background:#CF9A6C"></span><span style="background:#A9764C"></span></div></div></div>
+<div class="board sec" id="h-how"><div class="kicker">Three simple steps</div><div class="row"><h2>How it <em>works</em></h2><div class="rule"></div><div class="sw"><span style="background:#F3D9C6"></span><span style="background:#E6BA94"></span><span style="background:#CF9A6C"></span><span style="background:#A9764C"></span></div></div></div>
+<div class="board sec" id="h-1"><div class="row"><span class="num">01</span><h2 style="font-size:36px">Save your skin</h2><div class="rule"></div><div class="sw"><span style="background:#F3D9C6"></span><span style="background:#E6BA94"></span><span style="background:#CF9A6C"></span><span style="background:#A9764C"></span></div></div></div>
+<div class="board sec" id="h-2"><div class="row"><span class="num">02</span><h2 style="font-size:36px">Get <em>matched</em></h2><div class="rule"></div><div class="sw"><span style="background:#F3D9C6"></span><span style="background:#E6BA94"></span><span style="background:#CF9A6C"></span><span style="background:#A9764C"></span></div></div></div>
+<div class="board sec" id="h-3"><div class="row"><span class="num">03</span><h2 style="font-size:36px">Shop it on <em>TikTok</em></h2><div class="rule"></div><div class="sw"><span style="background:#F3D9C6"></span><span style="background:#E6BA94"></span><span style="background:#CF9A6C"></span><span style="background:#A9764C"></span></div></div></div>
+<div class="board sec" id="h-more"><div class="kicker">Just looking?</div><div class="row"><h2>Browse <em>freely</em></h2><div class="rule"></div><div class="sw"><span style="background:#F3D9C6"></span><span style="background:#E6BA94"></span><span style="background:#CF9A6C"></span><span style="background:#A9764C"></span></div></div></div>
+<div class="board sec" id="h-db"><div class="kicker">Under the hood</div><div class="row"><h2>A <em>database</em> project</h2><div class="rule"></div><div class="sw"><span style="background:#F3D9C6"></span><span style="background:#E6BA94"></span><span style="background:#CF9A6C"></span><span style="background:#A9764C"></span></div></div></div>
+
+
+<!-- 4 frames -->
+<div class="board frame" id="f-profiles"><div class="win"><div class="bar"><i></i><i></i><i></i><span>prism &amp; piel · skin profiles</span></div><img src="profiles.png"></div></div>
+<div class="board frame" id="f-matches"><div class="win"><div class="bar"><i></i><i></i><i></i><span>prism &amp; piel · find my shade</span></div><img src="matches.png"></div></div>
+<div class="board frame" id="f-catalog"><div class="win"><div class="bar"><i></i><i></i><i></i><span>prism &amp; piel · products</span></div><img src="catalog.png"></div></div>
+<div class="board frame" id="f-home"><div class="win"><div class="bar"><i></i><i></i><i></i><span>prism &amp; piel · home</span></div><img src="home.png"></div></div>
+
+<!-- 5 -->
+<div class="board" id="tiktok">
+  <div class="shot"><img src="tiktok-drawer.png"></div>
+  <div>
+    <div class="kicker">Found your shade?</div>
+    <h3>Shop it on <em>TikTok Shop.</em></h3>
+    <p>Every product links straight to its TikTok Shop listing through our affiliate link.</p>
+    <ul>
+      <li><i>✓</i>No cart, no checkout. Buy where you already shop.</li>
+      <li><i>✓</i>See which undertone each shade suits first.</li>
+      <li><i>✓</i>Every click is tracked in the database.</li>
+    </ul>
+    <span class="pill primary">Shop on TikTok &nearr;</span>
+    <div class="brands"><span>BLK Cosmetics</span><span>Ever Bilena</span><span>Absidy Beauty</span><span>Chu Chu Beauty</span></div>
+  </div>
+</div>
+
+<!-- 6 -->
+<div class="board" id="footer">
+  <div class="wordmark">PRISM<span class="amp">&amp;</span><em>PIEL</em></div>
+  <div class="sw"><span style="background:#F3D9C6"></span><span style="background:#E6BA94"></span><span style="background:#CF9A6C"></span><span style="background:#A9764C"></span><span style="background:#7A4E33"></span></div>
+  <h4>Made for <em>every</em> undertone.</h4>
+  <small>A student database project · Not affiliated with any brand shown</small>
+</div>
+</body></html>
