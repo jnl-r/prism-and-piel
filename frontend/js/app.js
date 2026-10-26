@@ -11,6 +11,7 @@ const App = {
     this.bindNav();
     this.bindModal();
     this.bindDrawer();
+    this.bindShopLinks();
   },
 
   /* ---------------- SCREEN SWITCHING ---------------- */
@@ -227,6 +228,16 @@ const App = {
         App.closeAuth();
         closeModal();
       }
+    });
+  },
+
+  /* ---------------- AFFILIATE CLICK TRACKING ---------------- */
+  bindShopLinks() {
+    /* every Shop button carries data-link="LNK-xxx"; count the click, let the link open */
+    document.body.addEventListener('click', e => {
+      const a = e.target.closest('a[data-link]');
+      if (!a) return;
+      api.clickLink(a.dataset.link).catch(() => {});
     });
   },
 };
